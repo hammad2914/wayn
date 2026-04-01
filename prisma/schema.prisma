@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  username     String       @unique
+  companyName  String
+  fullName     String
+  phone        String?
+  country      String?
+  role         String       @default("user")
+  passwordHash String
+  isVerified   Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  otps         OTP[]
+  usage        Usage?
+  activities   Activity[]
+  dailyUsage   DailyUsage[]
+}
+
+model OTP {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Usage {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  addressNormalizerCount Int      @default(0)
+  addressNormalizerLimit Int      @default(10)
+  routeOptimizerCount    Int      @default(0)
+  routeOptimizerLimit    Int      @default(5)
+  lastResetAt            DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// One record per API call — powers Recent Activity
+model Activity {
+  id        String   @id @default(cuid())
+  userId    String
+  service   String   // 'address_normalizer' | 'route_optimizer'
+  summary   String?  // short description passed from frontend
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// One record per user per calendar day — powers the 7-day chart
+model DailyUsage {
+  id         String   @id @default(cuid())
+  userId     String
+  date       String   // YYYY-MM-DD
+  normalizer Int      @default(0)
+  optimizer  Int      @default(0)
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
