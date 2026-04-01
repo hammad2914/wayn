@@ -20,10 +20,10 @@ model User {
   isVerified   Boolean      @default(false)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
-  otps         OTP[]
-  usage        Usage?
   activities   Activity[]
   dailyUsage   DailyUsage[]
+  otps         OTP[]
+  usage        Usage?
 }
 
 model OTP {
@@ -48,21 +48,19 @@ model Usage {
   user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// One record per API call — powers Recent Activity
 model Activity {
   id        String   @id @default(cuid())
   userId    String
-  service   String   // 'address_normalizer' | 'route_optimizer'
-  summary   String?  // short description passed from frontend
+  service   String
+  summary   String?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// One record per user per calendar day — powers the 7-day chart
 model DailyUsage {
   id         String   @id @default(cuid())
   userId     String
-  date       String   // YYYY-MM-DD
+  date       String
   normalizer Int      @default(0)
   optimizer  Int      @default(0)
   updatedAt  DateTime @updatedAt
