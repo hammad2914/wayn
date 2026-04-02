@@ -8,6 +8,7 @@ import {
 } from 'recharts';
 import { useAuth } from '../../hooks/useAuth';
 import { useUsage } from '../../hooks/useUsage';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { StatCard } from '../../components/ui/StatCard';
 import { GoldButton } from '../../components/ui/GoldButton';
 import { OutlineButton } from '../../components/ui/OutlineButton';
@@ -36,9 +37,17 @@ const ChartTooltip: React.FC<{
   );
 };
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string, lang: 'en' | 'ar'): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins  = Math.floor(diff / 60000);
+  if (lang === 'ar') {
+    if (mins < 1)  return 'الآن';
+    if (mins < 60) return `${mins} دقيقة`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24)  return `${hrs} ${hrs > 1 ? 'ساعات' : 'ساعة'}`;
+    const days = Math.floor(hrs / 24);
+    return `${days} ${days > 1 ? 'أيام' : 'يوم'}`;
+  }
   if (mins < 1)  return 'just now';
   if (mins < 60) return `${mins} min ago`;
   const hrs = Math.floor(mins / 60);
@@ -51,13 +60,14 @@ function timeAgo(iso: string): string {
 export const DashboardHomePage: React.FC = () => {
   const { user }                              = useAuth();
   const { usage, history, activity, isLoading } = useUsage();
+  const { t, lang }                           = useLanguage();
   const navigate                              = useNavigate();
   const { isMobile, winW }                   = useBreakpoint();
   const isTablet = winW < 1024;
 
   const firstName = user?.fullName?.split(' ')[0] || user?.name?.split(' ')[0] || 'User';
   const hour      = new Date().getHours();
-  const greeting  = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greeting  = hour < 12 ? t('home.goodMorning') : hour < 17 ? t('home.goodAfternoon') : t('home.goodEvening');
 
   const normCount = usage?.addressNormalizerCount ?? 0;
   const normLimit = usage?.addressNormalizerLimit ?? 10;
@@ -74,10 +84,10 @@ export const DashboardHomePage: React.FC = () => {
 
   // Pie chart data (real counts)
   const pieData = useMemo(() => [
-    { name: 'Norm. used',  value: normCount, color: '#F5C842' },
-    { name: 'Opt. used',   value: optCount,  color: '#3B82F6' },
-    { name: 'Remaining',   value: Math.max(0, (normLimit - normCount) + (optLimit - optCount)), color: 'rgba(255,255,255,0.08)' },
-  ], [normCount, normLimit, optCount, optLimit]);
+    { name: t('home.normUsed'), value: normCount, color: '#F5C842' },
+    { name: t('home.optUsed'),  value: optCount,  color: '#3B82F6' },
+    { name: t('home.remaining'), value: Math.max(0, (normLimit - normCount) + (optLimit - optCount)), color: 'rgba(255,255,255,0.08)' },
+  ], [normCount, normLimit, optCount, optLimit, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Grid breakpoints
   const statsGrid    = isMobile || isTablet ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)';
@@ -102,34 +112,34 @@ export const DashboardHomePage: React.FC = () => {
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: 0 }}>
             {user?.companyName && <span>{user.companyName}</span>}
             {user?.country     && <span> · {user.country}</span>}
-            {!user?.companyName && <span>Welcome to your Wayn dashboard</span>}
+            {!user?.companyName && <span>{t('dash.welcomeTo')}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <GoldButton size="sm" onClick={() => navigate('/dashboard/address-normalizer')}>
-            <Icon icon="solar:map-point-wave-bold" width={15} />Normalize Address
+            <Icon icon="solar:map-point-wave-bold" width={15} />{t('home.normalizeAddress')}
           </GoldButton>
           <OutlineButton size="sm" onClick={() => navigate('/dashboard/route-optimizer')}>
-            <Icon icon="solar:routing-2-bold" width={15} />Plan Route
+            <Icon icon="solar:routing-2-bold" width={15} />{t('home.planRoute')}
           </OutlineButton>
         </div>
       </motion.div>
 
       {/* ── Stats Row ───────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: statsGrid, gap: isMobile ? '12px' : '16px' }}>
-        <StatCard icon="solar:map-point-wave-bold-duotone" value={normCount} label="Addresses Normalized"
-          sublabel={`of ${normLimit} free`} progressRing={{ value: normCount, max: normLimit }} />
-        <StatCard icon="solar:routing-2-bold-duotone" value={optCount} label="Routes Optimized"
-          sublabel={`of ${optLimit} free`} progressRing={{ value: optCount, max: optLimit }} color="#3B82F6" />
+        <StatCard icon="solar:map-point-wave-bold-duotone" value={normCount} label={t('home.addrNormalized')}
+          sublabel={t('home.ofFree').replace('{n}', String(normLimit))} progressRing={{ value: normCount, max: normLimit }} />
+        <StatCard icon="solar:routing-2-bold-duotone" value={optCount} label={t('home.routesOptimized')}
+          sublabel={t('home.ofFree').replace('{n}', String(optLimit))} progressRing={{ value: optCount, max: optLimit }} color="#3B82F6" />
         <StatCard icon="solar:ruler-angular-bold-duotone"
           value={estDistanceKm > 0 ? `${estDistanceKm.toLocaleString()} km` : '—'}
-          label="Distance Saved"
-          sublabel={estDistanceKm > 0 ? 'estimated from routes' : 'run your first route'}
+          label={t('home.distanceSaved')}
+          sublabel={estDistanceKm > 0 ? t('home.estFromRoutes') : t('home.runFirstRoute')}
           trend={optCount > 0 ? undefined : undefined} trendUp color="#F5C842" />
         <StatCard icon="solar:clock-circle-bold-duotone"
           value={estHours > 0 ? `${estHours} hrs` : '—'}
-          label="Time Saved"
-          sublabel={estHours > 0 ? 'estimated from routes' : 'run your first route'}
+          label={t('home.timeSaved')}
+          sublabel={estHours > 0 ? t('home.estFromRoutes') : t('home.runFirstRoute')}
           trendUp color="#10B981" />
       </div>
 
@@ -140,7 +150,7 @@ export const DashboardHomePage: React.FC = () => {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           style={{ background: 'rgba(12,17,45,0.88)', border: '1px solid rgba(245,200,66,0.18)', borderRadius: '16px', padding: '20px 20px 12px' }}>
           <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: '3px solid #F5C842', paddingLeft: '10px' }}>
-            API Usage — Last 7 Days
+            {t('home.apiUsage7Days')}
           </h3>
           {isLoading ? (
             <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -170,7 +180,7 @@ export const DashboardHomePage: React.FC = () => {
           )}
           {/* Legend */}
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '4px' }}>
-            {[{ color: '#F5C842', label: 'Address Normalizer' }, { color: '#3B82F6', label: 'Route Optimizer' }].map(l => (
+            {[{ color: '#F5C842', label: t('home.addrNormalizerLabel') }, { color: '#3B82F6', label: t('home.routeOptimizerLabel') }].map(l => (
               <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: l.color }} />
                 <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>{l.label}</span>
@@ -183,7 +193,7 @@ export const DashboardHomePage: React.FC = () => {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
           style={{ background: 'rgba(12,17,45,0.88)', border: '1px solid rgba(245,200,66,0.18)', borderRadius: '16px', padding: '20px' }}>
           <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 4px', borderLeft: '3px solid #F5C842', paddingLeft: '10px' }}>
-            Usage Breakdown
+            {t('home.usageBreakdown')}
           </h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
@@ -206,7 +216,7 @@ export const DashboardHomePage: React.FC = () => {
           </div>
           {/* Totals */}
           <div style={{ marginTop: '12px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px' }}>
-            <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>Total API calls</p>
+            <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>{t('home.totalApiCalls')}</p>
             <p style={{ margin: '2px 0 0', fontSize: '22px', fontWeight: 800, color: '#F5C842', fontFamily: "'Sora', sans-serif" }}>{normCount + optCount}</p>
           </div>
         </motion.div>
@@ -216,7 +226,7 @@ export const DashboardHomePage: React.FC = () => {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
         style={{ background: 'rgba(12,17,45,0.88)', border: '1px solid rgba(245,200,66,0.18)', borderRadius: '16px', padding: isMobile ? '16px' : '24px' }}>
         <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: '3px solid #F5C842', paddingLeft: '10px' }}>
-          Recent Activity
+          {t('home.recentActivity')}
         </h3>
 
         {isLoading ? (
@@ -226,7 +236,7 @@ export const DashboardHomePage: React.FC = () => {
         ) : activity.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px 0' }}>
             <Icon icon="solar:history-bold-duotone" width={40} color="rgba(245,200,66,0.2)" />
-            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', marginTop: '12px' }}>No activity yet. Use the Address Normalizer or Route Optimizer to see your history here.</p>
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', marginTop: '12px' }}>{t('home.noActivity')}</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -243,7 +253,7 @@ export const DashboardHomePage: React.FC = () => {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#FFFFFF' }}>
-                      {isNorm ? 'Address Normalized' : 'Route Optimized'}
+                      {isNorm ? t('home.addrNormalizedAct') : t('home.routeOptimizedAct')}
                     </p>
                     {row.summary && (
                       <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -252,8 +262,8 @@ export const DashboardHomePage: React.FC = () => {
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', whiteSpace: 'nowrap' }}>{timeAgo(row.createdAt)}</span>
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#10B981', background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '20px' }}>Success</span>
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', whiteSpace: 'nowrap' }}>{timeAgo(row.createdAt, lang)}</span>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#10B981', background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '20px' }}>{t('home.success')}</span>
                   </div>
                 </motion.div>
               );
@@ -265,8 +275,8 @@ export const DashboardHomePage: React.FC = () => {
       {/* ── Quick Start Cards ────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
         {[
-          { icon: 'solar:map-point-wave-bold-duotone', title: 'Normalize an Address', desc: 'Paste any Arabic or informal address and get precise geocoordinates and structured data.', btn: 'Start Now', route: '/dashboard/address-normalizer', color: '#F5C842' },
-          { icon: 'solar:routing-2-bold-duotone',       title: 'Optimize a Route',    desc: 'Add your stops and get the most efficient delivery sequence using our AI-powered engine.', btn: 'Plan Route', route: '/dashboard/route-optimizer',    color: '#3B82F6' },
+          { icon: 'solar:map-point-wave-bold-duotone', title: t('home.normalizeTitle'), desc: t('home.normalizeDesc'), btn: t('home.startNow'), route: '/dashboard/address-normalizer', color: '#F5C842' },
+          { icon: 'solar:routing-2-bold-duotone',       title: t('home.optimizeTitle'), desc: t('home.optimizeDesc'), btn: t('home.planRoute'), route: '/dashboard/route-optimizer',    color: '#3B82F6' },
         ].map(card => (
           <motion.div key={card.title} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -4, boxShadow: `0 12px 40px ${card.color}20` }} transition={{ duration: 0.2 }}
@@ -300,11 +310,11 @@ export const DashboardHomePage: React.FC = () => {
             <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.8)' }}>
               {normPct >= 0.8 && `Used ${normCount}/${normLimit} normalizer requests. `}
               {optPct  >= 0.8 && `Used ${optCount}/${optLimit} optimizer requests.`}
-              {' '}Upgrade for unlimited access.
+              {' '}{t('home.upgradeMsg')}
             </p>
           </div>
-          <button style={{ background: 'linear-gradient(135deg, #F5C842, #D4A017)', border: 'none', borderRadius: '8px', padding: '7px 14px', fontSize: '13px', fontWeight: 700, color: '#0A0E27', cursor: 'pointer', fontFamily: "'Sora', sans-serif", whiteSpace: 'nowrap' }}>
-            Upgrade Plan
+          <button style={{ background: 'linear-gradient(135deg, #F5C842, #D4A017)', border: 'none', borderRadius: '8px', padding: '7px 14px', fontSize: '13px', fontWeight: 700, color: '#0A0E27', cursor: 'pointer',             fontFamily: "'Sora', sans-serif", whiteSpace: 'nowrap' }}>
+            {t('home.upgradePlan')}
           </button>
         </motion.div>
       )}

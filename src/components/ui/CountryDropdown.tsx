@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export const COUNTRIES = [
   { code: 'AE', name: 'United Arab Emirates', flag: 'emojione:flag-for-united-arab-emirates' },
@@ -37,6 +38,15 @@ interface Props {
   compact?: boolean;
 }
 
+function getLocalizedName(code: string, locale: string): string {
+  try {
+    const dn = new Intl.DisplayNames([locale], { type: 'region' });
+    return dn.of(code) || code;
+  } catch {
+    return code;
+  }
+}
+
 const INPUT_BASE: React.CSSProperties = {
   width: '100%', background: 'rgba(255,255,255,0.05)',
   border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
@@ -54,10 +64,19 @@ const INPUT_COMPACT: React.CSSProperties = {
   border: '1px solid rgba(255,255,255,0.1)',
 };
 
-export const CountryDropdown: React.FC<Props> = ({ value, onChange, label = 'Country', error, compact = false }) => {
+export const CountryDropdown: React.FC<Props> = ({ value, onChange, label, error, compact = false }) => {
   const [open, setOpen]   = useState(false);
   const ref               = useRef<HTMLDivElement>(null);
+  const { lang }          = useLanguage();
+  const locale            = lang === 'ar' ? 'ar-SA' : 'en-US';
   const selected          = COUNTRIES.find(c => c.code === value) ?? COUNTRIES[0];
+  const resolvedLabel     = label ?? (lang === 'ar' ? 'البلد' : 'Country');
+
+  // Pre-compute all localized names once per language change
+  const localizedNames = useMemo(
+    () => Object.fromEntries(COUNTRIES.map(c => [c.code, getLocalizedName(c.code, locale)])),
+    [locale],
+  );
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -69,7 +88,7 @@ export const CountryDropdown: React.FC<Props> = ({ value, onChange, label = 'Cou
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
-      {label && (
+      {resolvedLabel && (
         <label style={{
           display: 'block', marginBottom: compact ? '4px' : '6px',
           fontSize: compact ? '11px' : '13px',
@@ -77,7 +96,7 @@ export const CountryDropdown: React.FC<Props> = ({ value, onChange, label = 'Cou
           color: compact ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.7)',
           letterSpacing: compact ? '0.02em' : undefined,
         }}>
-          {label}
+          {resolvedLabel}
         </label>
       )}
 
@@ -90,7 +109,9 @@ export const CountryDropdown: React.FC<Props> = ({ value, onChange, label = 'Cou
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon={selected.flag} width={compact ? 16 : 20} style={{ flexShrink: 0, borderRadius: '2px' }} />
-          <span style={{ color: '#FFFFFF', fontSize: compact ? '13px' : '14px' }}>{compact ? selected.code + ' — ' + selected.name : selected.name}</span>
+          <span style={{ color: '#FFFFFF', fontSize: compact ? '13px' : '14px' }}>
+            {compact ? selected.code + ' — ' + localizedNames[selected.code] : localizedNames[selected.code]}
+          </span>
         </span>
         <Icon
           icon="solar:alt-arrow-down-bold"
@@ -122,15 +143,16 @@ export const CountryDropdown: React.FC<Props> = ({ value, onChange, label = 'Cou
                     width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
                     padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer',
                     color: c.code === value ? '#F5C842' : 'rgba(255,255,255,0.7)',
-                    fontSize: '13.5px', textAlign: 'left',
+                    fontSize: '13.5px', textAlign: lang === 'ar' ? 'right' : 'left',
                     transition: 'background 0.12s',
                     backgroundColor: c.code === value ? 'rgba(245,200,66,0.08)' : 'transparent',
+                    direction: lang === 'ar' ? 'rtl' : 'ltr',
                   }}
                   onMouseEnter={e => { if (c.code !== value) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; }}
                   onMouseLeave={e => { if (c.code !== value) e.currentTarget.style.backgroundColor = 'transparent'; }}
                 >
                   <Icon icon={c.flag} width={20} style={{ flexShrink: 0, borderRadius: '2px' }} />
-                  <span style={{ flex: 1 }}>{c.name}</span>
+                  <span style={{ flex: 1 }}>{localizedNames[c.code]}</span>
                   {c.code === value && <Icon icon="solar:check-bold" width={14} color="#F5C842" />}
                 </button>
               ))}

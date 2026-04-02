@@ -1,5 +1,4 @@
 import React from 'react';
-import { LanguageProvider } from '../contexts/LanguageContext';
 import { LandingNavbar } from '../components/landing/LandingNavbar';
 import { HeroSection } from '../components/landing/HeroSection';
 import { HowItWorks } from '../components/landing/HowItWorks';
@@ -9,7 +8,6 @@ import { CtaFooter } from '../components/landing/CtaFooter';
 
 export const LandingPage: React.FC = () => {
   return (
-    <LanguageProvider>
       <div style={{ background: '#0A0E27', minHeight: '100vh', overflowX: 'hidden' }}>
         <LandingNavbar />
         <HeroSection />
@@ -18,6 +16,5 @@ export const LandingPage: React.FC = () => {
         <StatsBar />
         <CtaFooter />
       </div>
-    </LanguageProvider>
   );
 };

@@ -134,8 +134,9 @@ export const HeroSection: React.FC = () => {
   // Cache OSRM results so they are only fetched once, not every loop
   const routeCache   = useRef<Map<string, [number, number][]>>(new Map());
 
-  const isTablet = winW < 1024;
-  const isMobile = winW < 768;
+  const isTablet      = winW < 1024;
+  const isSmallLaptop = winW >= 1024 && winW < 1340;
+  const isMobile      = winW < 768;
 
   useEffect(() => {
     const fn = () => setWinW(window.innerWidth);
@@ -478,7 +479,7 @@ export const HeroSection: React.FC = () => {
           <motion.div variants={item} style={{ marginBottom: 20 }}>
             <h1 style={{
               fontFamily: 'Sora, sans-serif',
-              fontSize: isMobile ? 38 : 56,
+              fontSize: isMobile ? 38 : isSmallLaptop ? 46 : 56,
               fontWeight: 800,
               lineHeight: 1.1,
               letterSpacing: '-1px',
@@ -575,7 +576,7 @@ export const HeroSection: React.FC = () => {
         <>
           {/* SCENE 0: Search panel */}
           <motion.div
-            style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: '14%', zIndex: 20, ...PANEL }}
+            style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: isSmallLaptop ? '10%' : '14%', zIndex: 20, ...PANEL, ...(isSmallLaptop && { transform: 'scale(0.82)', transformOrigin: isRTL ? 'top left' : 'top right' }) }}
             {...motionPanel(vis.search)}
           >
             <div style={{ marginBottom: 10, fontSize: 11, color: 'rgba(255,255,255,0.45)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -610,7 +611,7 @@ export const HeroSection: React.FC = () => {
 
           {/* SCENE 1: Google results panel */}
           <motion.div
-            style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: '32%', zIndex: 20, ...PANEL }}
+            style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: isSmallLaptop ? '27%' : '32%', zIndex: 20, ...PANEL, ...(isSmallLaptop && { transform: 'scale(0.82)', transformOrigin: isRTL ? 'top left' : 'top right' }) }}
             {...motionPanel(vis.google)}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -639,7 +640,7 @@ export const HeroSection: React.FC = () => {
 
           {/* SCENE 2: Wayn result panel */}
           <motion.div
-            style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: '62%', zIndex: 20, ...PANEL }}
+            style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: isSmallLaptop ? '55%' : '62%', zIndex: 20, ...PANEL, ...(isSmallLaptop && { transform: 'scale(0.82)', transformOrigin: isRTL ? 'top left' : 'top right' }) }}
             {...motionPanel(vis.wayn)}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -674,7 +675,7 @@ export const HeroSection: React.FC = () => {
           {/* STATUS PANELS — scenes 3–6 */}
           <AnimatePresence mode="wait">
             {vis.stops && (
-              <motion.div key="stops" style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: '14%', zIndex: 20, ...PANEL }}
+              <motion.div key="stops" style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: isSmallLaptop ? '10%' : '14%', zIndex: 20, ...PANEL, ...(isSmallLaptop && { transform: 'scale(0.82)', transformOrigin: isRTL ? 'top left' : 'top right' }) }}
                 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
                 transition={{ duration: 0.4 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#10B981', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -687,7 +688,7 @@ export const HeroSection: React.FC = () => {
               </motion.div>
             )}
             {vis.planning && (
-              <motion.div key="planning" style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: '14%', zIndex: 20, ...PANEL }}
+              <motion.div key="planning" style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: isSmallLaptop ? '10%' : '14%', zIndex: 20, ...PANEL, ...(isSmallLaptop && { transform: 'scale(0.82)', transformOrigin: isRTL ? 'top left' : 'top right' }) }}
                 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
                 transition={{ duration: 0.4 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#FFFFFF', marginBottom: 8 }}>
@@ -707,7 +708,7 @@ export const HeroSection: React.FC = () => {
             )}
             {vis.inefficient && (
               <motion.div key="inefficient"
-                style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: '14%', zIndex: 20, ...PANEL, border: '1px solid rgba(239,68,68,0.35)' }}
+                style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: isSmallLaptop ? '10%' : '14%', zIndex: 20, ...PANEL, border: '1px solid rgba(239,68,68,0.35)', ...(isSmallLaptop && { transform: 'scale(0.82)', transformOrigin: isRTL ? 'top left' : 'top right' }) }}
                 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
                 transition={{ duration: 0.4 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#EF4444', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -720,7 +721,7 @@ export const HeroSection: React.FC = () => {
             )}
             {vis.optimal && (
               <motion.div key="optimal"
-                style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: '14%', zIndex: 20, ...PANEL, border: '1px solid rgba(16,185,129,0.35)' }}
+                style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '4%', top: isSmallLaptop ? '10%' : '14%', zIndex: 20, ...PANEL, border: '1px solid rgba(16,185,129,0.35)', ...(isSmallLaptop && { transform: 'scale(0.82)', transformOrigin: isRTL ? 'top left' : 'top right' }) }}
                 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }}
                 transition={{ duration: 0.4 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>

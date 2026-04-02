@@ -9,6 +9,7 @@ import { useToast } from '../../components/ui/Toast';
 import { GoldButton } from '../../components/ui/GoldButton';
 import { CountryDropdown } from '../../components/ui/CountryDropdown';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 // ── Shared styles ──────────────────────────────────────────────────────────────
 const cardStyle: React.CSSProperties = {
@@ -40,7 +41,7 @@ const getStrength = (pw: string): number => {
   return s;
 };
 const strengthColors = ['#EF4444', '#F59E0B', '#F59E0B', '#10B981', '#10B981'];
-const strengthLabels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+const strengthLabelKeys = ['', 'settings.weak', 'settings.fair', 'settings.good', 'settings.strong'] as const;
 
 // ── Profile form ───────────────────────────────────────────────────────────────
 interface ProfileForm {
@@ -75,6 +76,7 @@ export const SettingsPage: React.FC = () => {
   const { user, token, refreshUser } = useAuth();
   const { toast } = useToast();
   const { isMobile } = useBreakpoint();
+  const { t } = useLanguage();
 
   const [profileLoading, setProfileLoading] = useState(false);
   const [pwLoading,      setPwLoading]      = useState(false);
@@ -113,10 +115,10 @@ export const SettingsPage: React.FC = () => {
         country:     data.country,
       }, token);
       await refreshUser();
-      toast({ type: 'success', title: 'Profile updated', message: 'Your profile information has been saved.' });
+      toast({ type: 'success', title: t('settings.profileUpdated'), message: t('settings.profileSaved') });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Update failed.';
-      toast({ type: 'error', title: 'Update failed', message: msg });
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || t('settings.updateFailed');
+      toast({ type: 'error', title: t('settings.updateFailed'), message: msg });
     } finally {
       setProfileLoading(false);
     }
@@ -125,7 +127,7 @@ export const SettingsPage: React.FC = () => {
   const onPasswordSubmit = async (data: PasswordForm) => {
     if (!token) return;
     if (data.newPassword !== data.confirmPassword) {
-      toast({ type: 'error', title: 'Passwords do not match' }); return;
+      toast({ type: 'error', title: t('settings.pwNoMatch') }); return;
     }
     setPwLoading(true);
     try {
@@ -134,10 +136,10 @@ export const SettingsPage: React.FC = () => {
         newPassword:     data.newPassword,
       }, token);
       resetPw();
-      toast({ type: 'success', title: 'Password changed', message: 'Your password has been updated successfully.' });
+      toast({ type: 'success', title: t('settings.pwChanged'), message: t('settings.pwChangedMsg') });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Password change failed.';
-      toast({ type: 'error', title: 'Failed', message: msg });
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || t('settings.failed');
+      toast({ type: 'error', title: t('settings.failed'), message: msg });
     } finally {
       setPwLoading(false);
     }
@@ -158,8 +160,8 @@ export const SettingsPage: React.FC = () => {
         <div id="profile" style={cardStyle}>
           <SectionHead
             icon="solar:user-bold-duotone"
-            title="Profile Information"
-            subtitle="Update your name, company and regional settings"
+            title={t('settings.profileInfo')}
+            subtitle={t('settings.profileInfoSub')}
             color="#F5C842"
           />
 
@@ -167,23 +169,23 @@ export const SettingsPage: React.FC = () => {
             {/* Full name + Company */}
             <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={labelStyle}>Full Name</label>
+                <label style={labelStyle}>{t('settings.fullName')}</label>
                 <input
                   style={{ ...inputStyle, ...(errsP.fullName ? { borderColor: '#EF4444' } : {}) }}
                   placeholder="John Smith"
                   onFocus={e => (e.target.style.borderColor = '#F5C842')}
-                  {...regP('fullName', { required: 'Full name is required', minLength: { value: 2, message: 'Min 2 characters' } })}
+                  {...regP('fullName', { required: t('settings.fullNameReq'), minLength: { value: 2, message: t('settings.min2Chars') } })}
                   onBlur={e => (e.target.style.borderColor = errsP.fullName ? '#EF4444' : 'rgba(255,255,255,0.12)')}
                 />
                 <FieldError msg={errsP.fullName?.message} />
               </div>
               <div>
-                <label style={labelStyle}>Company Name</label>
+                <label style={labelStyle}>{t('settings.companyName')}</label>
                 <input
                   style={{ ...inputStyle, ...(errsP.companyName ? { borderColor: '#EF4444' } : {}) }}
                   placeholder="Acme Logistics"
                   onFocus={e => (e.target.style.borderColor = '#F5C842')}
-                  {...regP('companyName', { required: 'Company name is required' })}
+                  {...regP('companyName', { required: t('settings.companyReq') })}
                   onBlur={e => (e.target.style.borderColor = errsP.companyName ? '#EF4444' : 'rgba(255,255,255,0.12)')}
                 />
                 <FieldError msg={errsP.companyName?.message} />
@@ -193,7 +195,7 @@ export const SettingsPage: React.FC = () => {
             {/* Phone + Country */}
             <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={labelStyle}>Phone <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>(optional)</span></label>
+                <label style={labelStyle}>{t('settings.phone')} <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>{t('settings.optional')}</span></label>
                 <input
                   type="tel"
                   style={inputStyle}
@@ -216,7 +218,7 @@ export const SettingsPage: React.FC = () => {
 
             {/* Email — read only */}
             <div style={{ marginBottom: '24px' }}>
-              <label style={labelStyle}>Email Address <span style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 400 }}>(cannot be changed)</span></label>
+              <label style={labelStyle}>{t('settings.emailAddress')} <span style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 400 }}>{t('settings.cannotChange')}</span></label>
               <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}>
                   <Icon icon="solar:lock-bold" width={16} color="rgba(255,255,255,0.2)" />
@@ -233,7 +235,7 @@ export const SettingsPage: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <GoldButton type="submit" loading={profileLoading} size="md">
                 {!profileLoading && <Icon icon="solar:check-bold" width={16} />}
-                {profileLoading ? 'Saving…' : 'Save Changes'}
+                {profileLoading ? t('settings.saving') : t('settings.saveChanges')}
               </GoldButton>
             </div>
           </form>
@@ -243,22 +245,22 @@ export const SettingsPage: React.FC = () => {
         <div id="security" style={cardStyle}>
           <SectionHead
             icon="solar:lock-password-bold-duotone"
-            title="Change Password"
-            subtitle="Enter your current password to set a new one"
+            title={t('settings.changePw')}
+            subtitle={t('settings.changePwSub')}
             color="#A855F7"
           />
 
           <form onSubmit={hsPw(onPasswordSubmit)}>
             {/* Current password */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={labelStyle}>Current Password</label>
+              <label style={labelStyle}>{t('settings.currentPw')}</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showCurr ? 'text' : 'password'}
                   style={{ ...inputStyle, paddingRight: '44px', ...(errsPw.currentPassword ? { borderColor: '#EF4444' } : {}) }}
-                  placeholder="Your current password"
+                  placeholder={t('settings.yourCurrPw')}
                   onFocus={e => (e.target.style.borderColor = '#A855F7')}
-                  {...regPw('currentPassword', { required: 'Current password is required' })}
+                  {...regPw('currentPassword', { required: t('settings.required') })}
                   onBlur={e => (e.target.style.borderColor = errsPw.currentPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
                 />
                 <button type="button" onClick={() => setShowCurr(!showCurr)}
@@ -271,7 +273,7 @@ export const SettingsPage: React.FC = () => {
                 <Link to="/forgot-password" style={{ fontSize: '12px', color: 'rgba(245,200,66,0.6)', textDecoration: 'none' }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#F5C842')}
                   onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,200,66,0.6)')}>
-                  Forgot your password?
+                  {t('settings.forgotPw')}
                 </Link>
               </div>
             </div>
@@ -279,14 +281,14 @@ export const SettingsPage: React.FC = () => {
             {/* New + Confirm */}
             <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '16px', marginBottom: '8px' }}>
               <div>
-                <label style={labelStyle}>New Password</label>
+                <label style={labelStyle}>{t('settings.newPw')}</label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showNew ? 'text' : 'password'}
                     style={{ ...inputStyle, paddingRight: '44px', ...(errsPw.newPassword ? { borderColor: '#EF4444' } : {}) }}
-                    placeholder="Min 8 characters"
+                    placeholder={t('settings.min8')}
                     onFocus={e => (e.target.style.borderColor = '#A855F7')}
-                    {...regPw('newPassword', { required: 'Required', minLength: { value: 8, message: 'Min 8 characters' } })}
+                    {...regPw('newPassword', { required: t('settings.required'), minLength: { value: 8, message: t('settings.min8') } })}
                     onBlur={e => (e.target.style.borderColor = errsPw.newPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
                   />
                   <button type="button" onClick={() => setShowNew(!showNew)}
@@ -302,19 +304,19 @@ export const SettingsPage: React.FC = () => {
                         <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i <= strength ? strengthColors[strength] : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
                       ))}
                     </div>
-                    <p style={{ fontSize: '11px', color: strengthColors[strength], margin: 0 }}>{strengthLabels[strength]}</p>
+                    <p style={{ fontSize: '11px', color: strengthColors[strength], margin: 0 }}>{strengthLabelKeys[strength] ? t(strengthLabelKeys[strength] as Parameters<typeof t>[0]) : ''}</p>
                   </div>
                 )}
               </div>
               <div>
-                <label style={labelStyle}>Confirm New Password</label>
+                <label style={labelStyle}>{t('settings.confirmNewPw')}</label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showConf ? 'text' : 'password'}
                     style={{ ...inputStyle, paddingRight: '44px', ...(errsPw.confirmPassword ? { borderColor: '#EF4444' } : {}) }}
-                    placeholder="Repeat new password"
+                    placeholder={t('settings.repeatNewPw')}
                     onFocus={e => (e.target.style.borderColor = '#A855F7')}
-                    {...regPw('confirmPassword', { required: 'Required' })}
+                    {...regPw('confirmPassword', { required: t('settings.required') })}
                     onBlur={e => (e.target.style.borderColor = errsPw.confirmPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
                   />
                   <button type="button" onClick={() => setShowConf(!showConf)}
@@ -329,7 +331,7 @@ export const SettingsPage: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
               <GoldButton type="submit" loading={pwLoading} size="md">
                 {!pwLoading && <Icon icon="solar:lock-password-bold" width={16} />}
-                {pwLoading ? 'Changing…' : 'Change Password'}
+                {pwLoading ? t('settings.changing') : t('settings.changeBtn')}
               </GoldButton>
             </div>
           </form>
@@ -339,16 +341,16 @@ export const SettingsPage: React.FC = () => {
         <div style={{ ...cardStyle, border: '1px solid rgba(239,68,68,0.15)' }}>
           <SectionHead
             icon="solar:danger-bold-duotone"
-            title="Account"
-            subtitle="Email address and account status"
+            title={t('settings.account')}
+            subtitle={t('settings.accountSub')}
             color="#EF4444"
           />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '0 0 2px', fontWeight: 500 }}>Email address</p>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{user.email} · <span style={{ color: '#10B981' }}>Verified</span></p>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '0 0 2px', fontWeight: 500 }}>{t('settings.emailLabel')}</p>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{user.email} · <span style={{ color: '#10B981' }}>{t('settings.verified')}</span></p>
             </div>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', margin: 0 }}>Email changes require support</p>
+            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', margin: 0 }}>{t('settings.emailChangeSupport')}</p>
           </div>
         </div>
 

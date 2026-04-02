@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
@@ -18,6 +19,7 @@ import { SettingsPage } from './pages/dashboard/SettingsPage';
 
 const App: React.FC = () => {
   return (
+    <LanguageProvider>
     <AuthProvider>
       <ToastProvider>
         <BrowserRouter>
@@ -49,6 +51,7 @@ const App: React.FC = () => {
         </BrowserRouter>
       </ToastProvider>
     </AuthProvider>
+    </LanguageProvider>
   );
 };
 

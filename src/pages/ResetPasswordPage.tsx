@@ -6,7 +6,9 @@ import { Icon } from '@iconify/react';
 import { authAPI } from '../services/api';
 import { useToast } from '../components/ui/Toast';
 import { GoldButton } from '../components/ui/GoldButton';
+import { LangToggle } from '../components/ui/LangToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FormValues { newPassword: string; confirmPassword: string; }
 
@@ -19,12 +21,12 @@ const getStrength = (pw: string): number => {
   return s;
 };
 const strengthColors = ['#EF4444', '#F59E0B', '#F59E0B', '#10B981', '#10B981'];
-const strengthLabels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 
 export const ResetPasswordPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const navigate     = useNavigate();
+  const { toast }    = useToast();
   const { isMobile } = useBreakpoint();
+  const { t, isRTL } = useLanguage();
   const [searchParams] = useSearchParams();
 
   const userId = searchParams.get('userId') || '';
@@ -38,6 +40,7 @@ export const ResetPasswordPage: React.FC = () => {
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormValues>();
   const pwValue  = watch('newPassword', '');
   const strength = getStrength(pwValue);
+  const strengthLabels = ['', t('auth.weak'), t('auth.fair'), t('auth.good'), t('auth.strong')];
 
   const invalidLink = !userId || !token;
 
@@ -66,6 +69,7 @@ export const ResetPasswordPage: React.FC = () => {
     padding: '13px 44px 13px 16px', fontSize: '14px', color: '#FFFFFF',
     outline: 'none', height: '52px', boxSizing: 'border-box',
     transition: 'border-color 0.2s', fontFamily: "'Inter', sans-serif",
+    direction: 'ltr',
   };
 
   return (
@@ -77,6 +81,11 @@ export const ResetPasswordPage: React.FC = () => {
     }}>
       <div style={{ position: 'fixed', top: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'rgba(245,200,66,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-20%', right: '-10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,0.05)', filter: 'blur(100px)', pointerEvents: 'none' }} />
+
+      {/* Lang toggle */}
+      <div style={{ position: 'fixed', top: 16, right: isRTL ? 'auto' : 16, left: isRTL ? 16 : 'auto', zIndex: 100 }}>
+        <LangToggle />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.97 }}
@@ -90,9 +99,9 @@ export const ResetPasswordPage: React.FC = () => {
             <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Sora', fontWeight: 800, fontSize: isMobile ? 15 : 18, color: '#0A0E27' }}>A</div>
             <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: isMobile ? 17 : 20 }}>WAYN</span>
           </Link>
-          <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>Set new password</h1>
+          <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>{t('auth.resetPwTitle')}</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>
-            Choose a strong password for your account
+            {t('auth.resetPwSubtitle')}
           </p>
         </div>
 
@@ -107,12 +116,12 @@ export const ResetPasswordPage: React.FC = () => {
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.12)', border: '2px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                   <Icon icon="solar:danger-bold" width={28} color="#EF4444" />
                 </div>
-                <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '18px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px' }}>Invalid reset link</h3>
+                <h3 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: '18px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px' }}>{t('auth.invalidLink')}</h3>
                 <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', margin: '0 0 20px', lineHeight: 1.6 }}>
-                  This link is missing required parameters. Please request a new password reset.
+                  {t('auth.invalidLinkMsg')}
                 </p>
                 <Link to="/forgot-password" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.3)', borderRadius: '10px', color: '#F5C842', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-                  <Icon icon="solar:restart-bold" width={15} />Request New Link
+                  <Icon icon="solar:restart-bold" width={15} />{t('auth.requestNewLink')}
                 </Link>
               </motion.div>
             ) : done ? (
@@ -120,8 +129,8 @@ export const ResetPasswordPage: React.FC = () => {
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(16,185,129,0.12)', border: '2px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                   <Icon icon="solar:check-circle-bold" width={28} color="#10B981" />
                 </div>
-                <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '18px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px' }}>Password reset!</h3>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', margin: '0 0 6px' }}>Redirecting you to sign in…</p>
+                <h3 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: '18px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px' }}>{t('auth.pwResetSuccess')}</h3>
+                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', margin: '0 0 6px' }}>{t('auth.pwResetSuccessMsg')}</p>
                 <div style={{ width: 40, height: 40, border: '3px solid rgba(245,200,66,0.2)', borderTopColor: '#F5C842', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '16px auto 0' }} />
               </motion.div>
             ) : (
@@ -129,23 +138,22 @@ export const ResetPasswordPage: React.FC = () => {
                 <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* New password */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>New Password</label>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>{t('auth.newPassword')}</label>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={showPw ? 'text' : 'password'}
-                        style={{ ...inputStyle, ...(errors.newPassword ? { borderColor: '#EF4444' } : {}) }}
-                        placeholder="Min 8 characters"
+                        style={{ ...inputStyle, [isRTL ? 'paddingLeft' : 'paddingRight']: '44px', ...(errors.newPassword ? { borderColor: '#EF4444' } : {}) }}
+                        placeholder={isRTL ? '٨ أحرف على الأقل' : 'Min 8 characters'}
                         onFocus={e => (e.target.style.borderColor = '#F5C842')}
                         {...register('newPassword', { required: 'Required', minLength: { value: 8, message: 'Min 8 characters' } })}
                         onBlur={e => (e.target.style.borderColor = errors.newPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
                       />
                       <button type="button" onClick={() => setShowPw(!showPw)}
-                        style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                        style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
                         <Icon icon={showPw ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                       </button>
                     </div>
                     {errors.newPassword && <p style={{ color: '#EF4444', fontSize: '11px', marginTop: '4px' }}>{errors.newPassword.message}</p>}
-                    {/* Strength meter */}
                     {pwValue.length > 0 && (
                       <div style={{ marginTop: '8px' }}>
                         <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
@@ -160,18 +168,18 @@ export const ResetPasswordPage: React.FC = () => {
 
                   {/* Confirm password */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>Confirm New Password</label>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>{t('auth.confirmNewPassword')}</label>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={showCPw ? 'text' : 'password'}
-                        style={{ ...inputStyle, ...(errors.confirmPassword ? { borderColor: '#EF4444' } : {}) }}
-                        placeholder="Repeat password"
+                        style={{ ...inputStyle, [isRTL ? 'paddingLeft' : 'paddingRight']: '44px', ...(errors.confirmPassword ? { borderColor: '#EF4444' } : {}) }}
+                        placeholder={isRTL ? 'أعد كتابة كلمة المرور' : 'Repeat password'}
                         onFocus={e => (e.target.style.borderColor = '#F5C842')}
                         {...register('confirmPassword', { required: 'Required' })}
                         onBlur={e => (e.target.style.borderColor = errors.confirmPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
                       />
                       <button type="button" onClick={() => setShowCPw(!showCPw)}
-                        style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                        style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
                         <Icon icon={showCPw ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                       </button>
                     </div>
@@ -179,7 +187,7 @@ export const ResetPasswordPage: React.FC = () => {
                   </div>
 
                   <GoldButton type="submit" loading={loading} fullWidth size="lg">
-                    {loading ? 'Resetting…' : 'Reset Password'}
+                    {loading ? t('auth.resettingPw') : t('auth.resetPwBtn')}
                     {!loading && <Icon icon="solar:lock-password-bold" width={16} />}
                   </GoldButton>
                 </form>
@@ -192,8 +200,8 @@ export const ResetPasswordPage: React.FC = () => {
               <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.color = '#F5C842')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}>
-                <Icon icon="solar:arrow-left-bold" width={14} />
-                Back to Sign In
+                <Icon icon={isRTL ? 'solar:arrow-right-bold' : 'solar:arrow-left-bold'} width={14} />
+                {t('auth.backToSignIn')}
               </Link>
             </div>
           )}

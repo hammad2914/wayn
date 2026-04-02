@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { Icon } from '@iconify/react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -16,6 +16,7 @@ import { GoldButton } from '../../components/ui/GoldButton';
 import { OutlineButton } from '../../components/ui/OutlineButton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { CountryDropdown } from '../../components/ui/CountryDropdown';
+import { useLanguage } from '../../contexts/LanguageContext';
 import type { RouteOptimizerResponse, VehicleRoute } from '../../types';
 
 // ── Haversine distance (km) between two lat/lng points ───────────────────────
@@ -100,6 +101,229 @@ const makeHoverIcon = (n: number) => L.divIcon({
   className: '', iconAnchor: [16, 16],
 });
 
+// ── Map Picker ────────────────────────────────────────────────────────────────
+interface PickedLocation { lat: number; lng: number; address: string; }
+
+const pickCrosshairIcon = L.divIcon({
+  html: `<div style="width:32px;height:32px;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="6" fill="#F5C842" opacity="0.9"/>
+      <circle cx="16" cy="16" r="5" stroke="#0A0E27" stroke-width="2" fill="none"/>
+      <line x1="16" y1="2" x2="16" y2="10" stroke="#F5C842" stroke-width="2" stroke-linecap="round"/>
+      <line x1="16" y1="22" x2="16" y2="30" stroke="#F5C842" stroke-width="2" stroke-linecap="round"/>
+      <line x1="2" y1="16" x2="10" y2="16" stroke="#F5C842" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22" y1="16" x2="30" y2="16" stroke="#F5C842" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>`,
+  className: '', iconAnchor: [0, 0],
+});
+
+const MapClickCapture: React.FC<{ onPick: (lat: number, lng: number) => void }> = ({ onPick }) => {
+  useMapEvents({ click: (e) => onPick(e.latlng.lat, e.latlng.lng) });
+  return null;
+};
+
+import type { TranslationKey } from '../../translations';
+
+const MapPickerDialog: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (loc: PickedLocation) => void;
+  lang: 'en' | 'ar';
+  t: (k: TranslationKey) => string;
+  initialLat?: number;
+  initialLng?: number;
+}> = ({ open, onClose, onConfirm, lang, t, initialLat, initialLng }) => {
+  const [pin,      setPin]      = useState<{ lat: number; lng: number } | null>(null);
+  const [address,  setAddress]  = useState<string>('');
+  const [fetching, setFetching] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // Reset state when dialog opens
+  useEffect(() => {
+    if (open) {
+      const startLat = initialLat ?? 25.2048;
+      const startLng = initialLng ?? 55.2708;
+      setPin({ lat: startLat, lng: startLng });
+      setAddress('');
+      reverseGeocode(startLat, startLng);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const reverseGeocode = useCallback(async (lat: number, lng: number) => {
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+    setFetching(true);
+    setAddress('');
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${lang === 'ar' ? 'ar' : 'en'}`,
+        { signal: abortRef.current.signal, headers: { 'Accept-Language': lang === 'ar' ? 'ar' : 'en' } },
+      );
+      const json = await res.json();
+      setAddress(json.display_name ?? '');
+    } catch {
+      setAddress('');
+    } finally {
+      setFetching(false);
+    }
+  }, [lang]);
+
+  const handlePick = useCallback((lat: number, lng: number) => {
+    setPin({ lat, lng });
+    reverseGeocode(lat, lng);
+  }, [reverseGeocode]);
+
+  if (!open) return null;
+
+  const isRTL = lang === 'ar';
+  const centerLat = pin?.lat ?? initialLat ?? 25.2048;
+  const centerLng = pin?.lng ?? initialLng ?? 55.2708;
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '16px',
+    }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 16 }}
+        transition={{ duration: 0.2 }}
+        style={{
+          background: '#0D1235',
+          border: '1px solid rgba(245,200,66,0.2)',
+          borderRadius: '16px',
+          width: '100%', maxWidth: '680px',
+          maxHeight: '90vh',
+          display: 'flex', flexDirection: 'column',
+          overflow: 'hidden',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.7)',
+          direction: isRTL ? 'rtl' : 'ltr',
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: '16px 20px',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: 32, height: 32, borderRadius: '8px', background: 'rgba(245,200,66,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon icon="solar:map-point-bold-duotone" width={18} color="#F5C842" />
+            </div>
+            <div>
+              <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: '15px', color: '#FFFFFF' }}>{t('route.mapPickerTitle')}</div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '1px' }}>{t('route.mapPickerHint')}</div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: '4px', display: 'flex', borderRadius: '6px' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#FFFFFF')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>
+            <Icon icon="solar:close-bold" width={18} />
+          </button>
+        </div>
+
+        {/* Map */}
+        <div style={{ flex: 1, minHeight: '360px', position: 'relative' }}>
+          <MapContainer
+            key={`picker-${open}`}
+            center={[centerLat, centerLng]}
+            zoom={13}
+            style={{ width: '100%', height: '100%', minHeight: '360px', cursor: 'crosshair' }}
+            zoomControl={true}
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+            />
+            <MapClickCapture onPick={handlePick} />
+            {pin && (
+              <Marker position={[pin.lat, pin.lng]} icon={pickCrosshairIcon} />
+            )}
+          </MapContainer>
+
+          {/* Crosshair hint overlay */}
+          <div style={{
+            position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)',
+            background: 'rgba(10,14,39,0.85)', border: '1px solid rgba(245,200,66,0.2)',
+            borderRadius: '20px', padding: '5px 12px', fontSize: '11px', color: 'rgba(255,255,255,0.6)',
+            pointerEvents: 'none', zIndex: 1000, whiteSpace: 'nowrap',
+          }}>
+            <Icon icon="solar:cursor-bold" width={11} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+            {t('route.mapPickerHint')}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          padding: '14px 20px',
+          borderTop: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(255,255,255,0.02)',
+          flexShrink: 0,
+        }}>
+          {/* Address preview */}
+          {pin && (
+            <div style={{ marginBottom: '12px', padding: '10px 14px', background: 'rgba(245,200,66,0.06)', border: '1px solid rgba(245,200,66,0.12)', borderRadius: '10px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 600, color: '#F5C842', letterSpacing: '0.06em', marginBottom: '4px', textTransform: 'uppercase' }}>
+                {t('route.mapPickerAddress')}
+              </div>
+              {fetching ? (
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Icon icon="solar:refresh-bold" width={12} style={{ animation: 'spin 1s linear infinite' }} color="rgba(255,255,255,0.4)" />
+                  {t('route.mapPickerFetching')}
+                </div>
+              ) : (
+                <div style={{ fontSize: '12px', color: '#FFFFFF', lineHeight: 1.5 }}>
+                  {address || t('route.mapPickerNoAddr')}
+                </div>
+              )}
+              <div style={{ marginTop: '4px', fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>
+                {pin.lat.toFixed(6)}, {pin.lng.toFixed(6)}
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: '10px', justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
+            <button onClick={onClose}
+              style={{ padding: '9px 18px', borderRadius: '9px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}>
+              {t('route.mapPickerCancel')}
+            </button>
+            <button
+              disabled={!pin || fetching}
+              onClick={() => pin && onConfirm({ lat: pin.lat, lng: pin.lng, address: address || t('route.mapPickerNoAddr') })}
+              style={{
+                padding: '9px 18px', borderRadius: '9px',
+                background: pin && !fetching ? 'linear-gradient(135deg, #F5C842, #D4A017)' : 'rgba(255,255,255,0.06)',
+                border: 'none', color: pin && !fetching ? '#0A0E27' : 'rgba(255,255,255,0.3)',
+                fontSize: '13px', fontWeight: 700, cursor: pin && !fetching ? 'pointer' : 'not-allowed',
+                fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', gap: '6px',
+                transition: 'opacity 0.15s',
+              }}
+              onMouseEnter={e => { if (pin && !fetching) e.currentTarget.style.opacity = '0.9'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+            >
+              <Icon icon="solar:check-bold" width={14} />
+              {t('route.mapPickerConfirm')}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+};
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface FormStop {
   address: string; lat: string; lng: string;
@@ -119,11 +343,17 @@ const chartGridStyle = { strokeDasharray: '3 3', stroke: 'rgba(255,255,255,0.07)
 const chartAxisStyle = { fill: 'rgba(255,255,255,0.45)', fontSize: 10 };
 type Tab = 'summary' | 'map' | 'sequence' | 'analytics';
 
-const LOADING_MSGS = [
+const LOADING_MSGS_EN = [
   'Geocoding addresses…',
   'Building distance matrix…',
   'Running optimization algorithm…',
   'Finalizing route…',
+];
+const LOADING_MSGS_AR = [
+  'جارٍ تحديد إحداثيات العناوين…',
+  'جارٍ بناء مصفوفة المسافات…',
+  'جارٍ تشغيل خوارزمية التحسين…',
+  'جارٍ اعتماد المسار…',
 ];
 
 // ── Field styles ──────────────────────────────────────────────────────────────
@@ -144,6 +374,8 @@ export const RouteOptimizerPage: React.FC = () => {
   const { usage, increment } = useUsage();
   const { toast } = useToast();
   const { isMobile, isTablet } = useBreakpoint();
+  const { t, lang } = useLanguage();
+  const LOADING_MSGS = lang === 'ar' ? LOADING_MSGS_AR : LOADING_MSGS_EN;
 
   const [result,       setResult]       = useState<RouteOptimizerResponse | null>(null);
   const [loading,      setLoading]      = useState(false);
@@ -161,7 +393,10 @@ export const RouteOptimizerPage: React.FC = () => {
 
   const canUseOptimizer = !usage || usage.routeOptimizerCount < usage.routeOptimizerLimit;
 
-  const { register, control, handleSubmit } = useForm<FormValues>({
+  // map picker state: null = closed, 'depot' = depot, number = stop index
+  const [mapPickerTarget, setMapPickerTarget] = useState<'depot' | number | null>(null);
+
+  const { register, control, handleSubmit, setValue, getValues } = useForm<FormValues>({
     defaultValues: {
       depot_address: '',
       depot_lat: '', depot_lng: '',
@@ -176,9 +411,23 @@ export const RouteOptimizerPage: React.FC = () => {
   const { fields: stopFields, append: addStop, remove: removeStop } = useFieldArray({ control, name: 'stops' });
   const { fields: vehFields,  append: addVeh,  remove: removeVeh  } = useFieldArray({ control, name: 'vehicles' });
 
+  // ── Map picker confirm ──────────────────────────────────────────────────────
+  const handleMapConfirm = useCallback((loc: PickedLocation) => {
+    if (mapPickerTarget === 'depot') {
+      setValue('depot_address', loc.address, { shouldDirty: true });
+      setValue('depot_lat',     String(loc.lat.toFixed(7)), { shouldDirty: true });
+      setValue('depot_lng',     String(loc.lng.toFixed(7)), { shouldDirty: true });
+    } else if (typeof mapPickerTarget === 'number') {
+      setValue(`stops.${mapPickerTarget}.address`, loc.address, { shouldDirty: true });
+      setValue(`stops.${mapPickerTarget}.lat`,     String(loc.lat.toFixed(7)), { shouldDirty: true });
+      setValue(`stops.${mapPickerTarget}.lng`,     String(loc.lng.toFixed(7)), { shouldDirty: true });
+    }
+    setMapPickerTarget(null);
+  }, [mapPickerTarget, setValue]);
+
   // ── Submit ──────────────────────────────────────────────────────────────────
   const onSubmit = async (data: FormValues) => {
-    if (!canUseOptimizer) { toast({ type: 'error', title: 'Route optimizer limit reached', message: 'Upgrade your plan to continue.' }); return; }
+    if (!canUseOptimizer) { toast({ type: 'error', title: t('route.title'), message: t('route.limitReached') }); return; }
     setLoading(true); setLoadingPct(0); setLoadingMsg(0); setResult(null);
 
     // Fake progress bar
@@ -291,79 +540,97 @@ export const RouteOptimizerPage: React.FC = () => {
       display: 'flex', flexDirection: 'column',
     }}>
       <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: '18px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 4px' }}>Route Optimizer</h2>
+        <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: '18px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 4px' }}>{t('route.title')}</h2>
         {usage && (
           <p style={{ fontSize: '12px', color: usage.routeOptimizerCount >= usage.routeOptimizerLimit ? '#EF4444' : 'rgba(255,255,255,0.4)', margin: 0 }}>
             <span style={{ fontWeight: 700, color: usage.routeOptimizerCount >= usage.routeOptimizerLimit ? '#EF4444' : '#F5C842' }}>{usage.routeOptimizerCount}</span>
-            {' / '}{usage.routeOptimizerLimit} requests used
+            {' / '}{usage.routeOptimizerLimit} {t('route.requestsUsed')}
           </p>
         )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         {/* DEPOT */}
-        <Section icon="solar:home-2-bold-duotone" title="Depot — Starting Point" color="#F5C842">
+        <Section icon="solar:home-2-bold-duotone" title={t('route.depotTitle')} color="#F5C842">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div>
-              <label style={lbl}>Depot Address</label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <label style={{ ...lbl, marginBottom: 0 }}>{t('route.depotAddress')}</label>
+                <button type="button" onClick={() => setMapPickerTarget('depot')}
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', color: '#F5C842', fontSize: '11px', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,200,66,0.15)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(245,200,66,0.08)')}>
+                  <Icon icon="solar:map-point-bold-duotone" width={12} />
+                  {t('route.pickOnMap')}
+                </button>
+              </div>
               <input style={fld} placeholder="e.g. Al Quoz Industrial Area, Dubai" {...register('depot_address', { required: true })}
                 onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               <div>
-                <label style={lbl}>Latitude</label>
+                <label style={lbl}>{t('route.latitude')}</label>
                 <input style={fld} placeholder="e.g. 25.1371" type="number" step="any" {...register('depot_lat', { required: true })}
                   onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
               </div>
               <div>
-                <label style={lbl}>Longitude</label>
+                <label style={lbl}>{t('route.longitude')}</label>
                 <input style={fld} placeholder="e.g. 55.2306" type="number" step="any" {...register('depot_lng', { required: true })}
                   onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
               </div>
             </div>
           </div>
-          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: '8px 0 0', lineHeight: 1.5 }}>The depot is where all vehicles start and end their route.</p>
+          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: '8px 0 0', lineHeight: 1.5 }}>{t('route.depotHint')}</p>
         </Section>
 
         {/* STOPS */}
-        <Section icon="solar:map-point-wave-bold-duotone" title="Delivery Stops" badge={`${stopFields.length} stops`} color="#10B981">
+        <Section icon="solar:map-point-wave-bold-duotone" title={t('route.stops')} badge={`${stopFields.length} ${t('route.stop').toLowerCase()}s`} color="#10B981">
           {stopFields.map((field, i) => (
             <motion.div key={field.id} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '12px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#10B981' }}>Stop {i + 1}</span>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#10B981' }}>{t('route.stop')} {i + 1}</span>
                 {stopFields.length > 1 && (
                   <button type="button" onClick={() => removeStop(i)}
                     style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer', color: '#EF4444', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, lineHeight: 1 }}>✕</button>
                 )}
               </div>
               <div style={{ marginBottom: '6px' }}>
-                <label style={lbl}>Delivery Address</label>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <label style={{ ...lbl, marginBottom: 0 }}>{t('route.deliveryAddress')}</label>
+                  <button type="button" onClick={() => setMapPickerTarget(i)}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', color: '#10B981', fontSize: '11px', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.15)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.08)')}>
+                    <Icon icon="solar:map-point-bold-duotone" width={12} />
+                    {t('route.pickOnMap')}
+                  </button>
+                </div>
                 <input style={fld} placeholder="e.g. Dubai Mall, Downtown Dubai" {...register(`stops.${i}.address`, { required: true })}
                   onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '6px' }}>
                 <div>
-                  <label style={lbl}>Latitude</label>
+                  <label style={lbl}>{t('route.latitude')}</label>
                   <input style={fld} placeholder="e.g. 25.1972" type="number" step="any" {...register(`stops.${i}.lat`)}
                     onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
                 </div>
                 <div>
-                  <label style={lbl}>Longitude</label>
+                  <label style={lbl}>{t('route.longitude')}</label>
                   <input style={fld} placeholder="e.g. 55.2744" type="number" step="any" {...register(`stops.${i}.lng`)}
                     onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: '6px' }}>
-                <StopField label="Weight" unit="kg" icon="solar:scale-bold-duotone" color="#F5C842"
+                <StopField label={t('route.weight')} unit="kg" icon="solar:scale-bold-duotone" color="#F5C842"
                   input={<input style={fld} placeholder="e.g. 15" type="number" step="any" {...register(`stops.${i}.weight`)}
                     onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
                 />
-                <StopField label="Volume" unit="m³" icon="solar:box-bold-duotone" color="#A855F7"
+                <StopField label={t('route.volume')} unit="m³" icon="solar:box-bold-duotone" color="#A855F7"
                   input={<input style={fld} placeholder="e.g. 1.2" type="number" step="any" {...register(`stops.${i}.volume`)}
                     onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
                 />
-                <StopField label="Service" unit="min" icon="solar:clock-circle-bold-duotone" color="#3B82F6"
+                <StopField label={t('route.service')} unit="min" icon="solar:clock-circle-bold-duotone" color="#3B82F6"
                   input={<input style={fld} placeholder="e.g. 10" type="number" step="any" {...register(`stops.${i}.service_time`)}
                     onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
                 />
@@ -372,35 +639,35 @@ export const RouteOptimizerPage: React.FC = () => {
           ))}
           <OutlineButton size="sm" type="button"
             onClick={() => addStop({ address: '', lat: '', lng: '', weight: '', volume: '', service_time: '' })}>
-            <Icon icon="solar:add-circle-bold" width={14} />Add Stop
+            <Icon icon="solar:add-circle-bold" width={14} />{t('route.addStop')}
           </OutlineButton>
         </Section>
 
         {/* VEHICLES */}
-        <Section icon="solar:bus-bold-duotone" title="Fleet" badge={`${vehFields.length} vehicle${vehFields.length > 1 ? 's' : ''}`} color="#3B82F6">
+        <Section icon="solar:bus-bold-duotone" title={t('route.fleet')} badge={`${vehFields.length} ${t('route.vehicle').toLowerCase()}${vehFields.length > 1 ? 's' : ''}`} color="#3B82F6">
           {vehFields.map((field, i) => (
             <motion.div key={field.id} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '12px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#3B82F6' }}>Vehicle {i + 1}</span>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#3B82F6' }}>{t('route.vehicle')} {i + 1}</span>
                 {vehFields.length > 1 && (
                   <button type="button" onClick={() => removeVeh(i)}
                     style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', cursor: 'pointer', color: '#EF4444', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0, lineHeight: 1 }}>✕</button>
                 )}
               </div>
               <div style={{ marginBottom: '6px' }}>
-                <label style={lbl}>Vehicle ID / Name</label>
+                <label style={lbl}>{t('route.vehicleId')}</label>
                 <input style={fld} placeholder="e.g. Truck-01 or Van-A" {...register(`vehicles.${i}.vehicle_id`)}
                   onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                 <div>
-                  <label style={lbl}>Weight Capacity (kg)</label>
+                  <label style={lbl}>{t('route.weightCap')}</label>
                   <input style={fld} placeholder="e.g. 1000" type="number" {...register(`vehicles.${i}.cap_weight`)}
                     onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
                 </div>
                 <div>
-                  <label style={lbl}>Volume Capacity (m³)</label>
+                  <label style={lbl}>{t('route.volumeCap')}</label>
                   <input style={fld} placeholder="e.g. 50" type="number" {...register(`vehicles.${i}.cap_volume`)}
                     onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
                 </div>
@@ -409,19 +676,19 @@ export const RouteOptimizerPage: React.FC = () => {
           ))}
           <OutlineButton size="sm" type="button"
             onClick={() => addVeh({ vehicle_id: '', cap_weight: '', cap_volume: '' })}>
-            <Icon icon="solar:add-circle-bold" width={14} />Add Vehicle
+            <Icon icon="solar:add-circle-bold" width={14} />{t('route.addVehicle')}
           </OutlineButton>
         </Section>
 
         {/* SETTINGS */}
-        <Section icon="solar:settings-bold-duotone" title="Settings" color="#94A3B8">
+        <Section icon="solar:settings-bold-duotone" title={t('route.settings')} color="#94A3B8">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '10px' }}>
             <Controller
               name="country"
               control={control}
               render={({ field }) => (
                 <CountryDropdown
-                  label="Country"
+                  label={t('dash.addressNormalizer').split(' ')[0]}
                   value={field.value}
                   onChange={field.onChange}
                   compact
@@ -429,18 +696,18 @@ export const RouteOptimizerPage: React.FC = () => {
               )}
             />
             <div>
-              <label style={lbl}>City</label>
+              <label style={lbl}>{t('route.city')}</label>
               <input style={fld} placeholder="e.g. Dubai" {...register('city')}
                 onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
             </div>
           </div>
           <div>
-            <label style={lbl}>Optimization Objective</label>
+            <label style={lbl}>{t('route.objective')}</label>
             <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
               {(['balanced', 'distance', 'time'] as const).map(obj => (
                 <label key={obj} style={{ flex: 1 }}>
                   <input type="radio" value={obj} {...register('objective')} style={{ display: 'none' }} />
-                  <PillOption selected={false} label={obj.charAt(0).toUpperCase() + obj.slice(1)} name="objective" value={obj} register={register} />
+                  <PillOption selected={false} label={t(`route.${obj}` as Parameters<typeof t>[0])} name="objective" value={obj} register={register} />
                 </label>
               ))}
             </div>
@@ -450,9 +717,9 @@ export const RouteOptimizerPage: React.FC = () => {
         <div style={{ padding: '8px 0 16px' }}>
           <GoldButton type="submit" fullWidth size="lg" loading={loading} disabled={!canUseOptimizer}>
             {!loading && <Icon icon="solar:routing-2-bold-duotone" width={17} />}
-            {loading ? `Optimizing… ${Math.round(loadingPct)}%` : 'Optimize Route'}
+            {loading ? `${t('route.optimizing')} ${Math.round(loadingPct)}%` : t('route.optimizeBtn')}
           </GoldButton>
-          {!canUseOptimizer && <p style={{ textAlign: 'center', fontSize: '12px', color: '#EF4444', marginTop: '8px' }}>Usage limit reached — upgrade to continue</p>}
+          {!canUseOptimizer && <p style={{ textAlign: 'center', fontSize: '12px', color: '#EF4444', marginTop: '8px' }}>{t('route.limitReached')}</p>}
         </div>
       </form>
     </div>
@@ -469,8 +736,8 @@ export const RouteOptimizerPage: React.FC = () => {
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <EmptyState
             icon="solar:routing-2-bold-duotone"
-            title="Ready to optimize"
-            description="Configure your depot, stops, and fleet on the left, then click Optimize Route to see results here."
+            title={t('route.readyTitle')}
+            description={t('route.readyDesc')}
           />
         </div>
       )}
@@ -490,7 +757,7 @@ export const RouteOptimizerPage: React.FC = () => {
               <motion.div animate={{ width: `${loadingPct}%` }} transition={{ duration: 0.3, ease: 'easeOut' }}
                 style={{ height: '100%', background: 'linear-gradient(90deg, #F5C842, #D4A017)', borderRadius: 3 }} />
             </div>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '8px' }}>This may take up to 30 seconds</p>
+            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '8px' }}>{t('route.loadingTime')}</p>
           </div>
         </div>
       )}
@@ -506,25 +773,25 @@ export const RouteOptimizerPage: React.FC = () => {
               flexShrink: 0, overflowX: 'auto',
             }}>
               {([
-                { key: 'summary',   icon: 'solar:chart-square-bold-duotone',   label: 'Summary' },
-                { key: 'map',       icon: 'solar:map-point-wave-bold-duotone', label: 'Map' },
-                { key: 'sequence',  icon: 'solar:list-bold-duotone',           label: 'Sequence' },
-                { key: 'analytics', icon: 'solar:graph-up-bold-duotone',       label: 'Analytics' },
-              ] as { key: Tab; icon: string; label: string }[]).map(t => (
-                <button key={t.key} onClick={() => setActiveTab(t.key)}
+                { key: 'summary',   icon: 'solar:chart-square-bold-duotone',   labelKey: 'route.summary' },
+                { key: 'map',       icon: 'solar:map-point-wave-bold-duotone', labelKey: 'route.mapTab' },
+                { key: 'sequence',  icon: 'solar:list-bold-duotone',           labelKey: 'route.sequence' },
+                { key: 'analytics', icon: 'solar:graph-up-bold-duotone',       labelKey: 'route.analytics' },
+              ] as { key: Tab; icon: string; labelKey: 'route.summary' | 'route.mapTab' | 'route.sequence' | 'route.analytics' }[]).map(tab => (
+                <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: isTablet ? '8px 10px' : '8px 14px',
                     flexShrink: 0,
-                    background: activeTab === t.key ? 'rgba(245,200,66,0.12)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${activeTab === t.key ? 'rgba(245,200,66,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                    background: activeTab === tab.key ? 'rgba(245,200,66,0.12)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${activeTab === tab.key ? 'rgba(245,200,66,0.35)' : 'rgba(255,255,255,0.08)'}`,
                     borderRadius: '10px', cursor: 'pointer',
                     fontSize: isTablet ? '12px' : '13px', fontWeight: 600,
-                    color: activeTab === t.key ? '#F5C842' : 'rgba(255,255,255,0.5)',
+                    color: activeTab === tab.key ? '#F5C842' : 'rgba(255,255,255,0.5)',
                     transition: 'all 0.2s', whiteSpace: 'nowrap',
                   }}>
-                  <Icon icon={t.icon} width={16} />
-                  <span>{t.label}</span>
+                  <Icon icon={tab.icon} width={16} />
+                  <span>{t(tab.labelKey)}</span>
                 </button>
               ))}
             </div>
@@ -575,7 +842,7 @@ export const RouteOptimizerPage: React.FC = () => {
                   transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                 }}>
                 <Icon icon={v === 'form' ? 'solar:settings-bold-duotone' : 'solar:chart-square-bold-duotone'} width={15} />
-                {v === 'form' ? 'Configure' : 'Results'}
+                {v === 'form' ? t('route.configure') : t('route.results')}
                 {v === 'results' && (result || loading) && (
                   <span style={{ width: 7, height: 7, borderRadius: '50%', background: loading ? '#F5C842' : '#10B981', display: 'inline-block' }} />
                 )}
@@ -586,23 +853,23 @@ export const RouteOptimizerPage: React.FC = () => {
           {mobileView === 'results' && result && !loading && (
             <div style={{ display: 'flex', gap: '4px', padding: '0 12px 10px' }}>
               {([
-                { key: 'summary',   icon: 'solar:chart-square-bold-duotone',   label: 'Summary' },
-                { key: 'map',       icon: 'solar:map-point-wave-bold-duotone', label: 'Map' },
-                { key: 'sequence',  icon: 'solar:list-bold-duotone',           label: 'Sequence' },
-                { key: 'analytics', icon: 'solar:graph-up-bold-duotone',       label: 'Analytics' },
-              ] as { key: Tab; icon: string; label: string }[]).map(t => (
-                <button key={t.key} type="button" onClick={() => setActiveTab(t.key)}
+                { key: 'summary',   icon: 'solar:chart-square-bold-duotone',   labelKey: 'route.summary' },
+                { key: 'map',       icon: 'solar:map-point-wave-bold-duotone', labelKey: 'route.mapTab' },
+                { key: 'sequence',  icon: 'solar:list-bold-duotone',           labelKey: 'route.sequence' },
+                { key: 'analytics', icon: 'solar:graph-up-bold-duotone',       labelKey: 'route.analytics' },
+              ] as { key: Tab; icon: string; labelKey: 'route.summary' | 'route.mapTab' | 'route.sequence' | 'route.analytics' }[]).map(tab => (
+                <button key={tab.key} type="button" onClick={() => setActiveTab(tab.key)}
                   style={{
                     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
                     padding: '7px 4px', borderRadius: '8px', cursor: 'pointer',
                     fontSize: '11px', fontWeight: 600, border: '1px solid', whiteSpace: 'nowrap',
-                    borderColor: activeTab === t.key ? 'rgba(245,200,66,0.4)' : 'rgba(255,255,255,0.08)',
-                    background: activeTab === t.key ? 'rgba(245,200,66,0.1)' : 'rgba(255,255,255,0.03)',
-                    color: activeTab === t.key ? '#F5C842' : 'rgba(255,255,255,0.45)',
+                    borderColor: activeTab === tab.key ? 'rgba(245,200,66,0.4)' : 'rgba(255,255,255,0.08)',
+                    background: activeTab === tab.key ? 'rgba(245,200,66,0.1)' : 'rgba(255,255,255,0.03)',
+                    color: activeTab === tab.key ? '#F5C842' : 'rgba(255,255,255,0.45)',
                     transition: 'all 0.2s',
                   }}>
-                  <Icon icon={t.icon} width={13} />
-                  {t.label}
+                  <Icon icon={tab.icon} width={13} />
+                  {t(tab.labelKey)}
                 </button>
               ))}
             </div>
@@ -612,6 +879,36 @@ export const RouteOptimizerPage: React.FC = () => {
 
       {(!isMobile || mobileView === 'form') && LeftPanel}
       {(!isMobile || mobileView === 'results') && RightPanel}
+
+      {/* ── Map Picker Dialog ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        {mapPickerTarget !== null && (() => {
+          const depLat = parseFloat(getValues('depot_lat'));
+          const depLng = parseFloat(getValues('depot_lng'));
+          let initLat: number | undefined;
+          let initLng: number | undefined;
+          if (mapPickerTarget === 'depot') {
+            initLat = isNaN(depLat) ? undefined : depLat;
+            initLng = isNaN(depLng) ? undefined : depLng;
+          } else {
+            const sLat = parseFloat(getValues(`stops.${mapPickerTarget}.lat`));
+            const sLng = parseFloat(getValues(`stops.${mapPickerTarget}.lng`));
+            initLat = isNaN(sLat) ? (isNaN(depLat) ? undefined : depLat) : sLat;
+            initLng = isNaN(sLng) ? (isNaN(depLng) ? undefined : depLng) : sLng;
+          }
+          return (
+            <MapPickerDialog
+              open={mapPickerTarget !== null}
+              onClose={() => setMapPickerTarget(null)}
+              onConfirm={handleMapConfirm}
+              lang={lang}
+              t={t}
+              initialLat={initLat}
+              initialLng={initLng}
+            />
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 };
@@ -668,6 +965,7 @@ const SummaryTab: React.FC<{
   sequentialDistKm: number;
 }> = ({ result, formatTime, sequentialDistKm }) => {
   const { isMobile } = useBreakpoint();
+  const { lang } = useLanguage();
   const totalStops   = result.routes.reduce((a, r) => a + r.stops.length, 0);
   const deliveryRate = result.total_time_minutes > 0
     ? ((result.num_stops_assigned / result.total_time_minutes) * 60).toFixed(1)
@@ -690,10 +988,10 @@ const SummaryTab: React.FC<{
   const savedMin = savedMinReal;
 
   const stats = [
-    { icon: 'solar:routing-2-bold-duotone',      label: 'Total Distance',   value: `${result.total_distance_km?.toFixed(2)} km`, color: '#F5C842' },
-    { icon: 'solar:clock-circle-bold-duotone',   label: 'Total Time',       value: formatTime(result.total_time_minutes),          color: '#3B82F6' },
-    { icon: 'solar:map-point-wave-bold-duotone', label: 'Stops Assigned',   value: `${result.num_stops_assigned} / ${totalStops}`,  color: '#10B981' },
-    { icon: 'solar:delivery-bold-duotone',       label: 'Delivery Speed',   value: `${deliveryRate}/hr`,                            color: '#A855F7' },
+    { icon: 'solar:routing-2-bold-duotone',      label: lang === 'ar' ? 'إجمالي المسافة' : 'Total Distance',   value: `${result.total_distance_km?.toFixed(2)} km`, color: '#F5C842' },
+    { icon: 'solar:clock-circle-bold-duotone',   label: lang === 'ar' ? 'الوقت الكلي' : 'Total Time',          value: formatTime(result.total_time_minutes),          color: '#3B82F6' },
+    { icon: 'solar:map-point-wave-bold-duotone', label: lang === 'ar' ? 'المحطات المُسنَّدة' : 'Stops Assigned', value: `${result.num_stops_assigned} / ${totalStops}`, color: '#10B981' },
+    { icon: 'solar:delivery-bold-duotone',       label: lang === 'ar' ? 'سرعة التوصيل' : 'Delivery Speed',     value: `${deliveryRate}/hr`,                            color: '#A855F7' },
   ];
 
   return (
@@ -758,7 +1056,7 @@ const SummaryTab: React.FC<{
 
       {/* ── Fleet Performance ── */}
       <div>
-        <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 10px' }}>Fleet Performance</p>
+        <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 10px' }}>{lang === 'ar' ? 'أداء الأسطول' : 'Fleet Performance'}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {result.routes.map((route, ri) => {
             const stops     = route.stops.length;
@@ -784,7 +1082,7 @@ const SummaryTab: React.FC<{
                 {/* Mini metrics row */}
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: '8px', marginBottom: '14px' }}>
                   <MiniStat icon="solar:clock-circle-bold-duotone" color="#3B82F6" value={formatTime(driveMin)} label="Drive time" />
-                  <MiniStat icon="solar:wrench-minimalistic-bold-duotone" color="#A855F7" value={formatTime(totalSvcMin)} label="Service time" />
+                  <MiniStat icon="solar:stopwatch-bold-duotone" color="#A855F7" value={formatTime(totalSvcMin)} label="Service time" />
                   <MiniStat icon="solar:map-point-wave-bold-duotone" color="#10B981" value={`${stops}`} label="Deliveries" />
                 </div>
 
@@ -997,6 +1295,7 @@ const SequenceTab: React.FC<{
   formatTime: (m: number) => string;
 }> = ({ result, view, setView, hoveredStop, setHoveredStop, formatTime: _formatTime }) => {
   const route = result.routes?.[0] as VehicleRoute | undefined;
+  const { lang } = useLanguage();
   if (!route) return null;
 
   return (
@@ -1005,7 +1304,7 @@ const SequenceTab: React.FC<{
         {(['timeline', 'table'] as const).map(v => (
           <button key={v} onClick={() => setView(v)}
             style={{ padding: '7px 16px', borderRadius: '8px', border: '1px solid rgba(245,200,66,0.25)', cursor: 'pointer', fontSize: '13px', fontWeight: 600, background: view === v ? 'rgba(245,200,66,0.12)' : 'transparent', color: view === v ? '#F5C842' : 'rgba(255,255,255,0.5)' }}>
-            {v === 'timeline' ? 'Timeline' : 'Table'}
+            {v === 'timeline' ? (lang === 'ar' ? 'الجدول الزمني' : 'Timeline') : (lang === 'ar' ? 'الجدول' : 'Table')}
           </button>
         ))}
       </div>
@@ -1014,8 +1313,8 @@ const SequenceTab: React.FC<{
         <div style={{ padding: '8px 4px' }}>
           {/* Depot start node */}
           <RoadNode
-            label="START" isDepot color="#F5C842"
-            address="Depot — Starting Point"
+            label={lang === 'ar' ? 'بداية' : 'START'} isDepot color="#F5C842"
+            address={lang === 'ar' ? 'المستودع — نقطة الانطلاق' : 'Depot — Starting Point'}
             stats={[]} hovered={false}
             onEnter={() => {}} onLeave={() => {}}
             side="left"
@@ -1054,8 +1353,8 @@ const SequenceTab: React.FC<{
           {/* Road back to depot */}
           <RoadConnector fromSide={route.stops.length % 2 === 0 ? 'right' : 'left'} toSide="left" isFirst={false} />
           <RoadNode
-            label="END" isDepot color="#10B981"
-            address="Depot — Route Complete"
+            label={lang === 'ar' ? 'نهاية' : 'END'} isDepot color="#10B981"
+            address={lang === 'ar' ? 'المستودع — اكتملت الجولة' : 'Depot — Route Complete'}
             stats={[]} hovered={false}
             onEnter={() => {}} onLeave={() => {}}
             side="left"
@@ -1068,7 +1367,10 @@ const SequenceTab: React.FC<{
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                {['#', 'Address', 'Arrival', 'Weight', 'Volume', 'Service'].map(h => (
+                {(lang === 'ar'
+                  ? ['#', 'العنوان', 'الوصول', 'الوزن', 'الحجم', 'الخدمة']
+                  : ['#', 'Address', 'Arrival', 'Weight', 'Volume', 'Service']
+                ).map(h => (
                   <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: 'rgba(255,255,255,0.35)', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
@@ -1096,6 +1398,7 @@ const SequenceTab: React.FC<{
 // ── Analytics Tab ─────────────────────────────────────────────────────────────
 const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: number) => string }> = ({ result }) => {
   const { isMobile } = useBreakpoint();
+  const { lang } = useLanguage();
   const route = result.routes?.[0] as VehicleRoute | undefined;
   if (!route) return null;
 
@@ -1109,7 +1412,7 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Arrival Distribution */}
       <div style={{ background: 'rgba(12,17,45,0.8)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '12px', padding: '20px' }}>
-        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: '3px solid #F5C842', paddingLeft: '10px' }}>Arrival Time Distribution</h4>
+        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: '3px solid #F5C842', paddingLeft: '10px' }}>{lang === 'ar' ? 'توزيع وقت الوصول' : 'Arrival Time Distribution'}</h4>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={arrivalData}>
             <CartesianGrid {...chartGridStyle} />
@@ -1123,8 +1426,8 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
 
       {/* Demand per Stop */}
       <div style={{ background: 'rgba(12,17,45,0.8)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '12px', padding: '20px' }}>
-        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 4px', borderLeft: '3px solid #3B82F6', paddingLeft: '10px' }}>Demand per Stop</h4>
-        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: '0 0 16px 13px' }}>Volume scaled ×10 for visibility</p>
+        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 4px', borderLeft: '3px solid #3B82F6', paddingLeft: '10px' }}>{lang === 'ar' ? 'الطلب لكل محطة' : 'Demand per Stop'}</h4>
+        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: '0 0 16px 13px' }}>{lang === 'ar' ? 'الحجم مضروب ×10 للوضوح' : 'Volume scaled ×10 for visibility'}</p>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={demandData}>
             <CartesianGrid {...chartGridStyle} />
@@ -1139,21 +1442,21 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
 
       {/* Capacity Utilization */}
       <div style={{ background: 'rgba(12,17,45,0.8)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '12px', padding: '20px' }}>
-        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: '3px solid #10B981', paddingLeft: '10px' }}>Capacity Utilization</h4>
-        <CapBar label="Weight Utilization" used={route.load_weight}  cap={route.capacity_weight} color="#F5C842" unit="kg" />
-        <CapBar label="Volume Utilization" used={route.load_volume}  cap={route.capacity_volume} color="#3B82F6" unit="m³" />
+        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: '3px solid #10B981', paddingLeft: '10px' }}>{lang === 'ar' ? 'استغلال الطاقة الاستيعابية' : 'Capacity Utilization'}</h4>
+        <CapBar label={lang === 'ar' ? 'استغلال الوزن' : 'Weight Utilization'} used={route.load_weight}  cap={route.capacity_weight} color="#F5C842" unit="kg" />
+        <CapBar label={lang === 'ar' ? 'استغلال الحجم' : 'Volume Utilization'} used={route.load_volume}  cap={route.capacity_volume} color="#3B82F6" unit="m³" />
         {(weightPct < 50 && volPct < 50) && (
-          <p style={{ fontSize: '13px', color: '#10B981', marginTop: '8px' }}>✅ Well within capacity</p>
+          <p style={{ fontSize: '13px', color: '#10B981', marginTop: '8px' }}>✅ {lang === 'ar' ? 'ضمن الطاقة الاستيعابية' : 'Well within capacity'}</p>
         )}
       </div>
 
       {/* Summary stats */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
         {[
-          { label: 'Avg Service Time', value: route.stops.length > 0 ? `${(route.stops.reduce((a, s) => a + (s.service_time_minutes ?? 0), 0) / route.stops.length).toFixed(0)} min` : '—' },
-          { label: 'Total Stops',     value: route.stops.length.toString() },
-          { label: 'Total Load',      value: `${route.load_weight?.toFixed(1)} kg` },
-          { label: 'Total Volume',    value: `${route.load_volume?.toFixed(1)} m³` },
+          { label: lang === 'ar' ? 'متوسط وقت الخدمة' : 'Avg Service Time', value: route.stops.length > 0 ? `${(route.stops.reduce((a, s) => a + (s.service_time_minutes ?? 0), 0) / route.stops.length).toFixed(0)} min` : '—' },
+          { label: lang === 'ar' ? 'إجمالي المحطات' : 'Total Stops',     value: route.stops.length.toString() },
+          { label: lang === 'ar' ? 'الحمولة الكلية' : 'Total Load',      value: `${route.load_weight?.toFixed(1)} kg` },
+          { label: lang === 'ar' ? 'الحجم الكلي' : 'Total Volume',    value: `${route.load_volume?.toFixed(1)} m³` },
         ].map(s => (
           <div key={s.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '14px' }}>
             <p style={{ fontSize: '18px', fontWeight: 800, fontFamily: "'Sora', sans-serif", color: '#F5C842', margin: '0 0 4px' }}>{s.value}</p>

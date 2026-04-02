@@ -7,19 +7,22 @@ import { useAuth } from '../hooks/useAuth';
 import { authAPI } from '../services/api';
 import { useToast } from '../components/ui/Toast';
 import { GoldButton } from '../components/ui/GoldButton';
+import { LangToggle } from '../components/ui/LangToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import { useLanguage } from '../contexts/LanguageContext';
 import type { User } from '../types';
 
 interface LoginForm { email: string; password: string; }
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { toast } = useToast();
+  const { login }    = useAuth();
+  const navigate     = useNavigate();
+  const location     = useLocation();
+  const { toast }    = useToast();
   const { isMobile } = useBreakpoint();
+  const { t, isRTL } = useLanguage();
   const [loading, setLoading] = useState(false);
-  const [showPw, setShowPw] = useState(false);
+  const [showPw,  setShowPw]  = useState(false);
 
   const from = (location.state as { from?: string })?.from || '/dashboard';
 
@@ -30,7 +33,8 @@ export const LoginPage: React.FC = () => {
     border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
     padding: '13px 16px', fontSize: '14px', color: '#FFFFFF',
     outline: 'none', height: '52px', boxSizing: 'border-box',
-    transition: 'border-color 0.2s', fontFamily: "'Inter', sans-serif",
+    transition: 'border-color 0.2s', fontFamily: isRTL ? "'Cairo', sans-serif" : "'Inter', sans-serif",
+    direction: 'ltr',
   };
 
   const onSubmit = async (data: LoginForm) => {
@@ -62,6 +66,11 @@ export const LoginPage: React.FC = () => {
       <div style={{ position: 'fixed', top: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'rgba(245,200,66,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-20%', right: '-10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,0.05)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
+      {/* Lang toggle — top right */}
+      <div style={{ position: 'fixed', top: 16, right: isRTL ? 'auto' : 16, left: isRTL ? 16 : 'auto', zIndex: 100 }}>
+        <LangToggle />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -74,8 +83,8 @@ export const LoginPage: React.FC = () => {
             <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Sora', fontWeight: 800, fontSize: isMobile ? 15 : 18, color: '#0A0E27' }}>A</div>
             <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: isMobile ? 17 : 20 }}>WAYN</span>
           </Link>
-          <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>Welcome back</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>Sign in to your account to continue</p>
+          <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>{t('auth.welcomeBack')}</h1>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>{t('auth.signInSubtitle')}</p>
         </div>
 
         {/* Card */}
@@ -88,14 +97,14 @@ export const LoginPage: React.FC = () => {
 
             {/* Email */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>Email Address</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>{t('auth.emailAddress')}</label>
               <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', [isRTL ? 'right' : 'left']: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
                   <Icon icon="solar:letter-bold" width={18} color="rgba(255,255,255,0.3)" />
                 </div>
                 <input
                   type="email"
-                  style={{ ...inputStyle, paddingLeft: '44px', ...(errors.email ? { borderColor: '#EF4444' } : {}) }}
+                  style={{ ...inputStyle, [isRTL ? 'paddingRight' : 'paddingLeft']: '44px', ...(errors.email ? { borderColor: '#EF4444' } : {}) }}
                   placeholder="you@company.com"
                   onFocus={e => (e.target.style.borderColor = '#F5C842')}
                   {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' } })}
@@ -107,21 +116,21 @@ export const LoginPage: React.FC = () => {
 
             {/* Password */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>Password</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>{t('auth.password')}</label>
               <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', [isRTL ? 'right' : 'left']: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
                   <Icon icon="solar:lock-password-bold" width={18} color="rgba(255,255,255,0.3)" />
                 </div>
                 <input
                   type={showPw ? 'text' : 'password'}
-                  style={{ ...inputStyle, paddingLeft: '44px', paddingRight: '44px', ...(errors.password ? { borderColor: '#EF4444' } : {}) }}
+                  style={{ ...inputStyle, [isRTL ? 'paddingRight' : 'paddingLeft']: '44px', [isRTL ? 'paddingLeft' : 'paddingRight']: '44px', ...(errors.password ? { borderColor: '#EF4444' } : {}) }}
                   placeholder="••••••••"
                   onFocus={e => (e.target.style.borderColor = '#F5C842')}
                   {...register('password', { required: 'Password is required' })}
                   onBlur={e => (e.target.style.borderColor = errors.password ? '#EF4444' : 'rgba(255,255,255,0.12)')}
                 />
                 <button type="button" onClick={() => setShowPw(!showPw)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                  style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
                   <Icon icon={showPw ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                 </button>
               </div>
@@ -129,35 +138,35 @@ export const LoginPage: React.FC = () => {
             </div>
 
             {/* Forgot password */}
-            <div style={{ textAlign: 'right', marginTop: '-6px' }}>
+            <div style={{ textAlign: isRTL ? 'left' : 'right', marginTop: '-6px' }}>
               <Link to="/forgot-password" style={{ fontSize: '12px', color: 'rgba(245,200,66,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
                 onMouseEnter={e => (e.currentTarget.style.color = '#F5C842')}
                 onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,200,66,0.6)')}>
-                Forgot password?
+                {t('auth.forgotPassword')}
               </Link>
             </div>
 
             <GoldButton type="submit" loading={loading} fullWidth size="lg">
-              {loading ? 'Signing in…' : 'Sign In'}
-              {!loading && <Icon icon="solar:arrow-right-bold" width={16} />}
+              {loading ? t('auth.signingIn') : t('auth.signIn')}
+              {!loading && <Icon icon={isRTL ? 'solar:arrow-left-bold' : 'solar:arrow-right-bold'} width={16} />}
             </GoldButton>
           </form>
 
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>or</span>
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>{t('auth.or')}</span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
           </div>
 
           <p style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-            Don't have an account?{' '}
-            <Link to="/signup" style={{ color: '#F5C842', fontWeight: 600, textDecoration: 'none' }}>Create one free</Link>
+            {t('auth.noAccount')}{' '}
+            <Link to="/signup" style={{ color: '#F5C842', fontWeight: 600, textDecoration: 'none' }}>{t('auth.createFree')}</Link>
           </p>
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.15)', marginTop: '16px' }}>
-          Secured with JWT authentication · Wayn 2026
+          {t('auth.secured')}
         </p>
       </motion.div>
     </div>

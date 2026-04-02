@@ -7,7 +7,9 @@ import { authAPI } from '../services/api';
 import { useToast } from '../components/ui/Toast';
 import { GoldButton } from '../components/ui/GoldButton';
 import { CountryDropdown } from '../components/ui/CountryDropdown';
+import { LangToggle } from '../components/ui/LangToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FormValues {
   fullName:        string;
@@ -19,19 +21,6 @@ interface FormValues {
   confirmPassword: string;
 }
 
-const inputStyle: React.CSSProperties = {
-  width: '100%', background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
-  padding: '13px 16px', fontSize: '14px', color: '#FFFFFF',
-  outline: 'none', height: '52px', boxSizing: 'border-box',
-  transition: 'border-color 0.2s', fontFamily: "'Inter', sans-serif",
-};
-
-const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: '13px', fontWeight: 600,
-  color: 'rgba(255,255,255,0.7)', marginBottom: '6px',
-};
-
 const getStrength = (pw: string): number => {
   let s = 0;
   if (pw.length >= 8) s++;
@@ -42,9 +31,10 @@ const getStrength = (pw: string): number => {
 };
 
 export const SignupPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const navigate     = useNavigate();
+  const { toast }    = useToast();
   const { isMobile } = useBreakpoint();
+  const { t, isRTL } = useLanguage();
   const [loading,  setLoading]  = useState(false);
   const [showPw,   setShowPw]   = useState(false);
   const [showCPw,  setShowCPw]  = useState(false);
@@ -56,7 +46,21 @@ export const SignupPage: React.FC = () => {
   const pwValue  = watch('password', '');
   const strength = getStrength(pwValue);
   const strengthColors = ['#EF4444', '#F59E0B', '#F59E0B', '#10B981', '#10B981'];
-  const strengthLabels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+  const strengthLabels = ['', t('auth.weak'), t('auth.fair'), t('auth.good'), t('auth.strong')];
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
+    padding: '13px 16px', fontSize: '14px', color: '#FFFFFF',
+    outline: 'none', height: '52px', boxSizing: 'border-box',
+    transition: 'border-color 0.2s', fontFamily: isRTL ? "'Cairo', sans-serif" : "'Inter', sans-serif",
+    direction: 'ltr',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: '13px', fontWeight: 600,
+    color: 'rgba(255,255,255,0.7)', marginBottom: '6px',
+  };
 
   const onSubmit = async (data: FormValues) => {
     if (data.password !== data.confirmPassword) {
@@ -90,7 +94,7 @@ export const SignupPage: React.FC = () => {
   const fieldErr = (msg?: string) =>
     msg ? <p style={{ color: '#EF4444', fontSize: '11px', marginTop: '4px' }}>{msg}</p> : null;
 
-  const twoCol = isMobile ? '1fr' : '1fr 1fr';
+  const twoCol  = isMobile ? '1fr' : '1fr 1fr';
   const cardPad = isMobile ? '24px 18px' : '40px';
 
   return (
@@ -104,6 +108,11 @@ export const SignupPage: React.FC = () => {
       <div style={{ position: 'fixed', top: '-15%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'rgba(245,200,66,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-15%', right: '-10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,0.06)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
+      {/* Lang toggle — top right */}
+      <div style={{ position: 'fixed', top: 16, right: isRTL ? 'auto' : 16, left: isRTL ? 16 : 'auto', zIndex: 100 }}>
+        <LangToggle />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -116,8 +125,8 @@ export const SignupPage: React.FC = () => {
             <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Sora', fontWeight: 800, fontSize: isMobile ? 15 : 18, color: '#0A0E27' }}>A</div>
             <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: isMobile ? 17 : 20, letterSpacing: '-0.3px' }}>WAYN</span>
           </Link>
-          <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>Create your account</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>Start optimizing your logistics today</p>
+          <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>{t('auth.createAccount')}</h1>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>{t('auth.createAccountSubtitle')}</p>
         </div>
 
         {/* Card */}
@@ -130,31 +139,31 @@ export const SignupPage: React.FC = () => {
 
             {/* Full Name */}
             <div style={{ marginBottom: '14px' }}>
-              <label style={labelStyle}>Full Name</label>
+              <label style={labelStyle}>{t('auth.fullName')}</label>
               <input
                 className="auth-input"
                 style={{ ...inputStyle, ...(errors.fullName ? { borderColor: '#EF4444' } : {}) }}
-                placeholder="John Smith"
+                placeholder={isRTL ? 'محمد علي' : 'John Smith'}
                 {...register('fullName', { required: 'Required' })}
               />
               {fieldErr(errors.fullName?.message)}
             </div>
 
-            {/* Row 2: Company */}
+            {/* Company */}
             <div style={{ marginBottom: '14px' }}>
-              <label style={labelStyle}>Company Name</label>
+              <label style={labelStyle}>{t('auth.companyName')}</label>
               <input
                 className="auth-input"
                 style={{ ...inputStyle, ...(errors.companyName ? { borderColor: '#EF4444' } : {}) }}
-                placeholder="Acme Logistics LLC"
+                placeholder={isRTL ? 'شركة أكمي للوجستيات' : 'Acme Logistics LLC'}
                 {...register('companyName', { required: 'Required' })}
               />
               {fieldErr(errors.companyName?.message)}
             </div>
 
-            {/* Row 3: Email */}
+            {/* Email */}
             <div style={{ marginBottom: '14px' }}>
-              <label style={labelStyle}>Email Address</label>
+              <label style={labelStyle}>{t('auth.emailAddress')}</label>
               <input
                 className="auth-input"
                 type="email"
@@ -165,10 +174,10 @@ export const SignupPage: React.FC = () => {
               {fieldErr(errors.email?.message)}
             </div>
 
-            {/* Row 4: Phone + Country */}
+            {/* Phone + Country */}
             <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '12px', marginBottom: '14px' }}>
               <div>
-                <label style={labelStyle}>Phone <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>(optional)</span></label>
+                <label style={labelStyle}>{t('auth.phone')} <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>{t('auth.optional')}</span></label>
                 <input
                   className="auth-input"
                   type="tel" style={inputStyle} placeholder="+971 50 000 0000"
@@ -186,37 +195,37 @@ export const SignupPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Row 5: Password + Confirm */}
+            {/* Password + Confirm */}
             <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '12px', marginBottom: '10px' }}>
               <div>
-                <label style={labelStyle}>Password</label>
+                <label style={labelStyle}>{t('auth.password')}</label>
                 <div style={{ position: 'relative' }}>
                   <input
                     className="auth-input"
                     type={showPw ? 'text' : 'password'}
-                    style={{ ...inputStyle, paddingRight: '44px', ...(errors.password ? { borderColor: '#EF4444' } : {}) }}
-                    placeholder="Min 8 characters"
+                    style={{ ...inputStyle, [isRTL ? 'paddingLeft' : 'paddingRight']: '44px', ...(errors.password ? { borderColor: '#EF4444' } : {}) }}
+                    placeholder={isRTL ? '٨ أحرف على الأقل' : 'Min 8 characters'}
                     {...register('password', { required: 'Required', minLength: { value: 8, message: 'Min 8 chars' } })}
                   />
                   <button type="button" onClick={() => setShowPw(!showPw)}
-                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                    style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
                     <Icon icon={showPw ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                   </button>
                 </div>
                 {fieldErr(errors.password?.message)}
               </div>
               <div>
-                <label style={labelStyle}>Confirm Password</label>
+                <label style={labelStyle}>{t('auth.confirmPassword')}</label>
                 <div style={{ position: 'relative' }}>
                   <input
                     className="auth-input"
                     type={showCPw ? 'text' : 'password'}
-                    style={{ ...inputStyle, paddingRight: '44px', ...(errors.confirmPassword ? { borderColor: '#EF4444' } : {}) }}
-                    placeholder="Repeat password"
+                    style={{ ...inputStyle, [isRTL ? 'paddingLeft' : 'paddingRight']: '44px', ...(errors.confirmPassword ? { borderColor: '#EF4444' } : {}) }}
+                    placeholder={isRTL ? 'أعد كتابة كلمة المرور' : 'Repeat password'}
                     {...register('confirmPassword', { required: 'Required' })}
                   />
                   <button type="button" onClick={() => setShowCPw(!showCPw)}
-                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                    style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
                     <Icon icon={showCPw ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                   </button>
                 </div>
@@ -243,19 +252,19 @@ export const SignupPage: React.FC = () => {
             </AnimatePresence>
 
             <GoldButton type="submit" loading={loading} fullWidth size="lg">
-              {loading ? 'Creating Account…' : 'Create Account'}
-              {!loading && <Icon icon="solar:arrow-right-bold" width={16} />}
+              {loading ? t('auth.creatingAccount') : t('auth.createAccountBtn')}
+              {!loading && <Icon icon={isRTL ? 'solar:arrow-left-bold' : 'solar:arrow-right-bold'} width={16} />}
             </GoldButton>
           </form>
 
           <p style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginTop: '18px' }}>
-            Already have an account?{' '}
-            <Link to="/login" style={{ color: '#F5C842', fontWeight: 600, textDecoration: 'none' }}>Sign In</Link>
+            {t('auth.alreadyHaveAccount')}{' '}
+            <Link to="/login" style={{ color: '#F5C842', fontWeight: 600, textDecoration: 'none' }}>{t('auth.signIn')}</Link>
           </p>
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.15)', marginTop: '16px' }}>
-          Secured with JWT authentication · Wayn 2026
+          {t('auth.secured')}
         </p>
       </motion.div>
     </div>

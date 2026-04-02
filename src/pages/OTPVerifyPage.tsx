@@ -5,7 +5,9 @@ import { Icon } from '@iconify/react';
 import { useAuth } from '../hooks/useAuth';
 import { authAPI } from '../services/api';
 import { useToast } from '../components/ui/Toast';
+import { LangToggle } from '../components/ui/LangToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
+import { useLanguage } from '../contexts/LanguageContext';
 import type { User } from '../types';
 
 const OTP_LENGTH = 6;
@@ -17,6 +19,7 @@ export const OTPVerifyPage: React.FC = () => {
   const { login }   = useAuth();
   const { toast }   = useToast();
   const { isMobile } = useBreakpoint();
+  const { t, isRTL } = useLanguage();
 
   const userId    = params.get('userId')    || '';
   const email     = params.get('email')     || '';
@@ -29,7 +32,6 @@ export const OTPVerifyPage: React.FC = () => {
   const [resending, setResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Countdown timer
   useEffect(() => {
     const interval = setInterval(() => setCountdown(c => (c > 0 ? c - 1 : 0)), 1000);
     return () => clearInterval(interval);
@@ -57,7 +59,6 @@ export const OTPVerifyPage: React.FC = () => {
     } finally { setLoading(false); }
   }, [userId, login, navigate, toast]);
 
-  // Auto-submit when all 6 digits are filled
   useEffect(() => {
     if (digits.every(d => d !== '') && !loading) submit(digits.join(''));
   }, [digits, loading, submit]);
@@ -96,7 +97,6 @@ export const OTPVerifyPage: React.FC = () => {
     } finally { setResending(false); }
   };
 
-  // Responsive box size
   const boxW = isMobile ? '42px' : '52px';
   const boxH = isMobile ? '50px' : '62px';
   const boxFontSize = isMobile ? '22px' : '28px';
@@ -127,6 +127,11 @@ export const OTPVerifyPage: React.FC = () => {
     }}>
       <div style={{ position: 'fixed', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: 500, height: 500, borderRadius: '50%', background: 'rgba(245,200,66,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
 
+      {/* Lang toggle */}
+      <div style={{ position: 'fixed', top: 16, right: isRTL ? 'auto' : 16, left: isRTL ? 16 : 'auto', zIndex: 100 }}>
+        <LangToggle />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -154,7 +159,7 @@ export const OTPVerifyPage: React.FC = () => {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 style={{ position: 'absolute', inset: 0, background: 'rgba(10,14,39,0.85)', borderRadius: isMobile ? '16px' : '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, zIndex: 10, backdropFilter: 'blur(8px)' }}>
                 <div style={{ width: 40, height: 40, border: '3px solid rgba(245,200,66,0.2)', borderTopColor: '#F5C842', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Verifying code…</p>
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{t('auth.verifyingCode')}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -173,8 +178,8 @@ export const OTPVerifyPage: React.FC = () => {
             />
           </div>
 
-          <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 12px' }}>
-            {emailSent ? 'Check your email' : 'Email delivery issue'}
+          <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 12px' }}>
+            {emailSent ? t('auth.checkEmail') : t('auth.emailDeliveryIssue')}
           </h1>
 
           {/* Email status banner */}
@@ -183,15 +188,16 @@ export const OTPVerifyPage: React.FC = () => {
               style={{
                 display: 'flex', alignItems: 'flex-start', gap: '10px',
                 background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)',
-                borderRadius: '10px', padding: '10px 12px', marginBottom: '18px', textAlign: 'left',
+                borderRadius: '10px', padding: '10px 12px', marginBottom: '18px', textAlign: isRTL ? 'right' : 'left',
+                flexDirection: isRTL ? 'row-reverse' : 'row',
               }}
             >
               <Icon icon="solar:check-circle-bold" width={16} color="#10B981" style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
-                <p style={{ color: '#10B981', fontSize: '12px', fontWeight: 600, margin: '0 0 2px' }}>Email sent successfully</p>
+                <p style={{ color: '#10B981', fontSize: '12px', fontWeight: 600, margin: '0 0 2px' }}>{t('auth.emailSentOk')}</p>
                 <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', margin: 0, lineHeight: 1.5 }}>
-                  Sent to <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{email}</strong>.
-                  {' '}Also check <strong style={{ color: 'rgba(255,255,255,0.8)' }}>spam / junk</strong>.
+                  Sent to <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{email}</strong>.{' '}
+                  Also check <strong style={{ color: 'rgba(255,255,255,0.8)' }}>spam / junk</strong>.
                 </p>
               </div>
             </motion.div>
@@ -200,27 +206,28 @@ export const OTPVerifyPage: React.FC = () => {
               style={{
                 display: 'flex', alignItems: 'flex-start', gap: '10px',
                 background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
-                borderRadius: '10px', padding: '10px 12px', marginBottom: '18px', textAlign: 'left',
+                borderRadius: '10px', padding: '10px 12px', marginBottom: '18px', textAlign: isRTL ? 'right' : 'left',
+                flexDirection: isRTL ? 'row-reverse' : 'row',
               }}
             >
               <Icon icon="solar:danger-triangle-bold" width={16} color="#F59E0B" style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
-                <p style={{ color: '#F59E0B', fontSize: '12px', fontWeight: 600, margin: '0 0 2px' }}>Email delivery failed</p>
+                <p style={{ color: '#F59E0B', fontSize: '12px', fontWeight: 600, margin: '0 0 2px' }}>{t('auth.emailDeliveryFailed')}</p>
                 <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', margin: '0 0 4px', lineHeight: 1.5 }}>
-                  Couldn't send to <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{email}</strong>.
-                  {' '}SMTP may not be configured. Try resend once fixed.
+                  Couldn't send to <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{email}</strong>.{' '}
+                  SMTP may not be configured. Try resend once fixed.
                 </p>
               </div>
             </motion.div>
           )}
 
           <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', margin: '0 0 20px' }}>
-            Enter the 6-digit verification code
+            {t('auth.enterCode')}
           </p>
 
           {/* OTP Boxes */}
           <div
-            style={{ display: 'flex', justifyContent: 'center', gap: isMobile ? '7px' : '10px', marginBottom: '24px' }}
+            style={{ display: 'flex', justifyContent: 'center', gap: isMobile ? '7px' : '10px', marginBottom: '24px', direction: 'ltr' }}
             onPaste={handlePaste}
           >
             {digits.map((d, i) => (
@@ -243,12 +250,12 @@ export const OTPVerifyPage: React.FC = () => {
           <div style={{ marginBottom: '8px' }}>
             {countdown > 0 ? (
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
-                Resend in <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{formatTime(countdown)}</strong>
+                {t('auth.resendIn')} <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{formatTime(countdown)}</strong>
               </p>
             ) : (
               <button onClick={handleResend} disabled={resending}
                 style={{ background: 'none', border: 'none', cursor: resending ? 'default' : 'pointer', color: resending ? 'rgba(245,200,66,0.4)' : '#F5C842', fontSize: '13px', fontWeight: 600, padding: 0 }}>
-                {resending ? 'Sending…' : '↺ Resend Code'}
+                {resending ? t('auth.resending') : t('auth.resendCode')}
               </button>
             )}
           </div>
@@ -256,14 +263,14 @@ export const OTPVerifyPage: React.FC = () => {
           {error && (
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               style={{ color: '#EF4444', fontSize: '12px', marginTop: '10px' }}>
-              Invalid or expired code. Please try again.
+              {t('auth.invalidCode')}
             </motion.p>
           )}
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.2)', marginTop: '16px' }}>
-          Wrong email?{' '}
-          <Link to="/signup" style={{ color: 'rgba(245,200,66,0.5)', textDecoration: 'none' }}>Start over</Link>
+          {t('auth.wrongEmail')}{' '}
+          <Link to="/signup" style={{ color: 'rgba(245,200,66,0.5)', textDecoration: 'none' }}>{t('auth.startOver')}</Link>
         </p>
       </motion.div>
     </div>

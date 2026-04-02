@@ -7,6 +7,7 @@ import { normalizeAddress } from '../../services/api';
 import { useUsage } from '../../hooks/useUsage';
 import { CountryDropdown } from '../../components/ui/CountryDropdown';
 import { GoldButton } from '../../components/ui/GoldButton';
+import { useLanguage } from '../../contexts/LanguageContext';
 import type { NormalizeRequest, NormalizeResponse } from '../../types';
 import 'leaflet/dist/leaflet.css';
 
@@ -22,19 +23,19 @@ interface FormValues {
 
 type MapStyle = 'street' | 'satellite' | 'dark';
 
-const MAP_STYLES: Record<MapStyle, { label: string; icon: string; url: string; attribution: string }> = {
+const MAP_STYLES: Record<MapStyle, { labelKey: 'addr.street' | 'addr.satellite' | 'addr.dark'; icon: string; url: string; attribution: string }> = {
   street: {
-    label: 'Street', icon: 'solar:map-bold-duotone',
+    labelKey: 'addr.street', icon: 'solar:map-bold-duotone',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; OpenStreetMap contributors',
   },
   satellite: {
-    label: 'Satellite', icon: 'solar:planet-bold-duotone',
+    labelKey: 'addr.satellite', icon: 'solar:planet-bold-duotone',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attribution: '&copy; Esri, Maxar',
   },
   dark: {
-    label: 'Dark', icon: 'solar:moon-stars-bold-duotone',
+    labelKey: 'addr.dark', icon: 'solar:moon-stars-bold-duotone',
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     attribution: '&copy; OpenStreetMap &copy; CARTO',
   },
@@ -136,6 +137,7 @@ type ResultTab = 'details' | 'map';
 
 export const AddressNormalizerPage: React.FC = () => {
   const { increment, canUseNormalizer, usage } = useUsage();
+  const { t, isRTL } = useLanguage();
   const [result,     setResult]     = useState<NormalizeResponse | null>(null);
   const [loading,    setLoading]    = useState(false);
   const [error,      setError]      = useState<string | null>(null);
@@ -154,16 +156,16 @@ export const AddressNormalizerPage: React.FC = () => {
   const barColor  = normPct >= 100 ? '#EF4444' : normPct >= 80 ? '#F59E0B' : '#10B981';
 
   const onSubmit = async (data: FormValues) => {
-    if (!canUseNormalizer) { setError('Address normalizer limit reached. Upgrade to continue.'); return; }
+    if (!canUseNormalizer) { setError(t('addr.limitReached')); return; }
     setLoading(true); setError(null); setResult(null);
     try {
       await increment('address_normalizer', data.address.slice(0, 120));
       const payload: NormalizeRequest = { address: data.address, country: data.country, use_ai: data.use_ai, include_geocoding: data.include_geocoding, use_cache: data.use_cache };
       const res = await normalizeAddress(payload);
-      if (!res.success) { setError(res.error || 'Normalization failed. Please try again.'); }
+      if (!res.success) { setError(res.error || t('addr.normFailed')); }
       else { setResult(res); setResultTab('details'); }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Network error. Please check your connection.');
+      setError(err instanceof Error ? err.message : t('addr.networkError'));
     } finally { setLoading(false); }
   };
 
@@ -176,11 +178,11 @@ export const AddressNormalizerPage: React.FC = () => {
         {/* Usage badge */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: '18px', color: '#FFFFFF', margin: '0 0 2px' }}>Address Normalizer</h2>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>Convert any address to precise structured data</p>
+            <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: '18px', color: '#FFFFFF', margin: '0 0 2px' }}>{t('addr.title')}</h2>
+            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{t('addr.subtitle')}</p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-            <span style={{ fontSize: '12px', color: barColor, fontWeight: 700 }}>{normCount} / {normLimit} used</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: isRTL ? 'flex-start' : 'flex-end', gap: '4px' }}>
+            <span style={{ fontSize: '12px', color: barColor, fontWeight: 700 }}>{normCount} / {normLimit} {t('addr.used')}</span>
             <div style={{ width: 100, height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${Math.min(normPct, 100)}%`, background: barColor, borderRadius: 2, transition: 'width 0.6s ease' }} />
             </div>
@@ -193,7 +195,7 @@ export const AddressNormalizerPage: React.FC = () => {
 
             {/* Address textarea */}
             <div>
-              <label style={labelStyle}>Address</label>
+              <label style={labelStyle}>{t('addr.address')}</label>
               <textarea
                 dir="auto" rows={4}
                 placeholder={"حي النزهة، شارع الملك فهد، الرياض\nor: King Fahd Road, Al Nuzha, Riyadh"}
@@ -202,7 +204,7 @@ export const AddressNormalizerPage: React.FC = () => {
                   borderColor: errors.address ? '#EF4444' : undefined,
                 }}
                 onFocus={e  => (e.target.style.borderColor = '#F5C842')}
-                {...register('address', { required: 'Please enter an address' })}
+                {...register('address', { required: t('addr.pleaseEnter') })}
                 onBlur={e   => (e.target.style.borderColor = errors.address ? '#EF4444' : 'rgba(255,255,255,0.12)')}
               />
               {errors.address && <p style={{ color: '#EF4444', fontSize: '11px', marginTop: '4px' }}>{errors.address.message}</p>}
@@ -220,31 +222,31 @@ export const AddressNormalizerPage: React.FC = () => {
             {/* Toggles */}
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <Controller name="use_ai" control={control} render={({ field }) => (
-                <Toggle checked={field.value} onChange={field.onChange} label="AI Enhancement" description="Intelligently parse and enrich the address" />
+                <Toggle checked={field.value} onChange={field.onChange} label={t('addr.aiEnhancement')} description={t('addr.aiEnhancementDesc')} />
               )} />
               <div style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
               <Controller name="include_geocoding" control={control} render={({ field }) => (
-                <Toggle checked={field.value} onChange={field.onChange} label="Include Geocoding" description="Return latitude / longitude coordinates" />
+                <Toggle checked={field.value} onChange={field.onChange} label={t('addr.includeGeocoding')} description={t('addr.includeGeocodingDesc')} />
               )} />
               <div style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
               <Controller name="use_cache" control={control} render={({ field }) => (
-                <Toggle checked={field.value} onChange={field.onChange} label="Use Cache" description="Return cached result if available" />
+                <Toggle checked={field.value} onChange={field.onChange} label={t('addr.useCache')} description={t('addr.useCacheDesc')} />
               )} />
             </div>
 
             {/* Try example link */}
             <button type="button"
               onClick={() => setValue('address', 'حي النزهة، شارع الملك فهد، الرياض، المملكة العربية السعودية')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(245,200,66,0.7)', fontSize: '12px', textAlign: 'left', padding: 0 }}>
-              ↗ Try an example Arabic address
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(245,200,66,0.7)', fontSize: '12px', textAlign: isRTL ? 'right' : 'left', padding: 0 }}>
+              {t('addr.tryExample')}
             </button>
 
             <GoldButton type="submit" loading={loading} fullWidth size="lg" disabled={!canUseNormalizer}>
-              {loading ? 'Normalizing…' : 'Normalize Address'}
+              {loading ? t('addr.normalizing') : t('addr.normalizeBtn')}
               {!loading && <Icon icon="solar:map-point-bold-duotone" width={17} />}
             </GoldButton>
 
-            <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.2)', margin: 0 }}>Powered by Wayn AI</p>
+            <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.2)', margin: 0 }}>{t('addr.poweredBy')}</p>
           </form>
         </div>
       </div>
@@ -286,9 +288,9 @@ export const AddressNormalizerPage: React.FC = () => {
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(245,200,66,0.06)', border: '1px solid rgba(245,200,66,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <Icon icon="solar:map-point-bold-duotone" width={32} color="rgba(245,200,66,0.4)" />
             </div>
-            <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '16px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', margin: '0 0 8px' }}>Ready to normalize</h3>
+            <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '16px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', margin: '0 0 8px' }}>{t('addr.readyTitle')}</h3>
             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', margin: 0, lineHeight: 1.6 }}>
-              Enter an address on the left and click "Normalize Address" to see structured results here.
+              {t('addr.readyDesc')}
             </p>
           </motion.div>
         )}
@@ -302,29 +304,29 @@ export const AddressNormalizerPage: React.FC = () => {
               {/* ── Tab bar ── */}
               <div style={{ display: 'flex', gap: '4px', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 {([
-                  { key: 'details', icon: 'solar:document-text-bold-duotone', label: 'Details' },
-                  { key: 'map',     icon: 'solar:map-point-wave-bold-duotone', label: 'Map',
+                  { key: 'details', icon: 'solar:document-text-bold-duotone', labelKey: 'addr.details' },
+                  { key: 'map',     icon: 'solar:map-point-wave-bold-duotone', labelKey: 'addr.mapTab',
                     disabled: !result.geocoding },
-                ] as { key: ResultTab; icon: string; label: string; disabled?: boolean }[]).map(t => (
-                  <button key={t.key} onClick={() => !t.disabled && setResultTab(t.key)}
-                    disabled={t.disabled}
+                ] as { key: ResultTab; icon: string; labelKey: 'addr.details' | 'addr.mapTab'; disabled?: boolean }[]).map(tab => (
+                  <button key={tab.key} onClick={() => !tab.disabled && setResultTab(tab.key)}
+                    disabled={tab.disabled}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px',
-                      background: resultTab === t.key ? 'rgba(245,200,66,0.12)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${resultTab === t.key ? 'rgba(245,200,66,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                      borderRadius: '10px', cursor: t.disabled ? 'not-allowed' : 'pointer',
-                      fontSize: '13px', fontWeight: 600, opacity: t.disabled ? 0.35 : 1,
-                      color: resultTab === t.key ? '#F5C842' : 'rgba(255,255,255,0.5)', transition: 'all 0.2s',
+                      background: resultTab === tab.key ? 'rgba(245,200,66,0.12)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${resultTab === tab.key ? 'rgba(245,200,66,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                      borderRadius: '10px', cursor: tab.disabled ? 'not-allowed' : 'pointer',
+                      fontSize: '13px', fontWeight: 600, opacity: tab.disabled ? 0.35 : 1,
+                      color: resultTab === tab.key ? '#F5C842' : 'rgba(255,255,255,0.5)', transition: 'all 0.2s',
                     }}>
-                    <Icon icon={t.icon} width={15} />
-                    {t.label}
+                    <Icon icon={tab.icon} width={15} />
+                    {t(tab.labelKey)}
                   </button>
                 ))}
 
                 {/* Confidence badge on right */}
                 <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {result.ai_enhanced  && <Pill><Icon icon="solar:cpu-bolt-bold-duotone" width={12} />AI</Pill>}
-                  {result.from_cache   && <Pill color="rgba(139,92,246,0.15)" style={{ color: '#A78BFA' } as React.CSSProperties}><Icon icon="solar:database-bold-duotone" width={12} />Cached</Pill>}
+                  {result.from_cache   && <Pill color="rgba(139,92,246,0.15)" style={{ color: '#A78BFA' } as React.CSSProperties}><Icon icon="solar:database-bold-duotone" width={12} />{t('addr.cached')}</Pill>}
                   <Pill color="rgba(16,185,129,0.12)"><Icon icon="solar:target-bold-duotone" width={12} />{Math.round(result.confidence_score * 100)}%</Pill>
                 </div>
               </div>
@@ -338,33 +340,33 @@ export const AddressNormalizerPage: React.FC = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                       {/* Addresses */}
                       <div>
-                        <p style={{ ...sectionTitle, marginBottom: '10px' }}>Normalized Addresses</p>
+                        <p style={{ ...sectionTitle, marginBottom: '10px' }}>{t('addr.normalizedAddresses')}</p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
-                          <CopyField label="Original"        value={result.original_address}   dir="auto" />
-                          <CopyField label="Arabic"          value={result.normalized_address} dir="rtl" />
+                          <CopyField label={t('addr.original')} value={result.original_address}   dir="auto" />
+                          <CopyField label={t('addr.arabic')}   value={result.normalized_address} dir="rtl" />
                         </div>
-                        <CopyField label="English" value={result.normalized_english} />
+                        <CopyField label={t('addr.english')} value={result.normalized_english} />
                       </div>
 
                       {/* Components */}
                       <div>
-                        <p style={{ ...sectionTitle, marginBottom: '10px' }}>Address Components</p>
+                        <p style={{ ...sectionTitle, marginBottom: '10px' }}>{t('addr.components')}</p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                          <CopyField label="Building No."  value={components?.building_number  || ''} />
-                          <CopyField label="Street (EN)"   value={components?.street_name      || ''} />
-                          <CopyField label="Street (AR)"   value={components?.street_name_ar   || ''} dir="rtl" />
-                          <CopyField label="Area (EN)"     value={components?.area             || ''} />
-                          <CopyField label="Area (AR)"     value={components?.area_ar          || ''} dir="rtl" />
-                          <CopyField label="City (EN)"     value={components?.city             || ''} />
-                          <CopyField label="City (AR)"     value={components?.city_ar          || ''} dir="rtl" />
-                          <CopyField label="Postal Code"   value={components?.postal_code      || ''} />
+                          <CopyField label={t('addr.buildingNo')} value={components?.building_number  || ''} />
+                          <CopyField label={t('addr.streetEn')}   value={components?.street_name      || ''} />
+                          <CopyField label={t('addr.streetAr')}   value={components?.street_name_ar   || ''} dir="rtl" />
+                          <CopyField label={t('addr.areaEn')}     value={components?.area             || ''} />
+                          <CopyField label={t('addr.areaAr')}     value={components?.area_ar          || ''} dir="rtl" />
+                          <CopyField label={t('addr.cityEn')}     value={components?.city             || ''} />
+                          <CopyField label={t('addr.cityAr')}     value={components?.city_ar          || ''} dir="rtl" />
+                          <CopyField label={t('addr.postalCode')} value={components?.postal_code      || ''} />
                         </div>
                       </div>
 
                       {/* Landmarks */}
                       {components?.landmarks && components.landmarks.length > 0 && (
                         <div>
-                          <p style={{ ...sectionTitle, marginBottom: '8px' }}>Landmarks</p>
+                          <p style={{ ...sectionTitle, marginBottom: '8px' }}>{t('addr.landmarks')}</p>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                             {components.landmarks.map((lm, i) => (
                               <span key={i} style={{ padding: '4px 12px', background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '20px', fontSize: '12px', color: '#F5C842', fontWeight: 600 }}>{lm}</span>
@@ -396,7 +398,7 @@ export const AddressNormalizerPage: React.FC = () => {
                                 fontSize: '12px', fontWeight: mapStyle === key ? 700 : 500, transition: 'all 0.15s',
                               }}>
                               <Icon icon={MAP_STYLES[key].icon} width={14} />
-                              {MAP_STYLES[key].label}
+                              {t(MAP_STYLES[key].labelKey)}
                             </button>
                           ))}
                         </div>

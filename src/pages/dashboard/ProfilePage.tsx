@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useUsage } from '../../hooks/useUsage';
 import { COUNTRIES } from '../../components/ui/CountryDropdown';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const cardStyle: React.CSSProperties = {
   background: 'rgba(12,17,45,0.8)',
@@ -30,6 +31,7 @@ export const ProfilePage: React.FC = () => {
   const { user, refreshUser } = useAuth();
   const { usage } = useUsage();
   const { isMobile } = useBreakpoint();
+  const { t, lang } = useLanguage();
 
   // Ensure createdAt and latest profile data are always fresh
   useEffect(() => { refreshUser(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -41,7 +43,7 @@ export const ProfilePage: React.FC = () => {
   const countryName = COUNTRIES.find(c => c.code === user.country)?.name || user.country || '—';
 
   const joinDate = user.createdAt
-    ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    ? new Date(user.createdAt).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : '—';
 
   const addrUsed  = usage?.addressNormalizerCount ?? 0;
@@ -116,7 +118,7 @@ export const ProfilePage: React.FC = () => {
           <Link to="/dashboard/settings" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.3)', borderRadius: '10px', color: '#F5C842', fontSize: '13px', fontWeight: 700, textDecoration: 'none', flexShrink: 0, transition: 'all 0.2s' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,200,66,0.18)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(245,200,66,0.1)'; }}>
-            <Icon icon="solar:pen-bold" width={14} />Edit Profile
+            <Icon icon="solar:pen-bold" width={14} />{t('profile.editProfile')}
           </Link>
         </div>
 
@@ -127,19 +129,19 @@ export const ProfilePage: React.FC = () => {
             <div style={cardStyle}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                 <Icon icon="solar:user-id-bold-duotone" width={18} color="#F5C842" />
-                <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Account Details</h3>
+                <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>{t('profile.accountDetails')}</h3>
               </div>
-              <InfoRow icon="solar:user-bold-duotone"        label="Full Name"    value={user.fullName || user.name} color="#F5C842" />
-              <InfoRow icon="solar:letter-bold-duotone"      label="Email"        value={user.email}  color="#3B82F6" />
-              <InfoRow icon="solar:buildings-bold-duotone"   label="Company"      value={user.companyName} color="#10B981" />
-              <InfoRow icon="solar:global-bold-duotone"      label="Country"      value={countryName} color="#A855F7" />
+              <InfoRow icon="solar:user-bold-duotone"        label={t('profile.fullName')} value={user.fullName || user.name} color="#F5C842" />
+              <InfoRow icon="solar:letter-bold-duotone"      label={t('profile.email')}    value={user.email}  color="#3B82F6" />
+              <InfoRow icon="solar:buildings-bold-duotone"   label={t('profile.company')}  value={user.companyName} color="#10B981" />
+              <InfoRow icon="solar:global-bold-duotone"      label={t('profile.country')}  value={countryName} color="#A855F7" />
               <div style={{ paddingTop: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
                   <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
                     <Icon icon="solar:calendar-bold-duotone" width={18} color="#F5C842" />
                   </div>
                   <div>
-                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', margin: '0 0 3px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Member Since</p>
+                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', margin: '0 0 3px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{t('profile.memberSince')}</p>
                     <p style={{ fontSize: '14px', color: '#FFFFFF', margin: 0, fontWeight: 500 }}>{joinDate}</p>
                   </div>
                 </div>
@@ -152,24 +154,24 @@ export const ProfilePage: React.FC = () => {
             <div style={cardStyle}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
                 <Icon icon="solar:graph-up-bold-duotone" width={18} color="#10B981" />
-                <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>API Usage</h3>
-                <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>This month</span>
+                <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>{t('profile.apiUsage')}</h3>
+                <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>{t('profile.thisMonth')}</span>
               </div>
               <UsageBar
-                label="Address Normalizer"
+                label={t('profile.addrNormalizer')}
                 icon="solar:map-point-wave-bold-duotone"
                 used={addrUsed} limit={addrLimit}
                 color={addrUsed >= addrLimit ? '#EF4444' : addrUsed / addrLimit >= 0.8 ? '#F59E0B' : '#10B981'}
               />
               <UsageBar
-                label="Route Optimizer"
+                label={t('profile.routeOptimizer')}
                 icon="solar:routing-2-bold-duotone"
                 used={routeUsed} limit={routeLimit}
                 color={routeUsed >= routeLimit ? '#EF4444' : routeUsed / routeLimit >= 0.8 ? '#F59E0B' : '#3B82F6'}
               />
               <div style={{ background: 'rgba(245,200,66,0.04)', border: '1px solid rgba(245,200,66,0.1)', borderRadius: '10px', padding: '12px 14px', marginTop: '8px' }}>
                 <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.5 }}>
-                  Usage resets monthly. Contact support to upgrade your plan.
+                  {t('profile.usageResets')}
                 </p>
               </div>
             </div>
@@ -178,15 +180,15 @@ export const ProfilePage: React.FC = () => {
             <div style={{ ...cardStyle, marginTop: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <Icon icon="solar:shield-check-bold-duotone" width={18} color="#A855F7" />
-                <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Security</h3>
+                <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>{t('profile.security')}</h3>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 0' }}>
                 <Icon icon="solar:lock-password-bold-duotone" width={16} color="rgba(255,255,255,0.4)" />
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: 0, fontWeight: 500 }}>Password</p>
-                  <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: 0 }}>Last changed: unknown</p>
+                  <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: 0, fontWeight: 500 }}>{t('profile.password')}</p>
+                  <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: 0 }}>{t('profile.lastChanged')}</p>
                 </div>
-                <Link to="/dashboard/settings#security" style={{ fontSize: '12px', color: '#F5C842', textDecoration: 'none', fontWeight: 600 }}>Change</Link>
+                <Link to="/dashboard/settings#security" style={{ fontSize: '12px', color: '#F5C842', textDecoration: 'none', fontWeight: 600 }}>{t('profile.change')}</Link>
               </div>
             </div>
           </motion.div>

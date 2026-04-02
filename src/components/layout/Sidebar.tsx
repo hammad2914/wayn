@@ -4,19 +4,10 @@ import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { useAuth } from '../../hooks/useAuth';
 import { useUsage } from '../../hooks/useUsage';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { LangToggle } from '../ui/LangToggle';
 
 const ANIM = '0.22s cubic-bezier(0.4,0,0.2,1)'; // shared easing
-
-const navItems = [
-  { to: '/dashboard',                    icon: 'solar:chart-square-bold-duotone',   label: 'Dashboard',          end: true },
-  { to: '/dashboard/address-normalizer', icon: 'solar:map-point-wave-bold-duotone', label: 'Address Normalizer' },
-  { to: '/dashboard/route-optimizer',    icon: 'solar:routing-2-bold-duotone',       label: 'Route Optimizer' },
-];
-
-const bottomNavItems = [
-  { to: '/dashboard/profile',  icon: 'solar:user-bold-duotone',     label: 'Profile' },
-  { to: '/dashboard/settings', icon: 'solar:settings-bold-duotone', label: 'Settings' },
-];
 
 // Text that fades + collapses inline without unmounting (prevents jerk)
 const SlideLabel: React.FC<{ children: React.ReactNode; collapsed: boolean; style?: React.CSSProperties }> = ({ children, collapsed, style }) => (
@@ -65,12 +56,31 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
-  const { user, logout } = useAuth();
-  const { usage }        = useUsage();
-  const navigate         = useNavigate();
+  const { user, logout }  = useAuth();
+  const { usage }         = useUsage();
+  const { t, isRTL }      = useLanguage();
+  const navigate          = useNavigate();
 
   const handleLogout = () => { logout(); navigate('/'); };
   const firstName = user?.fullName?.split(' ')[0] || user?.name?.split(' ')[0] || 'User';
+
+  const navItems = [
+    { to: '/dashboard',                    icon: 'solar:chart-square-bold-duotone',   label: t('dash.dashboard'),        end: true },
+    { to: '/dashboard/address-normalizer', icon: 'solar:map-point-wave-bold-duotone', label: t('dash.addressNormalizer') },
+    { to: '/dashboard/route-optimizer',    icon: 'solar:routing-2-bold-duotone',       label: t('dash.routeOptimizer') },
+  ];
+
+  const bottomNavItems = [
+    { to: '/dashboard/profile',  icon: 'solar:user-bold-duotone',     label: t('dash.myProfile') },
+    { to: '/dashboard/settings', icon: 'solar:settings-bold-duotone', label: t('dash.settings') },
+  ];
+
+  const activeAccent = isRTL
+    ? { borderRight: '3px solid #F5C842', borderLeft: '3px solid transparent' }
+    : { borderLeft: '3px solid #F5C842',  borderRight: '3px solid transparent' };
+  const inactiveAccent = isRTL
+    ? { borderRight: '3px solid transparent', borderLeft: '3px solid transparent' }
+    : { borderLeft: '3px solid transparent',  borderRight: '3px solid transparent' };
 
   return (
     <motion.aside
@@ -78,7 +88,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
       style={{
         background: 'rgba(10,14,39,0.97)',
-        borderRight: '1px solid rgba(245,200,66,0.1)',
+        borderRight: isRTL ? 'none' : '1px solid rgba(245,200,66,0.1)',
+        borderLeft:  isRTL ? '1px solid rgba(245,200,66,0.1)' : 'none',
         display: 'flex', flexDirection: 'column', height: '100vh',
         overflow: 'hidden', flexShrink: 0,
         backdropFilter: 'blur(20px)',
@@ -91,16 +102,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
         padding: '0 12px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         flexShrink: 0, overflow: 'hidden',
+        flexDirection: isRTL ? 'row-reverse' : 'row',
       }}>
-        {/* Logo circle always visible */}
         <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#0A0E27', fontFamily: 'Sora', flexShrink: 0 }}>A</div>
 
-        {/* Wordmark slides in/out */}
-        <SlideLabel collapsed={collapsed} style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: 16, letterSpacing: '-0.2px', marginLeft: '10px', flex: 1 }}>
+        <SlideLabel collapsed={collapsed} style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: 16, letterSpacing: '-0.2px', marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0, flex: 1 }}>
           WAYN
         </SlideLabel>
 
-        {/* Collapse button fades out */}
         <button
           onClick={() => onCollapse(true)}
           style={{
@@ -132,15 +141,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                 display: 'flex', alignItems: 'center', padding: '10px 12px',
                 borderRadius: '10px',
                 background: isActive ? 'rgba(245,200,66,0.1)' : 'transparent',
-                borderLeft: isActive ? '3px solid #F5C842' : '3px solid transparent',
+                ...(isActive ? activeAccent : inactiveAccent),
                 transition: `background 0.15s, border-color 0.15s`,
                 cursor: 'pointer', overflow: 'hidden',
+                flexDirection: isRTL ? 'row-reverse' : 'row',
               }}
                 onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
               >
                 <Icon icon={icon} width={20} color={isActive ? '#F5C842' : 'rgba(255,255,255,0.45)'} style={{ flexShrink: 0 }} />
-                <SlideLabel collapsed={collapsed} style={{ fontSize: '13.5px', fontWeight: isActive ? 700 : 500, color: isActive ? '#F5C842' : 'rgba(255,255,255,0.6)', marginLeft: '10px' }}>
+                <SlideLabel collapsed={collapsed} style={{ fontSize: '13.5px', fontWeight: isActive ? 700 : 500, color: isActive ? '#F5C842' : 'rgba(255,255,255,0.6)', marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0 }}>
                   {label}
                 </SlideLabel>
               </div>
@@ -162,15 +172,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                 display: 'flex', alignItems: 'center', padding: '10px 12px',
                 borderRadius: '10px',
                 background: isActive ? 'rgba(245,200,66,0.1)' : 'transparent',
-                borderLeft: isActive ? '3px solid #F5C842' : '3px solid transparent',
+                ...(isActive ? activeAccent : inactiveAccent),
                 transition: `background 0.15s, border-color 0.15s`,
                 cursor: 'pointer', overflow: 'hidden',
+                flexDirection: isRTL ? 'row-reverse' : 'row',
               }}
                 onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
               >
                 <Icon icon={icon} width={20} color={isActive ? '#F5C842' : 'rgba(255,255,255,0.45)'} style={{ flexShrink: 0 }} />
-                <SlideLabel collapsed={collapsed} style={{ fontSize: '13.5px', fontWeight: isActive ? 700 : 500, color: isActive ? '#F5C842' : 'rgba(255,255,255,0.6)', marginLeft: '10px' }}>
+                <SlideLabel collapsed={collapsed} style={{ fontSize: '13.5px', fontWeight: isActive ? 700 : 500, color: isActive ? '#F5C842' : 'rgba(255,255,255,0.6)', marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0 }}>
                   {label}
                 </SlideLabel>
               </div>
@@ -179,29 +190,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
         ))}
       </nav>
 
-      {/* ── Usage (hidden when collapsed) ───────────────────────────── */}
+      {/* ── Usage ───────────────────────────────────────────────────── */}
       <div style={{ padding: '12px 12px', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0, opacity: collapsed ? 0 : 1, maxHeight: collapsed ? 0 : '200px', overflow: 'hidden', transition: `opacity ${ANIM}, max-height ${ANIM}`, paddingTop: collapsed ? 0 : '12px', paddingBottom: collapsed ? 0 : '12px', borderTopWidth: collapsed ? 0 : '1px', borderBottomWidth: collapsed ? 0 : '1px' }}>
         <div style={{
           opacity: collapsed ? 0 : 1, maxHeight: collapsed ? 0 : '20px', overflow: 'hidden',
           transition: `opacity ${ANIM}, max-height ${ANIM}`,
           marginBottom: collapsed ? 0 : '10px',
         }}>
-          <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>Usage</p>
+          <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>{t('dash.usage')}</p>
         </div>
         {usage && (
           <>
-            <UsageBar label="Address Normalizer" icon="solar:map-point-wave-bold-duotone"
+            <UsageBar label={t('dash.addressNormalizer')} icon="solar:map-point-wave-bold-duotone"
               used={usage.addressNormalizerCount} limit={usage.addressNormalizerLimit} collapsed={collapsed} />
-            <UsageBar label="Route Optimizer" icon="solar:routing-2-bold-duotone"
+            <UsageBar label={t('dash.routeOptimizer')} icon="solar:routing-2-bold-duotone"
               used={usage.routeOptimizerCount} limit={usage.routeOptimizerLimit} collapsed={collapsed} />
           </>
         )}
       </div>
 
+      {/* ── Lang Toggle ─────────────────────────────────────────────── */}
+      <div style={{
+        padding: '8px 12px',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        flexShrink: 0,
+        display: 'flex', justifyContent: 'center',
+        opacity: collapsed ? 0 : 1,
+        maxHeight: collapsed ? 0 : '52px',
+        overflow: 'hidden',
+        transition: `opacity ${ANIM}, max-height ${ANIM}`,
+        paddingTop: collapsed ? 0 : '8px',
+        paddingBottom: collapsed ? 0 : '8px',
+        borderBottomWidth: collapsed ? 0 : '1px',
+      }}>
+        <LangToggle variant="pill" />
+      </div>
+
       {/* ── User + Logout ────────────────────────────────────────────── */}
       <div style={{ padding: '10px 8px', flexShrink: 0 }}>
-        {/* User info row — click to go to profile */}
-        <NavLink to="/dashboard/profile" style={{ textDecoration: 'none', display: 'block', marginBottom: '4px' }} title={collapsed ? 'Profile' : undefined}>
+        <NavLink to="/dashboard/profile" style={{ textDecoration: 'none', display: 'block', marginBottom: '4px' }} title={collapsed ? t('dash.myProfile') : undefined}>
           {({ isActive }) => (
             <div style={{
               display: 'flex', alignItems: 'center', padding: '10px 8px',
@@ -209,6 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
               background: isActive ? 'rgba(245,200,66,0.1)' : collapsed ? 'transparent' : 'rgba(255,255,255,0.04)',
               transition: `background ${ANIM}`,
               overflow: 'hidden', cursor: 'pointer',
+              flexDirection: isRTL ? 'row-reverse' : 'row',
             }}
               onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
               onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = isActive ? 'rgba(245,200,66,0.1)' : collapsed ? 'transparent' : 'rgba(255,255,255,0.04)'; }}
@@ -217,7 +245,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                 {firstName.charAt(0).toUpperCase()}
               </div>
               <div style={{
-                minWidth: 0, marginLeft: '10px',
+                minWidth: 0, marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0,
                 opacity: collapsed ? 0 : 1, maxWidth: collapsed ? 0 : '160px', overflow: 'hidden',
                 transition: `opacity ${ANIM}, max-width ${ANIM}`,
               }}>
@@ -230,21 +258,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
 
         {/* Logout */}
         <button onClick={handleLogout}
-          title={collapsed ? 'Sign Out' : undefined}
+          title={collapsed ? t('dash.signOut') : undefined}
           style={{
             display: 'flex', alignItems: 'center', width: '100%',
             padding: '10px 8px',
-            justifyContent: 'flex-start',
+            justifyContent: isRTL ? 'flex-end' : 'flex-start',
             background: 'none', border: 'none', cursor: 'pointer', borderRadius: '10px',
             color: 'rgba(255,255,255,0.4)', transition: `all 0.2s`,
             overflow: 'hidden',
+            flexDirection: isRTL ? 'row-reverse' : 'row',
           }}
           onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
           onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.background = 'none'; }}
         >
           <Icon icon="solar:logout-line-duotone" width={24} style={{ flexShrink: 0 }} />
-          <SlideLabel collapsed={collapsed} style={{ fontSize: '13px', fontWeight: 500, marginLeft: '10px' }}>
-            Sign Out
+          <SlideLabel collapsed={collapsed} style={{ fontSize: '13px', fontWeight: 500, marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0 }}>
+            {t('dash.signOut')}
           </SlideLabel>
         </button>
       </div>
