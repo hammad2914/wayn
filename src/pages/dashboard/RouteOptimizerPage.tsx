@@ -556,7 +556,12 @@ export const RouteOptimizerPage: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <label style={{ ...lbl, marginBottom: 0 }}>{t('route.depotAddress')}</label>
+                <label style={{ ...lbl, marginBottom: 0, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  {t('route.depotAddress')}
+                  <Tooltip text="Required — depot address must be filled" position="top">
+                    <span style={{ width: 15, height: 15, borderRadius: '50%', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: 800, color: '#EF4444', cursor: 'help', flexShrink: 0 }}>!</span>
+                  </Tooltip>
+                </label>
                 <button type="button" onClick={() => setMapPickerTarget('depot')}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', color: '#F5C842', fontSize: '11px', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,200,66,0.15)')}
@@ -586,7 +591,12 @@ export const RouteOptimizerPage: React.FC = () => {
               </div>
               <div style={{ marginBottom: '6px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <label style={{ ...lbl, marginBottom: 0 }}>{t('route.deliveryAddress')}</label>
+                  <label style={{ ...lbl, marginBottom: 0, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    {t('route.deliveryAddress')}
+                    <Tooltip text="Required — each stop needs a delivery address" position="top">
+                      <span style={{ width: 15, height: 15, borderRadius: '50%', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: 800, color: '#EF4444', cursor: 'help', flexShrink: 0 }}>!</span>
+                    </Tooltip>
+                  </label>
                   <button type="button" onClick={() => setMapPickerTarget(i)}
                     style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', color: '#10B981', fontSize: '11px', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.15)')}
@@ -598,11 +608,10 @@ export const RouteOptimizerPage: React.FC = () => {
                 <input style={fld} placeholder="e.g. Dubai Mall, Downtown Dubai" {...register(`stops.${i}.address`, { required: true })}
                   onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
               </div>
-              <div style={{ marginTop: '4px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.12)' }} />
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Optional</span>
-                  <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.12)' }} />
+              <div style={{ marginTop: '8px', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.28)', borderRadius: '8px', padding: '10px 10px 8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px' }}>
+                  <Icon icon="solar:widget-add-bold-duotone" width={12} color="rgba(255,255,255,0.45)" />
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Optional Details</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: '6px' }}>
                   <StopField label={t('route.weight')} unit="kg" icon="solar:scale-bold-duotone" color="#F5C842"
@@ -643,7 +652,12 @@ export const RouteOptimizerPage: React.FC = () => {
                 )}
               </div>
               <div style={{ marginBottom: '6px' }}>
-                <label style={lbl}>{t('route.vehicleId')}</label>
+                <label style={{ ...lbl, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  {t('route.vehicleId')}
+                  <Tooltip text="Required — give each vehicle a unique name or ID" position="top">
+                    <span style={{ width: 15, height: 15, borderRadius: '50%', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: 800, color: '#EF4444', cursor: 'help', flexShrink: 0 }}>!</span>
+                  </Tooltip>
+                </label>
                 <input style={fld} placeholder="e.g. Truck-01 or Van-A" {...register(`vehicles.${i}.vehicle_id`)}
                   onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
               </div>
