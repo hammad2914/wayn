@@ -47,7 +47,6 @@ async function getRoadRoute(
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const SCENE_NAMES = [
   'Address Search', 'Google Results', 'Wayn Result',

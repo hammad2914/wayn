@@ -69,28 +69,6 @@ const sectionTitle: React.CSSProperties = {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-const Toggle: React.FC<{ checked: boolean; onChange: (v: boolean) => void; label: string; description?: string }> = ({ checked, onChange, label, description }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-    <div>
-      <p style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF', margin: '0 0 2px' }}>{label}</p>
-      {description && <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{description}</p>}
-    </div>
-    <button type="button" onClick={() => onChange(!checked)}
-      style={{
-        flexShrink: 0, width: 44, height: 24, borderRadius: 12,
-        background: checked ? 'linear-gradient(135deg, #F5C842, #D4A017)' : 'rgba(255,255,255,0.1)',
-        border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.25s',
-        boxShadow: checked ? '0 2px 8px rgba(245,200,66,0.35)' : 'none',
-      }}>
-      <span style={{
-        position: 'absolute', top: 2, width: 20, height: 20, borderRadius: '50%',
-        background: '#FFFFFF', transition: 'left 0.25s',
-        left: checked ? 'calc(100% - 22px)' : '2px',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
-      }} />
-    </button>
-  </div>
-);
 
 
 const CopyField: React.FC<{ label: string; value: string; dir?: 'ltr' | 'rtl' | 'auto' }> = ({ label, value, dir = 'ltr' }) => {

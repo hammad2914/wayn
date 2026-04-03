@@ -930,22 +930,6 @@ const Section: React.FC<{ icon: string; title: string; badge?: string; color: st
   </div>
 );
 
-// ── Radio pill helper ─────────────────────────────────────────────────────────
-const PillOption: React.FC<{ selected: boolean; label: string; name: string; value: string; register: ReturnType<typeof useForm<FormValues>>['register'] }> = ({ label, name, value, register }) => (
-  <div style={{ position: 'relative' }}>
-    <input type="radio" id={`${name}_${value}`} value={value} {...register(name as keyof FormValues)} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
-    <label htmlFor={`${name}_${value}`} style={{
-      display: 'block', textAlign: 'center', padding: '7px 10px', fontSize: '12px', fontWeight: 600,
-      border: '1px solid rgba(245,200,66,0.25)', borderRadius: '8px', cursor: 'pointer',
-      color: 'rgba(255,255,255,0.6)', transition: 'all 0.2s',
-    }}
-    onMouseEnter={e => (e.currentTarget.style.borderColor = '#F5C842')}
-    onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(245,200,66,0.25)')}
-    >
-      {label}
-    </label>
-  </div>
-);
 
 // ── Summary Tab ───────────────────────────────────────────────────────────────
 const SummaryTab: React.FC<{
