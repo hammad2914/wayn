@@ -43,7 +43,7 @@ export const sendOTPEmail = async (to: string, otp: string, fullName: string) =>
           <tr>
             <td style="padding:36px 40px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06);">
               <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;">
-                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F5C842,#D4A017);display:inline-flex;align-items:center;justify-content:center;font-family:sans-serif;font-weight:800;font-size:16px;color:#0A0E27;">A</div>
+                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F5C842,#D4A017);display:inline-block;line-height:38px;text-align:center;font-family:Arial,sans-serif;font-weight:800;font-size:18px;color:#0A0E27;">A</div>
                 <span style="font-size:20px;font-weight:700;color:#FFFFFF;letter-spacing:-0.3px;">Wayn</span>
               </div>
               <h1 style="margin:0;font-size:24px;font-weight:800;color:#F5C842;letter-spacing:-0.5px;">Verify your account</h1>
@@ -112,13 +112,11 @@ export const sendPasswordResetEmail = async (
         <table width="520" cellpadding="0" cellspacing="0" style="background:rgba(18,24,58,0.95);border-radius:20px;border:1px solid rgba(245,200,66,0.2);overflow:hidden;">
           <tr>
             <td style="padding:36px 40px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06);">
-              <div style="margin-bottom:20px;">
-                <div style="display:inline-flex;align-items:center;gap:10px;">
-                  <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F5C842,#D4A017);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#0A0E27;">A</div>
-                  <span style="font-size:20px;font-weight:700;color:#FFFFFF;">Wayn</span>
-                </div>
+              <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;">
+                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F5C842,#D4A017);display:inline-block;line-height:38px;text-align:center;font-family:Arial,sans-serif;font-weight:800;font-size:18px;color:#0A0E27;">A</div>
+                <span style="font-size:20px;font-weight:700;color:#FFFFFF;letter-spacing:-0.3px;">Wayn</span>
               </div>
-              <h1 style="margin:0;font-size:24px;font-weight:800;color:#F5C842;">Reset your password</h1>
+              <h1 style="margin:0;font-size:24px;font-weight:800;color:#F5C842;letter-spacing:-0.5px;">Reset your password</h1>
               <p style="margin:10px 0 0;font-size:15px;color:rgba(255,255,255,0.6);">Hi ${fullName}, we received a request to reset your password.</p>
             </td>
           </tr>
