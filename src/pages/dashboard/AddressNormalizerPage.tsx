@@ -8,6 +8,7 @@ import { useUsage } from '../../hooks/useUsage';
 import { CountryDropdown } from '../../components/ui/CountryDropdown';
 import { GoldButton } from '../../components/ui/GoldButton';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { Tooltip } from '../../components/ui/Tooltip';
 import type { NormalizeRequest, NormalizeResponse } from '../../types';
 import 'leaflet/dist/leaflet.css';
 
@@ -131,6 +132,24 @@ const MapRecenter: React.FC<{ lat: number; lng: number }> = ({ lat, lng }) => {
   return null;
 };
 
+// ── Example address pool ──────────────────────────────────────────────────────
+const EXAMPLE_ADDRESSES = [
+  'حي النزهة، شارع الملك فهد، الرياض، المملكة العربية السعودية',
+  'شارع الشيخ زايد، قرب برج خليفة، دبي، الإمارات العربية المتحدة',
+  'حي المعادي، شارع النصر، القاهرة، مصر',
+  'شارع الحمرا، بيروت، لبنان',
+  'حي السليمانية، شارع العروبة، جدة، المملكة العربية السعودية',
+  'منطقة الرميلة، الدوحة، قطر',
+  'حي الزمالك، شارع 26 يوليو، القاهرة، مصر',
+  'شارع المطار، بوشر، مسقط، عُمان',
+  'حي الديرة، بر دبي، دبي، الإمارات',
+  'المنامة، شارع الملك فيصل، البحرين',
+  'حي العليا، طريق الملك عبدالعزيز، الرياض',
+  'مدينة الكويت، منطقة الشرق، شارع الغلف، الكويت',
+];
+
+const pickRandomAddress = () => EXAMPLE_ADDRESSES[Math.floor(Math.random() * EXAMPLE_ADDRESSES.length)];
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 type ResultTab = 'details' | 'map';
@@ -195,7 +214,35 @@ export const AddressNormalizerPage: React.FC = () => {
 
             {/* Address textarea */}
             <div>
-              <label style={labelStyle}>{t('addr.address')}</label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ ...labelStyle, marginBottom: 0 }}>{t('addr.address')}</label>
+                <button
+                  type="button"
+                  onClick={() => setValue('address', pickRandomAddress())}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    background: 'linear-gradient(135deg, rgba(245,200,66,0.15), rgba(245,200,66,0.06))',
+                    border: '1px solid rgba(245,200,66,0.35)',
+                    borderRadius: '8px', padding: '5px 11px',
+                    cursor: 'pointer', color: '#F5C842',
+                    fontSize: '12px', fontWeight: 700,
+                    fontFamily: "'Inter', sans-serif",
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,200,66,0.25), rgba(245,200,66,0.12))';
+                    e.currentTarget.style.borderColor = 'rgba(245,200,66,0.6)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,200,66,0.15), rgba(245,200,66,0.06))';
+                    e.currentTarget.style.borderColor = 'rgba(245,200,66,0.35)';
+                  }}
+                >
+                  <Icon icon="solar:magic-stick-3-bold-duotone" width={13} />
+                  Use AI Example
+                </button>
+              </div>
               <textarea
                 dir="auto" rows={4}
                 placeholder={"حي النزهة، شارع الملك فهد، الرياض\nor: King Fahd Road, Al Nuzha, Riyadh"}
@@ -220,7 +267,7 @@ export const AddressNormalizerPage: React.FC = () => {
             />
 
             {/* Toggles */}
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {/* <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <Controller name="use_ai" control={control} render={({ field }) => (
                 <Toggle checked={field.value} onChange={field.onChange} label={t('addr.aiEnhancement')} description={t('addr.aiEnhancementDesc')} />
               )} />
@@ -232,14 +279,7 @@ export const AddressNormalizerPage: React.FC = () => {
               <Controller name="use_cache" control={control} render={({ field }) => (
                 <Toggle checked={field.value} onChange={field.onChange} label={t('addr.useCache')} description={t('addr.useCacheDesc')} />
               )} />
-            </div>
-
-            {/* Try example link */}
-            <button type="button"
-              onClick={() => setValue('address', 'حي النزهة، شارع الملك فهد، الرياض، المملكة العربية السعودية')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(245,200,66,0.7)', fontSize: '12px', textAlign: isRTL ? 'right' : 'left', padding: 0 }}>
-              {t('addr.tryExample')}
-            </button>
+            </div> */}
 
             <GoldButton type="submit" loading={loading} fullWidth size="lg" disabled={!canUseNormalizer}>
               {loading ? t('addr.normalizing') : t('addr.normalizeBtn')}
@@ -325,9 +365,19 @@ export const AddressNormalizerPage: React.FC = () => {
 
                 {/* Confidence badge on right */}
                 <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {result.ai_enhanced  && <Pill><Icon icon="solar:cpu-bolt-bold-duotone" width={12} />AI</Pill>}
-                  {result.from_cache   && <Pill color="rgba(139,92,246,0.15)" style={{ color: '#A78BFA' } as React.CSSProperties}><Icon icon="solar:database-bold-duotone" width={12} />{t('addr.cached')}</Pill>}
-                  <Pill color="rgba(16,185,129,0.12)"><Icon icon="solar:target-bold-duotone" width={12} />{Math.round(result.confidence_score * 100)}%</Pill>
+                  {result.ai_enhanced && (
+                    <Tooltip text="AI Enhanced — address was processed using AI for higher accuracy">
+                      <Pill><Icon icon="solar:cpu-bolt-bold-duotone" width={12} />AI</Pill>
+                    </Tooltip>
+                  )}
+                  {result.from_cache && (
+                    <Tooltip text="Cached — result was retrieved from cache for instant response">
+                      <Pill color="rgba(139,92,246,0.15)" style={{ color: '#A78BFA' } as React.CSSProperties}><Icon icon="solar:database-bold-duotone" width={12} />{t('addr.cached')}</Pill>
+                    </Tooltip>
+                  )}
+                  <Tooltip text="Confidence Score — how certain the system is about this result">
+                    <Pill color="rgba(16,185,129,0.12)"><Icon icon="solar:target-bold-duotone" width={12} />{Math.round(result.confidence_score * 100)}%</Pill>
+                  </Tooltip>
                 </div>
               </div>
 
@@ -352,13 +402,13 @@ export const AddressNormalizerPage: React.FC = () => {
                       <div>
                         <p style={{ ...sectionTitle, marginBottom: '10px' }}>{t('addr.components')}</p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                          <CopyField label={t('addr.buildingNo')} value={components?.building_number  || ''} />
                           <CopyField label={t('addr.streetEn')}   value={components?.street_name      || ''} />
                           <CopyField label={t('addr.streetAr')}   value={components?.street_name_ar   || ''} dir="rtl" />
                           <CopyField label={t('addr.areaEn')}     value={components?.area             || ''} />
                           <CopyField label={t('addr.areaAr')}     value={components?.area_ar          || ''} dir="rtl" />
                           <CopyField label={t('addr.cityEn')}     value={components?.city             || ''} />
                           <CopyField label={t('addr.cityAr')}     value={components?.city_ar          || ''} dir="rtl" />
+                          <CopyField label={t('addr.buildingNo')} value={components?.building_number  || ''} />
                           <CopyField label={t('addr.postalCode')} value={components?.postal_code      || ''} />
                         </div>
                       </div>
@@ -377,8 +427,12 @@ export const AddressNormalizerPage: React.FC = () => {
 
                       {/* Meta row */}
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                        <Pill color="rgba(59,130,246,0.12)"><Icon icon="solar:bolt-bold" width={12} />{result.provider}</Pill>
-                        <Pill color="rgba(16,185,129,0.12)"><Icon icon="solar:clock-circle-bold-duotone" width={12} />{result.processing_time_ms}ms</Pill>
+                        <Tooltip text="Provider — the service used to normalize this address" position="top">
+                          <Pill color="rgba(59,130,246,0.12)"><Icon icon="solar:bolt-bold" width={12} />{result.provider}</Pill>
+                        </Tooltip>
+                        <Tooltip text="Processing Time — how long it took to normalize your address" position="top">
+                          <Pill color="rgba(16,185,129,0.12)"><Icon icon="solar:clock-circle-bold-duotone" width={12} />{result.processing_time_ms}ms</Pill>
+                        </Tooltip>
                       </div>
                     </div>
                   )}

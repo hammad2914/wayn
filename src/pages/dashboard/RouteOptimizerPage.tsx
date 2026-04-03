@@ -6,7 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer,
 } from 'recharts';
 import { optimizeRoute } from '../../services/api';
 import { useUsage } from '../../hooks/useUsage';
@@ -15,6 +15,7 @@ import { useToast } from '../../components/ui/Toast';
 import { GoldButton } from '../../components/ui/GoldButton';
 import { OutlineButton } from '../../components/ui/OutlineButton';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { Tooltip } from '../../components/ui/Tooltip';
 import { CountryDropdown } from '../../components/ui/CountryDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
 import type { RouteOptimizerResponse, VehicleRoute } from '../../types';
@@ -567,18 +568,6 @@ export const RouteOptimizerPage: React.FC = () => {
               <input style={fld} placeholder="e.g. Al Quoz Industrial Area, Dubai" {...register('depot_address', { required: true })}
                 onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              <div>
-                <label style={lbl}>{t('route.latitude')}</label>
-                <input style={fld} placeholder="e.g. 25.1371" type="number" step="any" {...register('depot_lat', { required: true })}
-                  onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
-              </div>
-              <div>
-                <label style={lbl}>{t('route.longitude')}</label>
-                <input style={fld} placeholder="e.g. 55.2306" type="number" step="any" {...register('depot_lng', { required: true })}
-                  onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
-              </div>
-            </div>
           </div>
           <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: '8px 0 0', lineHeight: 1.5 }}>{t('route.depotHint')}</p>
         </Section>
@@ -609,31 +598,29 @@ export const RouteOptimizerPage: React.FC = () => {
                 <input style={fld} placeholder="e.g. Dubai Mall, Downtown Dubai" {...register(`stops.${i}.address`, { required: true })}
                   onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '6px' }}>
-                <div>
-                  <label style={lbl}>{t('route.latitude')}</label>
-                  <input style={fld} placeholder="e.g. 25.1972" type="number" step="any" {...register(`stops.${i}.lat`)}
-                    onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+              <div style={{ marginTop: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.12)' }} />
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Optional</span>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.12)' }} />
                 </div>
-                <div>
-                  <label style={lbl}>{t('route.longitude')}</label>
-                  <input style={fld} placeholder="e.g. 55.2744" type="number" step="any" {...register(`stops.${i}.lng`)}
-                    onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: '6px' }}>
+                  <StopField label={t('route.weight')} unit="kg" icon="solar:scale-bold-duotone" color="#F5C842"
+                    tooltip="Package weight in kg — used to ensure the vehicle doesn't exceed its weight limit"
+                    input={<input style={fld} placeholder="e.g. 15" type="number" step="any" {...register(`stops.${i}.weight`)}
+                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
+                  />
+                  <StopField label={t('route.volume')} unit="m³" icon="solar:box-bold-duotone" color="#A855F7"
+                    tooltip="Package volume in cubic metres — used to ensure the vehicle doesn't exceed its cargo space"
+                    input={<input style={fld} placeholder="e.g. 1.2" type="number" step="any" {...register(`stops.${i}.volume`)}
+                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
+                  />
+                  <StopField label={t('route.service')} unit="min" icon="solar:clock-circle-bold-duotone" color="#3B82F6"
+                    tooltip="Time needed at this location for unloading, signature, or other tasks (in minutes)"
+                    input={<input style={fld} placeholder="e.g. 10" type="number" step="any" {...register(`stops.${i}.service_time`)}
+                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
+                  />
                 </div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: '6px' }}>
-                <StopField label={t('route.weight')} unit="kg" icon="solar:scale-bold-duotone" color="#F5C842"
-                  input={<input style={fld} placeholder="e.g. 15" type="number" step="any" {...register(`stops.${i}.weight`)}
-                    onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
-                />
-                <StopField label={t('route.volume')} unit="m³" icon="solar:box-bold-duotone" color="#A855F7"
-                  input={<input style={fld} placeholder="e.g. 1.2" type="number" step="any" {...register(`stops.${i}.volume`)}
-                    onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
-                />
-                <StopField label={t('route.service')} unit="min" icon="solar:clock-circle-bold-duotone" color="#3B82F6"
-                  input={<input style={fld} placeholder="e.g. 10" type="number" step="any" {...register(`stops.${i}.service_time`)}
-                    onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
-                />
               </div>
             </motion.div>
           ))}
@@ -701,7 +688,7 @@ export const RouteOptimizerPage: React.FC = () => {
                 onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
             </div>
           </div>
-          <div>
+          {/* <div>
             <label style={lbl}>{t('route.objective')}</label>
             <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
               {(['balanced', 'distance', 'time'] as const).map(obj => (
@@ -711,7 +698,7 @@ export const RouteOptimizerPage: React.FC = () => {
                 </label>
               ))}
             </div>
-          </div>
+          </div> */}
         </Section>
 
         <div style={{ padding: '8px 0 16px' }}>
@@ -914,10 +901,12 @@ export const RouteOptimizerPage: React.FC = () => {
 };
 
 // ── Stop field with micro label ───────────────────────────────────────────────
-const StopField: React.FC<{ label: string; unit: string; icon: string; color: string; input: React.ReactNode }> = ({ label, unit, icon, color, input }) => (
+const StopField: React.FC<{ label: string; unit: string; icon: string; color: string; input: React.ReactNode; tooltip: string }> = ({ label, unit, icon, color, input, tooltip }) => (
   <div>
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-      <Icon icon={icon} width={11} color={color} />
+      <Tooltip text={tooltip} position="top">
+        <Icon icon={icon} width={11} color={color}  />
+      </Tooltip>
       <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{label} <span style={{ color: 'rgba(255,255,255,0.22)' }}>({unit})</span></span>
     </div>
     {input}
@@ -988,10 +977,10 @@ const SummaryTab: React.FC<{
   const savedMin = savedMinReal;
 
   const stats = [
-    { icon: 'solar:routing-2-bold-duotone',      label: lang === 'ar' ? 'إجمالي المسافة' : 'Total Distance',   value: `${result.total_distance_km?.toFixed(2)} km`, color: '#F5C842' },
-    { icon: 'solar:clock-circle-bold-duotone',   label: lang === 'ar' ? 'الوقت الكلي' : 'Total Time',          value: formatTime(result.total_time_minutes),          color: '#3B82F6' },
-    { icon: 'solar:map-point-wave-bold-duotone', label: lang === 'ar' ? 'المحطات المُسنَّدة' : 'Stops Assigned', value: `${result.num_stops_assigned} / ${totalStops}`, color: '#10B981' },
-    { icon: 'solar:delivery-bold-duotone',       label: lang === 'ar' ? 'سرعة التوصيل' : 'Delivery Speed',     value: `${deliveryRate}/hr`,                            color: '#A855F7' },
+    { icon: 'solar:routing-2-bold-duotone',      label: lang === 'ar' ? 'إجمالي المسافة' : 'Total Distance',   value: `${result.total_distance_km?.toFixed(2)} km`, color: '#F5C842', tooltip: 'Total road distance the vehicle will travel across all stops' },
+    { icon: 'solar:clock-circle-bold-duotone',   label: lang === 'ar' ? 'الوقت الكلي' : 'Total Time',          value: formatTime(result.total_time_minutes),          color: '#3B82F6', tooltip: 'Total estimated time including driving and service time at each stop' },
+    { icon: 'solar:map-point-wave-bold-duotone', label: lang === 'ar' ? 'المحطات المُسنَّدة' : 'Stops Assigned', value: `${result.num_stops_assigned} / ${totalStops}`, color: '#10B981', tooltip: 'Number of stops successfully assigned to vehicles out of total stops entered' },
+    { icon: 'solar:delivery-bold-duotone',       label: lang === 'ar' ? 'سرعة التوصيل' : 'Delivery Speed',     value: `${deliveryRate}/hr`,                            color: '#A855F7', tooltip: 'Average number of deliveries completed per hour on this route' },
   ];
 
   return (
@@ -1001,7 +990,9 @@ const SummaryTab: React.FC<{
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
         {stats.map(s => (
           <div key={s.label} style={{ background: 'rgba(12,17,45,0.8)', border: `1px solid ${s.color}25`, borderRadius: '12px', padding: '16px' }}>
-            <Icon icon={s.icon} width={20} color={s.color} />
+            <Tooltip text={s.tooltip} position="top">
+              <Icon icon={s.icon} width={20} color={s.color}  />
+            </Tooltip>
             <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '22px', fontWeight: 800, color: s.color, margin: '8px 0 2px' }}>{s.value}</p>
             <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>{s.label}</p>
           </div>
@@ -1032,18 +1023,21 @@ const SummaryTab: React.FC<{
             value={hasBaseline ? `${savedKm} km` : '—'}
             label="Distance Saved"
             sub={hasBaseline ? `${savedPct.toFixed(0)}% vs sequential` : 'no baseline'}
+            tooltip="Kilometres saved compared to visiting stops in the order you entered them"
           />
           <ImpactMetric
             icon="solar:clock-circle-bold-duotone" color="#3B82F6"
             value={hasBaseline ? formatTime(savedMin) : '—'}
             label="Time Saved"
             sub={hasBaseline ? `vs input order` : 'no baseline'}
+            tooltip="Time saved by using the optimized order instead of your original stop sequence"
           />
           <ImpactMetric
             icon="solar:target-bold-duotone" color="#10B981"
             value={`${avgKmPerStop} km`}
             label="Avg per Stop"
             sub={`${avgMinPerStop} min/stop`}
+            tooltip="Average distance and time spent per delivery stop on this route"
           />
         </div>
 
@@ -1081,14 +1075,14 @@ const SummaryTab: React.FC<{
 
                 {/* Mini metrics row */}
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: '8px', marginBottom: '14px' }}>
-                  <MiniStat icon="solar:clock-circle-bold-duotone" color="#3B82F6" value={formatTime(driveMin)} label="Drive time" />
-                  <MiniStat icon="solar:stopwatch-bold-duotone" color="#A855F7" value={formatTime(totalSvcMin)} label="Service time" />
-                  <MiniStat icon="solar:map-point-wave-bold-duotone" color="#10B981" value={`${stops}`} label="Deliveries" />
+                  <MiniStat icon="solar:clock-circle-bold-duotone" color="#3B82F6" value={formatTime(driveMin)} label="Drive time" tooltip="Time spent driving between stops, excluding service time at each location" />
+                  <MiniStat icon="solar:stopwatch-bold-duotone" color="#A855F7" value={formatTime(totalSvcMin)} label="Service time" tooltip="Total time spent at delivery locations (loading, unloading, signatures, etc.)" />
+                  <MiniStat icon="solar:map-point-wave-bold-duotone" color="#10B981" value={`${stops}`} label="Deliveries" tooltip="Total number of delivery stops assigned to this vehicle" />
                 </div>
 
                 {/* Load bars */}
-                <CapBar label="Weight Load" used={route.load_weight} cap={route.capacity_weight} color="#F5C842" unit="kg" />
-                <CapBar label="Volume Load" used={route.load_volume} cap={route.capacity_volume} color="#3B82F6" unit="m³" />
+                <CapBar label="Weight Load" used={route.load_weight} cap={route.capacity_weight} color="#F5C842" unit="kg" tooltip="Total package weight loaded on this vehicle vs its maximum weight capacity" />
+                <CapBar label="Volume Load" used={route.load_volume} cap={route.capacity_volume} color="#3B82F6" unit="m³" tooltip="Total cargo volume loaded on this vehicle vs its maximum volume capacity" />
               </div>
             );
           })}
@@ -1100,29 +1094,35 @@ const SummaryTab: React.FC<{
 };
 
 // ── Small helpers for SummaryTab ──────────────────────────────────────────────
-const ImpactMetric: React.FC<{ icon: string; color: string; value: string; label: string; sub: string }> = ({ icon, color, value, label, sub }) => (
+const ImpactMetric: React.FC<{ icon: string; color: string; value: string; label: string; sub: string; tooltip: string }> = ({ icon, color, value, label, sub, tooltip }) => (
   <div style={{ background: 'rgba(10,14,39,0.6)', borderRadius: '10px', padding: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-    <Icon icon={icon} width={16} color={color} />
+    <Tooltip text={tooltip} position="top">
+      <Icon icon={icon} width={16} color={color}  />
+    </Tooltip>
     <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '18px', fontWeight: 800, color, margin: '6px 0 1px' }}>{value}</p>
     <p style={{ fontSize: '11px', fontWeight: 600, color: '#FFFFFF', margin: '0 0 1px' }}>{label}</p>
     <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', margin: 0 }}>{sub}</p>
   </div>
 );
 
-const MiniStat: React.FC<{ icon: string; color: string; value: string; label: string }> = ({ icon, color, value, label }) => (
+const MiniStat: React.FC<{ icon: string; color: string; value: string; label: string; tooltip: string }> = ({ icon, color, value, label, tooltip }) => (
   <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '10px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-    <Icon icon={icon} width={14} color={color} />
+    <Tooltip text={tooltip} position="top">
+      <Icon icon={icon} width={14} color={color}  />
+    </Tooltip>
     <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 800, color, margin: '4px 0 2px' }}>{value}</p>
     <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{label}</p>
   </div>
 );
 
-const CapBar: React.FC<{ label: string; used: number; cap: number; color: string; unit: string }> = ({ label, used, cap, color, unit }) => {
+const CapBar: React.FC<{ label: string; used: number; cap: number; color: string; unit: string; tooltip: string }> = ({ label, used, cap, color, unit, tooltip }) => {
   const pct = cap > 0 ? Math.min((used / cap) * 100, 100) : 0;
   return (
     <div style={{ marginBottom: '12px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>{label}</span>
+        <Tooltip text={tooltip} position="top">
+          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', cursor: 'help' }}>{label}</span>
+        </Tooltip>
         <span style={{ fontSize: '12px', fontWeight: 700, color }}>{used?.toFixed(1)} / {cap} {unit} — {pct.toFixed(1)}%</span>
       </div>
       <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
@@ -1418,7 +1418,7 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
             <CartesianGrid {...chartGridStyle} />
             <XAxis dataKey="stop" tick={{ ...chartAxisStyle }} axisLine={false} tickLine={false} />
             <YAxis tick={{ ...chartAxisStyle }} axisLine={false} tickLine={false} width={30} />
-            <Tooltip contentStyle={{ background: 'rgba(12,17,45,0.97)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '8px', fontSize: '12px' }} />
+            <ChartTooltip contentStyle={{ background: 'rgba(12,17,45,0.97)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '8px', fontSize: '12px' }} />
             <Bar dataKey="arrival" name="Arrival (min)" fill="#F5C842" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -1433,7 +1433,7 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
             <CartesianGrid {...chartGridStyle} />
             <XAxis dataKey="stop" tick={{ ...chartAxisStyle }} axisLine={false} tickLine={false} />
             <YAxis tick={{ ...chartAxisStyle }} axisLine={false} tickLine={false} width={30} />
-            <Tooltip contentStyle={{ background: 'rgba(12,17,45,0.97)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '8px', fontSize: '12px' }} />
+            <ChartTooltip contentStyle={{ background: 'rgba(12,17,45,0.97)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '8px', fontSize: '12px' }} />
             <Bar dataKey="weight" name="Weight (kg)" fill="#F5C842" radius={[3, 3, 0, 0]} />
             <Bar dataKey="volume" name="Volume ×10" fill="#3B82F6" radius={[3, 3, 0, 0]} />
           </BarChart>
@@ -1443,8 +1443,8 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
       {/* Capacity Utilization */}
       <div style={{ background: 'rgba(12,17,45,0.8)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '12px', padding: '20px' }}>
         <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: '3px solid #10B981', paddingLeft: '10px' }}>{lang === 'ar' ? 'استغلال الطاقة الاستيعابية' : 'Capacity Utilization'}</h4>
-        <CapBar label={lang === 'ar' ? 'استغلال الوزن' : 'Weight Utilization'} used={route.load_weight}  cap={route.capacity_weight} color="#F5C842" unit="kg" />
-        <CapBar label={lang === 'ar' ? 'استغلال الحجم' : 'Volume Utilization'} used={route.load_volume}  cap={route.capacity_volume} color="#3B82F6" unit="m³" />
+        <CapBar label={lang === 'ar' ? 'استغلال الوزن' : 'Weight Utilization'} used={route.load_weight}  cap={route.capacity_weight} color="#F5C842" unit="kg" tooltip="How much of the vehicle's weight capacity is being used — higher means better efficiency" />
+        <CapBar label={lang === 'ar' ? 'استغلال الحجم' : 'Volume Utilization'} used={route.load_volume}  cap={route.capacity_volume} color="#3B82F6" unit="m³" tooltip="How much of the vehicle's cargo space is being used — higher means better efficiency" />
         {(weightPct < 50 && volPct < 50) && (
           <p style={{ fontSize: '13px', color: '#10B981', marginTop: '8px' }}>✅ {lang === 'ar' ? 'ضمن الطاقة الاستيعابية' : 'Well within capacity'}</p>
         )}

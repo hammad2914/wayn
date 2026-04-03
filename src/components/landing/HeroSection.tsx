@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import solarIcons from '@iconify-json/solar/icons.json';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { COMPLEXITY_ROUTE_SEGS } from './complexityRoutes';
 
 // Build an inline SVG string from the bundled Solar icon set (for Leaflet divIcon HTML)
 function solSvg(name: string, size: number, color: string): string {
@@ -48,6 +49,11 @@ async function getRoadRoute(
 // ─── Constants ───────────────────────────────────────────────────────────────
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+const SCENE_NAMES = [
+  'Address Search', 'Google Results', 'Wayn Result',
+  'All Stops', 'Route Planning', 'Manual Route', 'Optimal Route',
+];
+
 const STOP_COORDS: [number, number][] = [
   [25.118, 55.200], [25.078, 55.140], [25.074, 55.132], [25.044, 55.119],
   [25.043, 55.226], [25.197, 55.274], [25.213, 55.263], [25.232, 55.290],
@@ -59,6 +65,7 @@ const ARABIC_TEXT = 'عند البقالة الكبيرة ورا الفيصلي�
 // Route waypoint orders (indices into STOP_COORDS)
 const INEFF_INDICES = [0, 11, 3, 10, 8, 1, 6, 5, 9, 2, 7, 4];
 const OPT_INDICES   = [3, 2, 1, 0, 4, 11, 7, 6, 5, 10, 9, 8];
+
 
 type Visibility = {
   search: boolean; google: boolean; wayn: boolean;
@@ -127,12 +134,43 @@ export const HeroSection: React.FC = () => {
   const [startCount, setStartCount] = useState(false);
   const [winW, setWinW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1280);
 
-  const mapRef       = useRef<L.Map | null>(null);
-  const markersRef   = useRef<(L.CircleMarker | L.Marker)[]>([]);
-  const polylinesRef = useRef<L.Polyline[]>([]);
-  const cancelledRef = useRef(false);
+  const mapRef             = useRef<L.Map | null>(null);
+  const markersRef         = useRef<(L.CircleMarker | L.Marker)[]>([]);
+  const polylinesRef       = useRef<L.Polyline[]>([]);
+  const complexityLinesRef = useRef<L.Polyline[]>([]);
+  const cancelledRef       = useRef(false);
   // Cache OSRM results so they are only fetched once, not every loop
-  const routeCache   = useRef<Map<string, [number, number][]>>(new Map());
+  const routeCache         = useRef<Map<string, [number, number][]>>(new Map());
+
+  // ── Navigation / jump / pause ──────────────────────────────────────────────
+  // generationRef: increment to abort all async ops of the current scene
+  const generationRef    = useRef(0);
+  // targetSceneRef: >=0 means jump requested; read + reset at top of each loop
+  const targetSceneRef   = useRef(-1);
+  // currentSceneRef: lets the "prev" button know which scene is active
+  const currentSceneRef  = useRef(0);
+  const isPausedRef      = useRef(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const jumpTo = useCallback((idx: number) => {
+    const clamped = ((idx % 7) + 7) % 7;
+    targetSceneRef.current = clamped;
+    generationRef.current++;          // abort current async
+    isPausedRef.current = false;
+    setIsPaused(false);
+  }, []);
+
+  const togglePause = useCallback(() => {
+    if (isPausedRef.current) {
+      isPausedRef.current = false;
+      setIsPaused(false);
+      generationRef.current++;        // wake the pause-wait loop
+    } else {
+      isPausedRef.current = true;
+      setIsPaused(true);
+      generationRef.current++;        // abort current scene mid-flight
+    }
+  }, []);
 
   const isTablet      = winW < 1024;
   const isSmallLaptop = winW >= 1024 && winW < 1340;
@@ -154,6 +192,8 @@ export const HeroSection: React.FC = () => {
     markersRef.current = [];
     polylinesRef.current.forEach((p) => p.remove());
     polylinesRef.current = [];
+    complexityLinesRef.current.forEach((p) => p.remove());
+    complexityLinesRef.current = [];
   }, []);
 
   const handleMapReady = useCallback((map: L.Map) => {
@@ -180,180 +220,252 @@ export const HeroSection: React.FC = () => {
     getRoadRoute(optWaypoints).then((coords) => {
       routeCache.current.set('opt', coords);
     });
+
   }, [mapReady, isMobile]);
 
-  // ─── 7-scene animation loop ───────────────────────────────────────────────
+  // ─── 7-scene animation loop (scene-indexed, jump + pause capable) ───────────
   useEffect(() => {
     if (!mapReady || isMobile) return;
     cancelledRef.current = false;
 
     const runLoop = async () => {
       const map = mapRef.current!;
-      const chk = () => { if (cancelledRef.current) throw new Error('cancelled'); };
 
-      // Helper: draw a road geometry progressively over ~totalMs
-      const drawProgressive = async (
-        coords: [number, number][],
-        options: L.PolylineOptions,
-        totalMs: number = 1800
-      ): Promise<L.Polyline> => {
-        const poly = L.polyline([], options).addTo(map);
-        polylinesRef.current.push(poly);
-        if (coords.length === 0) return poly;
-        const FRAME_MS = 16;
-        const frames    = Math.max(1, Math.round(totalMs / FRAME_MS));
-        const ptsPerFrame = Math.ceil(coords.length / frames);
-        const acc: L.LatLngExpression[] = [];
-        let drawn = 0;
-        while (drawn < coords.length) {
-          chk();
-          const end = Math.min(drawn + ptsPerFrame, coords.length);
-          for (let i = drawn; i < end; i++) acc.push(coords[i]);
-          poly.setLatLngs(acc);
-          drawn = end;
-          if (drawn < coords.length) await sleep(FRAME_MS);
-        }
-        return poly;
+      // Abortable sleep: resolves early when generationRef changes or component unmounts
+      const sl = (ms: number, gen: number): Promise<void> => new Promise((resolve) => {
+        let rem = ms;
+        const tick = () => {
+          if (cancelledRef.current || generationRef.current !== gen || rem <= 0) { resolve(); return; }
+          const w = Math.min(20, rem); rem -= w;
+          setTimeout(tick, w);
+        };
+        setTimeout(tick, Math.min(20, ms));
+      });
+
+      // Throws 'unmounted' or 'aborted' depending on what triggered the abort
+      const makeChk = (gen: number) => () => {
+        if (cancelledRef.current) throw new Error('unmounted');
+        if (generationRef.current !== gen) throw new Error('aborted');
       };
 
-      while (true) {
-        try {
-          // ── Scene 0: Arabic typing ────────────────────────────────────
-          setScene(0);
-          clearMap();
-          setVis({ ...HIDDEN, search: true });
-          setTypedText('');
-          map.flyTo([25.1671, 55.225], 11.5, { duration: 0.8 });
-
-          for (let i = 0; i <= ARABIC_TEXT.length; i++) {
-            chk();
-            setTypedText(ARABIC_TEXT.slice(0, i));
-            await sleep(45);
-          }
-          chk(); await sleep(1500); chk();
-
-          // ── Scene 1: Google confusion ─────────────────────────────────
-          setScene(1);
-          setVis((v) => ({ ...v, google: true }));
-          map.flyTo([25.269, 55.298], 15, { duration: 1.5 });
-
-          const redLocs: [number, number][] = [
-            [25.2685, 55.2975], [25.271, 55.300],
-            [25.267, 55.2960], [25.2695, 55.2990],
-          ];
-          for (const loc of redLocs) {
-            chk();
-            const m = L.circleMarker(loc, {
-              radius: 10, color: '#EF4444', fillColor: '#EF4444',
-              fillOpacity: 0.75, weight: 2,
-            }).addTo(map);
-            markersRef.current.push(m);
-            await sleep(350);
-          }
-          chk(); await sleep(2500); chk();
-
-          // ── Scene 2: Wayn precision ────────────────────────────────
-          setScene(2);
-          setVis((v) => ({ ...v, wayn: true }));
-          map.flyTo([25.2692, 55.2977], 17, { duration: 1.5 });
-          await sleep(1700); chk();
-
-          markersRef.current.forEach((m) => m.remove());
-          markersRef.current = [];
-
-          const goldIcon = L.divIcon({
-            className: '',
-            html: `<div class="gold-marker-container"><div class="gold-ping-ring"></div><div class="gold-ping-dot"></div></div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
-          });
-          const gm = L.marker([25.2692, 55.2977], { icon: goldIcon }).addTo(map);
-          markersRef.current.push(gm as unknown as L.CircleMarker);
-          chk(); await sleep(2500); chk();
-
-          // ── Scene 3: All stops appear ──────────────────────────────────
-          setScene(3);
-          setVis({ ...HIDDEN, stops: true });
-          map.flyTo([25.16, 55.22], 11.5, { duration: 2.5 });
-          await sleep(700); chk();
-
-          markersRef.current.forEach((m) => m.remove());
-          markersRef.current = [];
-
+      // Instantly draw the grey complexity web + stops + depot (for direct scene jumps)
+      const drawGreyWebInstant = () => {
+        if (markersRef.current.length === 0) {
           for (const coord of STOP_COORDS) {
-            chk();
             const m = L.circleMarker(coord, {
-              radius: 7, color: '#F5C842', fillColor: '#F5C842',
-              fillOpacity: 0.85, weight: 2,
+              radius: 7, color: '#F5C842', fillColor: '#F5C842', fillOpacity: 0.85, weight: 2,
             }).addTo(map);
             markersRef.current.push(m);
-            await sleep(200);
           }
-          chk(); await sleep(1500); chk();
-
-          // ── Scene 4: Complexity web (straight-line spokes, instant) ────
-          setScene(4);
-          setVis({ ...HIDDEN, planning: true });
-
-          const depotIcon = L.divIcon({
+          const dIcon = L.divIcon({
             className: '',
             html: `<div style="filter:drop-shadow(0 0 6px rgba(245,200,66,0.85))">${solSvg('shop-2-line-duotone', 22, '#F5C842')}</div>`,
             iconSize: [22, 22], iconAnchor: [11, 11],
           });
-          const dm = L.marker(DEPOT, { icon: depotIcon }).addTo(map);
-          markersRef.current.push(dm as unknown as L.CircleMarker);
-
-          // Cross-connect pairs of stops to show route complexity
-          for (let i = 0; i < STOP_COORDS.length; i++) {
-            chk();
-            for (let j = i + 1; j < STOP_COORDS.length; j += 2) {
-              if (cancelledRef.current) throw new Error('cancelled');
-              const ln = L.polyline([STOP_COORDS[i], STOP_COORDS[j]], {
-                color: '#4B5563', weight: 1.5, opacity: 0.25,
-              }).addTo(map);
-              polylinesRef.current.push(ln);
-            }
-            await sleep(100);
+          markersRef.current.push(L.marker(DEPOT, { icon: dIcon }).addTo(map) as unknown as L.CircleMarker);
+        }
+        if (complexityLinesRef.current.length === 0) {
+          for (const seg of COMPLEXITY_ROUTE_SEGS) {
+            const ln = L.polyline(seg.path as L.LatLngExpression[], {
+              color: '#9CA3AF', weight: 2.5, opacity: 0.65,
+            }).addTo(map);
+            complexityLinesRef.current.push(ln);
           }
-          chk(); await sleep(1500); chk();
+        }
+      };
 
-          // ── Scene 5: Inefficient route (road geometry, progressive) ────
-          setScene(5);
-          setVis({ ...HIDDEN, inefficient: true });
-          polylinesRef.current.forEach((p) => p.remove());
-          polylinesRef.current = [];
+      let sceneIdx = 0;
 
-          const ineffCoords = routeCache.current.get('ineff') ?? [
-            DEPOT, ...INEFF_INDICES.map((i) => STOP_COORDS[i]), DEPOT,
-          ];
-          await drawProgressive(ineffCoords, {
-            color: '#EF4444', weight: 4, opacity: 0.85,
-          }, 2000);
-          chk(); await sleep(1500); chk();
-
-          // ── Scene 6: Optimal route (road geometry, progressive) ─────────
-          setScene(6);
-          setVis({ ...HIDDEN, optimal: true });
-          polylinesRef.current.forEach((p) => p.remove());
-          polylinesRef.current = [];
-
-          const optCoords = routeCache.current.get('opt') ?? [
-            DEPOT, ...OPT_INDICES.map((i) => STOP_COORDS[i]), DEPOT,
-          ];
-          await drawProgressive(optCoords, {
-            color: '#10B981', weight: 5, opacity: 1.0,
-          }, 2000);
-          chk(); await sleep(4000); chk();
-
-          // ── Loop transition ────────────────────────────────────────────
+      while (!cancelledRef.current) {
+        // ── Check for jump request ──────────────────────────────────────────
+        if (targetSceneRef.current >= 0) {
+          sceneIdx = targetSceneRef.current;
+          targetSceneRef.current = -1;
+          clearMap();
           setVis(HIDDEN);
-          await sleep(800); chk();
+          setTypedText('');
+          // Snap map to overview for route scenes
+          if (sceneIdx >= 3) map.setView([25.16, 55.22], 11.5);
+        }
+
+        const gen = generationRef.current;
+        const chk = makeChk(gen);
+
+        // Per-scene progressive drawer (uses abortable sl + chk)
+        const drawProgressive = async (
+          coords: [number, number][],
+          options: L.PolylineOptions,
+          totalMs = 1800
+        ): Promise<L.Polyline> => {
+          const poly = L.polyline([], options).addTo(map);
+          polylinesRef.current.push(poly);
+          if (coords.length === 0) return poly;
+          const FRAME_MS = 16;
+          const frames = Math.max(1, Math.round(totalMs / FRAME_MS));
+          const ptsPerFrame = Math.ceil(coords.length / frames);
+          const acc: L.LatLngExpression[] = [];
+          let drawn = 0;
+          while (drawn < coords.length) {
+            chk();
+            const end = Math.min(drawn + ptsPerFrame, coords.length);
+            for (let i = drawn; i < end; i++) acc.push(coords[i]);
+            poly.setLatLngs(acc);
+            drawn = end;
+            if (drawn < coords.length) await sl(FRAME_MS, gen);
+          }
+          return poly;
+        };
+
+        setScene(sceneIdx);
+        currentSceneRef.current = sceneIdx;
+
+        try {
+          switch (sceneIdx) {
+            case 0: {
+              setVis({ ...HIDDEN, search: true });
+              setTypedText('');
+              map.flyTo([25.1671, 55.225], 11.5, { duration: 0.8 });
+              for (let i = 0; i <= ARABIC_TEXT.length; i++) {
+                chk();
+                setTypedText(ARABIC_TEXT.slice(0, i));
+                await sl(45, gen);
+              }
+              chk(); await sl(1500, gen); chk();
+              break;
+            }
+            case 1: {
+              setVis({ ...HIDDEN, google: true });
+              map.flyTo([25.269, 55.298], 15, { duration: 1.5 });
+              const redLocs: [number, number][] = [
+                [25.2685, 55.2975], [25.271, 55.300],
+                [25.267, 55.2960], [25.2695, 55.2990],
+              ];
+              for (const loc of redLocs) {
+                chk();
+                markersRef.current.push(
+                  L.circleMarker(loc, { radius: 10, color: '#EF4444', fillColor: '#EF4444', fillOpacity: 0.75, weight: 2 }).addTo(map)
+                );
+                await sl(350, gen);
+              }
+              chk(); await sl(2500, gen); chk();
+              break;
+            }
+            case 2: {
+              setVis({ ...HIDDEN, wayn: true });
+              map.flyTo([25.2692, 55.2977], 17, { duration: 1.5 });
+              await sl(1700, gen); chk();
+              markersRef.current.forEach((m) => m.remove());
+              markersRef.current = [];
+              const goldIcon = L.divIcon({
+                className: '',
+                html: `<div class="gold-marker-container"><div class="gold-ping-ring"></div><div class="gold-ping-dot"></div></div>`,
+                iconSize: [24, 24], iconAnchor: [12, 12],
+              });
+              markersRef.current.push(L.marker([25.2692, 55.2977], { icon: goldIcon }).addTo(map) as unknown as L.CircleMarker);
+              chk(); await sl(2500, gen); chk();
+              break;
+            }
+            case 3: {
+              setVis({ ...HIDDEN, stops: true });
+              map.flyTo([25.16, 55.22], 11.5, { duration: 2.5 });
+              await sl(700, gen); chk();
+              markersRef.current.forEach((m) => m.remove());
+              markersRef.current = [];
+              for (const coord of STOP_COORDS) {
+                chk();
+                markersRef.current.push(
+                  L.circleMarker(coord, { radius: 7, color: '#F5C842', fillColor: '#F5C842', fillOpacity: 0.85, weight: 2 }).addTo(map)
+                );
+                await sl(200, gen);
+              }
+              chk(); await sl(1500, gen); chk();
+              break;
+            }
+            case 4: {
+              setVis({ ...HIDDEN, planning: true });
+              // Ensure stops visible when jumped here directly
+              if (markersRef.current.length === 0) {
+                for (const coord of STOP_COORDS) {
+                  markersRef.current.push(
+                    L.circleMarker(coord, { radius: 7, color: '#F5C842', fillColor: '#F5C842', fillOpacity: 0.85, weight: 2 }).addTo(map)
+                  );
+                }
+              }
+              const depotIcon4 = L.divIcon({
+                className: '',
+                html: `<div style="filter:drop-shadow(0 0 6px rgba(245,200,66,0.85))">${solSvg('shop-2-line-duotone', 22, '#F5C842')}</div>`,
+                iconSize: [22, 22], iconAnchor: [11, 11],
+              });
+              markersRef.current.push(L.marker(DEPOT, { icon: depotIcon4 }).addTo(map) as unknown as L.CircleMarker);
+              for (const seg of COMPLEXITY_ROUTE_SEGS) {
+                chk();
+                complexityLinesRef.current.push(
+                  L.polyline(seg.path as L.LatLngExpression[], { color: '#9CA3AF', weight: 2.5, opacity: 0.65 }).addTo(map)
+                );
+                await sl(25, gen);
+              }
+              chk(); await sl(1500, gen); chk();
+              break;
+            }
+            case 5: {
+              setVis({ ...HIDDEN, inefficient: true });
+              drawGreyWebInstant(); // no-op if already drawn; ensures state when jumped here
+              polylinesRef.current.forEach((p) => p.remove());
+              polylinesRef.current = [];
+              const ineffCoords = routeCache.current.get('ineff') ?? [
+                DEPOT, ...INEFF_INDICES.map((i) => STOP_COORDS[i]), DEPOT,
+              ];
+              await drawProgressive(ineffCoords, { color: '#EF4444', weight: 5, opacity: 1.0 }, 2000);
+              chk(); await sl(1500, gen); chk();
+              break;
+            }
+            case 6: {
+              setVis({ ...HIDDEN, optimal: true });
+              drawGreyWebInstant(); // no-op if already drawn; ensures state when jumped here
+              polylinesRef.current.forEach((p) => p.remove());
+              polylinesRef.current = [];
+              const optCoords = routeCache.current.get('opt') ?? [
+                DEPOT, ...OPT_INDICES.map((i) => STOP_COORDS[i]), DEPOT,
+              ];
+              await drawProgressive(optCoords, { color: '#10B981', weight: 6, opacity: 1.0 }, 2000);
+              chk(); await sl(4000, gen); chk();
+              break;
+            }
+          }
+        } catch (e: unknown) {
+          const msg = (e as Error).message;
+          if (msg === 'unmounted' || cancelledRef.current) return;
+          // 'aborted' — jump or pause was requested
+          if (isPausedRef.current) {
+            // Hold until unpaused or a jump comes in
+            while (isPausedRef.current && !cancelledRef.current && targetSceneRef.current < 0) {
+              await new Promise<void>((r) => setTimeout(r, 50));
+            }
+            if (cancelledRef.current) return;
+          }
+          continue; // re-evaluate jump target at top of while loop
+        }
+
+        // ── Scene completed normally ────────────────────────────────────────
+        if (isPausedRef.current) {
+          while (isPausedRef.current && !cancelledRef.current && targetSceneRef.current < 0) {
+            await new Promise<void>((r) => setTimeout(r, 50));
+          }
+          if (cancelledRef.current) return;
+          continue; // jump or resume — re-evaluate at top
+        }
+
+        // ── Advance to next scene ───────────────────────────────────────────
+        sceneIdx = (sceneIdx + 1) % 7;
+        if (sceneIdx === 0) {
+          // Loop-end transition back to start
+          setVis(HIDDEN);
+          await new Promise<void>((r) => setTimeout(r, 800));
+          if (cancelledRef.current) return;
           clearMap();
           map.flyTo([25.1671, 55.225], 11.5, { duration: 1.5 });
-          await sleep(1600); chk();
-
-        } catch {
-          return; // cancelled
+          await new Promise<void>((r) => setTimeout(r, 1600));
+          if (cancelledRef.current) return;
         }
       }
     };
@@ -376,7 +488,7 @@ export const HeroSection: React.FC = () => {
     <section
       style={{
         position: 'relative',
-        height: isMobile ? '85vh' : '100vh',
+        height: '100vh',
         overflow: 'hidden',
         background: '#0A0E27',
       }}
@@ -446,8 +558,10 @@ export const HeroSection: React.FC = () => {
         style={{
           position: 'absolute',
           ...(isRTL ? { right: 0 } : { left: 0 }),
-          top: '50%',
-          transform: 'translateY(-50%)',
+          // On mobile: sit below the 64px fixed navbar instead of centering
+          ...(isMobile
+            ? { top: 0, paddingTop: 76 }
+            : { top: '50%', transform: 'translateY(-50%)' }),
           paddingLeft:  isRTL ? (isMobile ? 24 : 40) : (isMobile ? 24 : isTablet ? 48 : 80),
           paddingRight: isRTL ? (isMobile ? 24 : isTablet ? 48 : 80) : (isMobile ? 24 : 40),
           zIndex: 20,
@@ -749,31 +863,109 @@ export const HeroSection: React.FC = () => {
         </>
       )}
 
-      {/* ── SCENE DOTS ── */}
-      <div style={{
+      {/* ── NAV CONTROLS — hidden on mobile (no animation there) ── */}
+      {!isMobile && <div style={{
         position: 'absolute',
-        bottom: 28,
-        right: isTablet ? '50%' : 28,
-        transform: isTablet ? 'translateX(50%)' : 'none',
-        zIndex: 20,
-        display: 'flex', gap: 7, alignItems: 'center',
+        bottom: 22,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 30,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 10,
+        pointerEvents: 'auto',
       }}>
-        {Array.from({ length: 7 }).map((_, i) => (
-          <div key={i} style={{ position: 'relative', width: 10, height: 10 }}>
-            <div style={{
-              width: 7, height: 7, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.28)', margin: '1.5px',
-            }} />
-            {scene === i && (
-              <motion.div
-                layoutId="active-scene-dot"
-                style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#F5C842' }}
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              />
-            )}
+        {/* Progress segments — click to jump */}
+        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+          {SCENE_NAMES.map((name, i) => (
+            <div
+              key={i}
+              title={name}
+              onClick={() => jumpTo(i)}
+              style={{
+                width: isMobile ? 22 : 30,
+                height: 4,
+                borderRadius: 2,
+                cursor: 'pointer',
+                transition: 'background 0.3s, opacity 0.3s',
+                background: i === scene ? '#F5C842' : i < scene ? 'rgba(245,200,66,0.55)' : 'rgba(255,255,255,0.18)',
+                opacity: i === scene ? 1 : i < scene ? 0.8 : 0.4,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Prev / Pause / Label / Next */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Prev */}
+          <motion.button
+            onClick={() => jumpTo(scene - 1)}
+            whileHover={{ scale: 1.12 }}
+            whileTap={{ scale: 0.92 }}
+            style={{
+              width: 30, height: 30, borderRadius: '50%',
+              background: 'rgba(10,14,39,0.75)',
+              border: '1px solid rgba(245,200,66,0.4)',
+              color: '#F5C842', fontSize: 16,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', backdropFilter: 'blur(4px)',
+              lineHeight: 1,
+            }}
+          >
+            ‹
+          </motion.button>
+
+          {/* Pause / Play */}
+          <motion.button
+            onClick={togglePause}
+            whileHover={{ scale: 1.12 }}
+            whileTap={{ scale: 0.92 }}
+            title={isPaused ? 'Resume' : 'Pause'}
+            style={{
+              width: 30, height: 30, borderRadius: '50%',
+              background: isPaused ? 'rgba(245,200,66,0.18)' : 'rgba(10,14,39,0.75)',
+              border: `1px solid ${isPaused ? 'rgba(245,200,66,0.9)' : 'rgba(245,200,66,0.4)'}`,
+              color: '#F5C842', fontSize: 11,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', backdropFilter: 'blur(4px)',
+              lineHeight: 1,
+            }}
+          >
+            {isPaused ? '▶' : '⏸'}
+          </motion.button>
+
+          {/* Scene label */}
+          <div style={{
+            fontSize: 11, fontWeight: 600,
+            color: 'rgba(255,255,255,0.7)',
+            letterSpacing: '0.04em',
+            minWidth: isMobile ? 90 : 120,
+            textAlign: 'center',
+            textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+          }}>
+            {SCENE_NAMES[scene]}
           </div>
-        ))}
-      </div>
+
+          {/* Next */}
+          <motion.button
+            onClick={() => jumpTo(scene + 1)}
+            whileHover={{ scale: 1.12 }}
+            whileTap={{ scale: 0.92 }}
+            style={{
+              width: 30, height: 30, borderRadius: '50%',
+              background: 'rgba(10,14,39,0.75)',
+              border: '1px solid rgba(245,200,66,0.4)',
+              color: '#F5C842', fontSize: 16,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', backdropFilter: 'blur(4px)',
+              lineHeight: 1,
+            }}
+          >
+            ›
+          </motion.button>
+        </div>
+      </div>}
 
       {/* ── ATTRIBUTION ── */}
       <div style={{
