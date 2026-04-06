@@ -1,13 +1,47 @@
-import type { Request, Response } from 'express';
+import crypto from 'crypto';
+import type { Request, Response, CookieOptions } from 'express';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
-import { signToken } from '../utils/jwt.utils';
+import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.utils';
 import { sendSuccess, sendError } from '../utils/response.utils';
 import { generateOTP, saveOTP, saveOTPWithExpiry, validateOTP, markOTPUsed } from '../services/otp.service';
 import { sendOTPEmail, sendPasswordResetEmail } from '../services/email.service';
 import type { AuthRequest } from '../middleware/auth.middleware';
 
+// ── Refresh-token cookie config ───────────────────────────────────────────────
+const REFRESH_COOKIE = 'wayn_refresh';
+const COOKIE_OPTS: CookieOptions = {
+  httpOnly:  true,
+  secure:    process.env.NODE_ENV === 'production',
+  sameSite:  'strict',
+  maxAge:    7 * 24 * 60 * 60 * 1000, // 7 days in ms
+  path:      '/api/auth',              // only sent to auth endpoints
+};
+
+function hashToken(raw: string): string {
+  return crypto.createHash('sha256').update(raw).digest('hex');
+}
+
+/** Generate both tokens, persist refresh token in DB, set cookie. Returns access token. */
+async function issueTokens(
+  res: Response,
+  user: { id: string; email: string; role: string },
+): Promise<string> {
+  const accessToken  = signAccessToken({ userId: user.id, email: user.email, role: user.role });
+  const rawRefresh   = signRefreshToken(user.id);
+  const tokenHash    = hashToken(rawRefresh);
+  const expiresAt    = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  // Remove any stale refresh tokens for this user, then store the new one
+  await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+  await prisma.refreshToken.create({ data: { userId: user.id, tokenHash, expiresAt } });
+
+  res.cookie(REFRESH_COOKIE, rawRefresh, COOKIE_OPTS);
+  return accessToken;
+}
+
+// ── Schemas ───────────────────────────────────────────────────────────────────
 const signupSchema = z.object({
   email:       z.string().email(),
   username:    z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/).optional(),
@@ -49,10 +83,8 @@ export const signup = async (req: Request, res: Response) => {
     data: { email, username, companyName, fullName, passwordHash, phone, country },
   });
 
-  // Create default usage record
   await prisma.usage.create({ data: { userId: user.id } });
 
-  // OTP
   const otp = generateOTP();
   await saveOTP(user.id, otp);
   let emailSent = false;
@@ -90,11 +122,12 @@ export const verifyOTP = async (req: Request, res: Response) => {
     include: { usage: true },
   });
 
-  const token = signToken({ userId: user.id, email: user.email, role: user.role });
+  const token = await issueTokens(res, user);
   sendSuccess(res, {
     token,
     user: { id: user.id, email: user.email, fullName: user.fullName, username: user.username,
-            companyName: user.companyName, country: user.country, role: user.role, usage: user.usage },
+            companyName: user.companyName, country: user.country, role: user.role, usage: user.usage,
+            createdAt: user.createdAt },
   });
 };
 
@@ -108,17 +141,66 @@ export const login = async (req: Request, res: Response) => {
     include: { usage: true },
   });
   if (!user) { sendError(res, 'Invalid credentials', 401); return; }
-  if (!user.isVerified) { sendError(res, 'Please verify your email first', 403, { needsVerification: true, userId: user.id }); return; }
+  if (!user.isVerified) {
+    sendError(res, 'Please verify your email first', 403, { needsVerification: true, userId: user.id });
+    return;
+  }
 
   const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
   if (!valid) { sendError(res, 'Invalid credentials', 401); return; }
 
-  const token = signToken({ userId: user.id, email: user.email, role: user.role });
+  const token = await issueTokens(res, user);
   sendSuccess(res, {
     token,
     user: { id: user.id, email: user.email, fullName: user.fullName, username: user.username,
-            companyName: user.companyName, country: user.country, role: user.role, usage: user.usage },
+            companyName: user.companyName, country: user.country, role: user.role, usage: user.usage,
+            createdAt: user.createdAt },
   });
+};
+
+// ── Refresh ───────────────────────────────────────────────────────────────────
+export const refresh = async (req: Request, res: Response) => {
+  const rawToken = (req.cookies as Record<string, string>)[REFRESH_COOKIE];
+  if (!rawToken) { sendError(res, 'No refresh token', 401); return; }
+
+  let userId: string;
+  try {
+    ({ userId } = verifyRefreshToken(rawToken));
+  } catch {
+    res.clearCookie(REFRESH_COOKIE, { ...COOKIE_OPTS, maxAge: 0 });
+    sendError(res, 'Refresh token invalid or expired', 401);
+    return;
+  }
+
+  const tokenHash = hashToken(rawToken);
+  const stored = await prisma.refreshToken.findFirst({
+    where: { userId, tokenHash, expiresAt: { gt: new Date() } },
+  });
+  if (!stored) {
+    res.clearCookie(REFRESH_COOKIE, { ...COOKIE_OPTS, maxAge: 0 });
+    sendError(res, 'Refresh token revoked', 401);
+    return;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) { sendError(res, 'User not found', 404); return; }
+
+  // Rotate: issue a fresh pair (old record deleted inside issueTokens)
+  const token = await issueTokens(res, user);
+  sendSuccess(res, { token });
+};
+
+// ── Logout ────────────────────────────────────────────────────────────────────
+export const logout = async (req: Request, res: Response) => {
+  const rawToken = (req.cookies as Record<string, string>)[REFRESH_COOKIE];
+  if (rawToken) {
+    try {
+      const { userId } = verifyRefreshToken(rawToken);
+      await prisma.refreshToken.deleteMany({ where: { userId } });
+    } catch { /* token already invalid — still clear the cookie */ }
+  }
+  res.clearCookie(REFRESH_COOKIE, { ...COOKIE_OPTS, maxAge: 0 });
+  sendSuccess(res, { message: 'Logged out' });
 };
 
 // ── Resend OTP ────────────────────────────────────────────────────────────────
@@ -143,7 +225,7 @@ export const resendOTP = async (req: Request, res: Response) => {
   }
 
   if (!emailSent) {
-    sendError(res, `Email delivery failed: ${emailError}. Check your SMTP configuration.`, 502, { emailSent: false });
+    sendError(res, `Email delivery failed: ${emailError}.`, 502, { emailSent: false });
     return;
   }
   sendSuccess(res, { emailSent: true, message: 'New OTP sent to your email' });
@@ -166,14 +248,13 @@ export const forgotPassword = async (req: Request, res: Response) => {
   if (!email) { sendError(res, 'Email is required'); return; }
 
   const user = await prisma.user.findUnique({ where: { email } });
-  // Always respond with success to prevent email enumeration attacks
   if (!user) {
     sendSuccess(res, { message: 'If an account exists with that email, a reset link has been sent.' });
     return;
   }
 
   const token = generateOTP();
-  await saveOTPWithExpiry(user.id, token, 5); // 5-minute expiry
+  await saveOTPWithExpiry(user.id, token, 5);
 
   try {
     await sendPasswordResetEmail(email, user.fullName, user.id, token);
@@ -193,7 +274,9 @@ export const resetPassword = async (req: Request, res: Response) => {
   if (newPassword.length < 8) { sendError(res, 'Password must be at least 8 characters', 400); return; }
 
   const otpRecord = await validateOTP(userId, token);
-  if (!otpRecord) { sendError(res, 'Reset link is invalid or has expired. Please request a new one.', 400); return; }
+  if (!otpRecord) {
+    sendError(res, 'Reset link is invalid or has expired. Please request a new one.', 400); return;
+  }
 
   await markOTPUsed(otpRecord.id);
   const passwordHash = await bcrypt.hash(newPassword, 12);

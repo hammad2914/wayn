@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  signup, verifyOTP, login, resendOTP, me,
+  signup, verifyOTP, login, resendOTP, me, refresh, logout,
   forgotPassword, resetPassword, updateProfile, changePassword,
 } from '../controllers/auth.controller';
 import { requireAuth } from '../middleware/auth.middleware';
@@ -14,6 +14,10 @@ router.post('/login',            login);
 router.post('/resend-otp',       resendOTP);
 router.post('/forgot-password',  forgotPassword);
 router.post('/reset-password',   resetPassword);
+
+// Token management (cookie-based, no Authorization header needed)
+router.post('/refresh',          refresh);
+router.post('/logout',           logout);
 
 // Protected
 router.get('/me',                requireAuth, me);
