@@ -111,22 +111,22 @@ const MapRecenter: React.FC<{ lat: number; lng: number }> = ({ lat, lng }) => {
 };
 
 // ── Example address pool ──────────────────────────────────────────────────────
-const EXAMPLE_ADDRESSES = [
-  'حي النزهة، شارع الملك فهد، الرياض، المملكة العربية السعودية',
-  'شارع الشيخ زايد، قرب برج خليفة، دبي، الإمارات العربية المتحدة',
-  'حي المعادي، شارع النصر، القاهرة، مصر',
-  'شارع الحمرا، بيروت، لبنان',
-  'حي السليمانية، شارع العروبة، جدة، المملكة العربية السعودية',
-  'منطقة الرميلة، الدوحة، قطر',
-  'حي الزمالك، شارع 26 يوليو، القاهرة، مصر',
-  'شارع المطار، بوشر، مسقط، عُمان',
-  'حي الديرة، بر دبي، دبي، الإمارات',
-  'المنامة، شارع الملك فيصل، البحرين',
-  'حي العليا، طريق الملك عبدالعزيز، الرياض',
-  'مدينة الكويت، منطقة الشرق، شارع الغلف، الكويت',
+const EXAMPLE_ADDRESSES: { address: string; country: string }[] = [
+  { address: 'حي النزهة، شارع الملك فهد، الرياض، المملكة العربية السعودية',    country: 'SA' },
+  { address: 'شارع الشيخ زايد، قرب برج خليفة، دبي، الإمارات العربية المتحدة', country: 'AE' },
+  { address: 'حي المعادي، شارع النصر، القاهرة، مصر',                            country: 'EG' },
+  { address: 'شارع الحمرا، بيروت، لبنان',                                        country: 'LB' },
+  { address: 'حي السليمانية، شارع العروبة، جدة، المملكة العربية السعودية',      country: 'SA' },
+  { address: 'منطقة الرميلة، الدوحة، قطر',                                       country: 'QA' },
+  { address: 'حي الزمالك، شارع 26 يوليو، القاهرة، مصر',                         country: 'EG' },
+  { address: 'شارع المطار، بوشر، مسقط، عُمان',                                  country: 'OM' },
+  { address: 'حي الديرة، بر دبي، دبي، الإمارات',                                country: 'AE' },
+  { address: 'المنامة، شارع الملك فيصل، البحرين',                               country: 'BH' },
+  { address: 'حي العليا، طريق الملك عبدالعزيز، الرياض',                         country: 'SA' },
+  { address: 'مدينة الكويت، منطقة الشرق، شارع الغلف، الكويت',                  country: 'KW' },
 ];
 
-const pickRandomAddress = () => EXAMPLE_ADDRESSES[Math.floor(Math.random() * EXAMPLE_ADDRESSES.length)];
+const pickRandomExample = () => EXAMPLE_ADDRESSES[Math.floor(Math.random() * EXAMPLE_ADDRESSES.length)];
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -170,7 +170,7 @@ export const AddressNormalizerPage: React.FC = () => {
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px', alignItems: 'start' }}>
 
       {/* ── LEFT: Input Form ──────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', zIndex: 2 }}>
 
         {/* Usage badge */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
@@ -196,7 +196,11 @@ export const AddressNormalizerPage: React.FC = () => {
                 <label style={{ ...labelStyle, marginBottom: 0 }}>{t('addr.address')}</label>
                 <button
                   type="button"
-                  onClick={() => setValue('address', pickRandomAddress())}
+                  onClick={() => {
+                    const ex = pickRandomExample();
+                    setValue('address', ex.address, { shouldDirty: true });
+                    setValue('country', ex.country, { shouldDirty: true });
+                  }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '5px',
                     background: 'linear-gradient(135deg, rgba(245,200,66,0.15), rgba(245,200,66,0.06))',
@@ -270,7 +274,7 @@ export const AddressNormalizerPage: React.FC = () => {
       </div>
 
       {/* ── RIGHT: Results ────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', zIndex: 1 }}>
 
         {/* Error */}
         <AnimatePresence>

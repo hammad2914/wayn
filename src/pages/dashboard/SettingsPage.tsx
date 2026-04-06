@@ -113,7 +113,7 @@ export const SettingsPage: React.FC = () => {
         companyName: data.companyName,
         phone:       data.phone || undefined,
         country:     data.country,
-      }, token);
+      });
       await refreshUser();
       toast({ type: 'success', title: t('settings.profileUpdated'), message: t('settings.profileSaved') });
     } catch (err: unknown) {
@@ -134,7 +134,7 @@ export const SettingsPage: React.FC = () => {
       await authAPI.changePassword({
         currentPassword: data.currentPassword,
         newPassword:     data.newPassword,
-      }, token);
+      });
       resetPw();
       toast({ type: 'success', title: t('settings.pwChanged'), message: t('settings.pwChangedMsg') });
     } catch (err: unknown) {

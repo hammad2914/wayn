@@ -820,7 +820,8 @@ export const RouteOptimizerPage: React.FC = () => {
       flexDirection: isMobile ? 'column' : 'row',
       height: isMobile ? undefined : 'calc(100vh - 108px)',
       minHeight: isMobile ? 'calc(100vh - 108px)' : undefined,
-      margin: '-24px',
+      // Match the exact padding <main> applies so there's no gap/overshoot
+      margin: isMobile ? '-20px -14px' : '-24px',
       overflow: isMobile ? 'visible' : 'hidden',
     }}>
       {/* Mobile sticky header — Configure/Results toggle + result tabs in one block */}
@@ -828,10 +829,10 @@ export const RouteOptimizerPage: React.FC = () => {
         <div style={{
           background: 'rgba(10,14,39,0.98)',
           borderBottom: '1px solid rgba(255,255,255,0.07)',
-          position: 'sticky', top: 0, zIndex: 50, flexShrink: 0,
+          position: 'sticky', top: -20, zIndex: 50, flexShrink: 0,
         }}>
           {/* Row 1: Configure / Results toggle */}
-          <div style={{ display: 'flex', gap: '6px', padding: '10px 12px 8px' }}>
+          <div style={{ display: 'flex', gap: '8px', padding: '10px 16px 8px' }}>
             {(['form', 'results'] as const).map(v => (
               <button key={v} type="button" onClick={() => setMobileView(v)}
                 style={{
@@ -852,7 +853,7 @@ export const RouteOptimizerPage: React.FC = () => {
           </div>
           {/* Row 2: Result tabs — only when viewing results and result exists */}
           {mobileView === 'results' && result && !loading && (
-            <div style={{ display: 'flex', gap: '4px', padding: '0 12px 10px' }}>
+            <div style={{ display: 'flex', gap: '4px', padding: '0 16px 10px' }}>
               {([
                 { key: 'summary',   icon: 'solar:chart-square-bold-duotone',   labelKey: 'route.summary' },
                 { key: 'map',       icon: 'solar:map-point-wave-bold-duotone', labelKey: 'route.mapTab' },
