@@ -214,21 +214,13 @@ export const resendOTP = async (req: Request, res: Response) => {
 
   const otp = generateOTP();
   await saveOTP(user.id, otp);
-  let emailSent = false;
-  let emailError = '';
-  try {
-    await sendOTPEmail(user.email, otp, user.fullName);
-    emailSent = true;
-  } catch (err) {
-    emailError = err instanceof Error ? err.message : 'SMTP error';
-    console.error('[resend-otp] Email failed:', emailError);
-  }
 
-  if (!emailSent) {
-    sendError(res, `Email delivery failed: ${emailError}.`, 502, { emailSent: false });
-    return;
-  }
+  // Respond immediately — don't block on SMTP
   sendSuccess(res, { emailSent: true, message: 'New OTP sent to your email' });
+
+  sendOTPEmail(user.email, otp, user.fullName).catch((err) => {
+    console.error('[resend-otp] Email failed:', err instanceof Error ? err.message : err);
+  });
 };
 
 // ── Me ────────────────────────────────────────────────────────────────────────
@@ -247,22 +239,18 @@ export const forgotPassword = async (req: Request, res: Response) => {
   const { email } = req.body as { email: string };
   if (!email) { sendError(res, 'Email is required'); return; }
 
+  // Always respond immediately — never block on SMTP
+  sendSuccess(res, { message: 'If an account exists with that email, a reset link has been sent.' });
+
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    sendSuccess(res, { message: 'If an account exists with that email, a reset link has been sent.' });
-    return;
-  }
+  if (!user) return;
 
   const token = generateOTP();
   await saveOTPWithExpiry(user.id, token, 5);
 
-  try {
-    await sendPasswordResetEmail(email, user.fullName, user.id, token);
-    sendSuccess(res, { message: 'Password reset link sent. Check your email — it expires in 5 minutes.' });
-  } catch (err) {
+  sendPasswordResetEmail(email, user.fullName, user.id, token).catch((err) => {
     console.error('[forgotPassword] Email send failed:', err);
-    sendError(res, 'Failed to send reset email. Please try again later.', 502);
-  }
+  });
 };
 
 // ── Reset Password ────────────────────────────────────────────────────────────
