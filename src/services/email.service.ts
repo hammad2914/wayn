@@ -25,6 +25,8 @@ transporter.verify((err) => {
   }
 });
 
+const LOGO_URL = `${process.env.API_URL || 'https://wayn-backend.onrender.com'}/public/images/logo.png`;
+
 export const sendOTPEmail = async (to: string, otp: string, fullName: string) => {
   const html = `
 <!DOCTYPE html>
@@ -43,7 +45,7 @@ export const sendOTPEmail = async (to: string, otp: string, fullName: string) =>
           <tr>
             <td style="padding:36px 40px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06);">
               <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;">
-                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F5C842,#D4A017);display:inline-block;line-height:38px;text-align:center;font-family:Arial,sans-serif;font-weight:800;font-size:18px;color:#0A0E27;">A</div>
+                <img src="${LOGO_URL}" alt="Wayn" width="38" height="38" style="width:38px;height:38px;border-radius:50%;display:inline-block;vertical-align:middle;">
                 <span style="font-size:20px;font-weight:700;color:#FFFFFF;letter-spacing:-0.3px;">Wayn</span>
               </div>
               <h1 style="margin:0;font-size:24px;font-weight:800;color:#F5C842;letter-spacing:-0.5px;">Verify your account</h1>
@@ -113,7 +115,7 @@ export const sendPasswordResetEmail = async (
           <tr>
             <td style="padding:36px 40px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06);">
               <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;">
-                <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#F5C842,#D4A017);display:inline-block;line-height:38px;text-align:center;font-family:Arial,sans-serif;font-weight:800;font-size:18px;color:#0A0E27;">A</div>
+                <img src="${LOGO_URL}" alt="Wayn" width="38" height="38" style="width:38px;height:38px;border-radius:50%;display:inline-block;vertical-align:middle;">
                 <span style="font-size:20px;font-weight:700;color:#FFFFFF;letter-spacing:-0.3px;">Wayn</span>
               </div>
               <h1 style="margin:0;font-size:24px;font-weight:800;color:#F5C842;letter-spacing:-0.5px;">Reset your password</h1>
