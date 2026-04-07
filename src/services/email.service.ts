@@ -3,16 +3,19 @@ import nodemailer from 'nodemailer';
 const smtpSecure = process.env.SMTP_SECURE === 'true';
 
 const transporter = nodemailer.createTransport({
-  host:   process.env.SMTP_HOST || 'smtp.gmail.com',
-  port:   Number(process.env.SMTP_PORT) || 587,
-  secure: smtpSecure, // false = STARTTLS on port 587 (correct for Office365)
+  host:              process.env.SMTP_HOST || 'smtp.gmail.com',
+  port:              Number(process.env.SMTP_PORT) || 587,
+  secure:            smtpSecure,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false, // allow self-signed or intermediate certs
+    rejectUnauthorized: false,
   },
+  connectionTimeout: 10_000,  // 10s to establish TCP connection
+  greetingTimeout:   10_000,  // 10s to receive SMTP greeting
+  socketTimeout:     15_000,  // 15s of inactivity before giving up
 });
 
 // Verify connection once on startup so errors surface immediately in server logs
