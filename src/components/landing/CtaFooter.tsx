@@ -131,16 +131,7 @@ export const CtaFooter: React.FC = () => {
         }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #F5C842 0%, #D4A017 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 11, fontWeight: 800, color: '#0A0E27',
-            }}>A</div>
-            <span style={{
-              fontFamily: 'Sora, sans-serif', fontWeight: 700,
-              fontSize: 16, color: '#FFFFFF',
-            }}>Wayn</span>
+            <img src="/wayn-full.png" alt="Wayn" style={{ height: 40, width: 'auto', objectFit: 'contain', display: 'block' }} />
           </div>
 
           {/* Nav links */}

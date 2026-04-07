@@ -140,9 +140,8 @@ export const OTPVerifyPage: React.FC = () => {
       >
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: isMobile ? '20px' : '28px' }}>
-          <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-            <div style={{ width: isMobile ? 32 : 36, height: isMobile ? 32 : 36, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: isMobile ? 14 : 16, color: '#0A0E27', fontFamily: 'Sora' }}>A</div>
-            <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: isMobile ? 16 : 18 }}>WAYN</span>
+          <Link to="/" style={{ display: 'inline-flex', textDecoration: 'none' }}>
+            <img src="/wayn-full.png" alt="Wayn" style={{ height: isMobile ? 38 : 44, width: 'auto', objectFit: 'contain', display: 'block' }} />
           </Link>
         </div>
 

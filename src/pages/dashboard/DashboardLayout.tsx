@@ -104,7 +104,7 @@ export const DashboardLayout: React.FC = () => {
             {/* Mobile: show logo */}
             {isMd && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: isRTL ? 0 : '8px', marginLeft: isRTL ? '8px' : 0, flexShrink: 0 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#0A0E27', fontFamily: 'Sora' }}>A</div>
+                <img src="/wayn-small.png" alt="Wayn" style={{ width: 28, height: 28, objectFit: 'contain', display: 'block' }} />
               </div>
             )}
             <div style={{ minWidth: 0 }}>

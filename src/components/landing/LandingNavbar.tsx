@@ -68,24 +68,12 @@ export const LandingNavbar: React.FC = () => {
       >
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', zIndex: 1 }}>
-          <motion.div
-            whileHover={{ scale: 1.08, boxShadow: '0 0 22px rgba(245,200,66,0.55)' }}
-            style={{
-              width: 34, height: 34, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #F5C842 0%, #D4A017 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Sora, sans-serif', fontWeight: 800, fontSize: 14, color: '#0A0E27',
-              boxShadow: '0 0 16px rgba(245,200,66,0.35)',
-            }}
-          >
-            A
-          </motion.div>
-          <span style={{
-            fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: 18,
-            color: '#FFFFFF', letterSpacing: '-0.3px',
-          }}>
-            Wayn
-          </span>
+          <motion.img
+            src="/wayn-full.png"
+            alt="Wayn"
+            whileHover={{ scale: 1.04 }}
+            style={{ height: 48, width: 'auto', objectFit: 'contain', display: 'block' }}
+          />
         </div>
 
         {/* Desktop nav links */}

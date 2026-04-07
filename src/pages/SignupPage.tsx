@@ -121,9 +121,8 @@ export const SignupPage: React.FC = () => {
       >
         {/* Logo + heading */}
         <div style={{ textAlign: 'center', marginBottom: isMobile ? '20px' : '28px' }}>
-          <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-            <div style={{ width: isMobile ? 34 : 40, height: isMobile ? 34 : 40, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Sora', fontWeight: 800, fontSize: isMobile ? 15 : 18, color: '#0A0E27' }}>A</div>
-            <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: isMobile ? 17 : 20, letterSpacing: '-0.3px' }}>WAYN</span>
+          <Link to="/" style={{ display: 'inline-flex', textDecoration: 'none' }}>
+            <img src="/wayn-full.png" alt="Wayn" style={{ height: isMobile ? 40 : 48, width: 'auto', objectFit: 'contain', display: 'block' }} />
           </Link>
           <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>{t('auth.createAccount')}</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>{t('auth.createAccountSubtitle')}</p>

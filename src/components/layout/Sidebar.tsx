@@ -104,11 +104,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
         flexShrink: 0, overflow: 'hidden',
         flexDirection: isRTL ? 'row-reverse' : 'row',
       }}>
-        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#0A0E27', fontFamily: 'Sora', flexShrink: 0 }}>A</div>
+        {collapsed ? (
+          <img
+            src="/wayn-small.png"
+            alt="Wayn"
+            style={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0, display: 'block' }}
+          />
+        ) : (
+          <img
+            src="/wayn-full.png"
+            alt="Wayn"
+            style={{ height: 34, width: 'auto', maxWidth: '160px', objectFit: 'contain', flexShrink: 0, display: 'block', marginLeft: isRTL ? 0 : '2px', marginRight: isRTL ? '2px' : 0 }}
+          />
+        )}
 
-        <SlideLabel collapsed={collapsed} style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: 16, letterSpacing: '-0.2px', marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0, flex: 1 }}>
-          WAYN
-        </SlideLabel>
+        {/* Pushes collapse button to the far end */}
+        <div style={{ flex: 1 }} />
 
         <button
           onClick={() => onCollapse(true)}
