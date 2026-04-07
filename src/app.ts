@@ -11,7 +11,7 @@ const app = express();
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use('/public', express.static(path.join(__dirname, '..', 'public')));
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+const allowedOrigins = (process.env.CLIENT_URL || 'https://wayn-app.vercel.app')
   .split(',')
   .map(o => o.trim());
 app.use(cors({

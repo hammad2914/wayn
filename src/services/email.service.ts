@@ -128,7 +128,7 @@ export const sendPasswordResetEmail = async (
   userId: string,
   token: string,
 ) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://wayn-app.vercel.app';
   const resetLink   = `${frontendUrl}/reset-password?userId=${userId}&token=${token}`;
 
   const html = `
