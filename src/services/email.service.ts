@@ -1,30 +1,58 @@
-import nodemailer from 'nodemailer';
+import nodemailer, { type TransportOptions } from 'nodemailer';
 
-const smtpSecure = process.env.SMTP_SECURE === 'true';
+const createTransporter = () =>
+  nodemailer.createTransport({
+    host:              process.env.SMTP_HOST || 'smtp.gmail.com',
+    port:              Number(process.env.SMTP_PORT) || 587,
+    secure:            process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    pool:              false,
+    connectionTimeout: 15_000,
+    greetingTimeout:   15_000,
+    socketTimeout:     20_000,
+  } as TransportOptions);
 
-const transporter = nodemailer.createTransport({
-  host:              process.env.SMTP_HOST || 'smtp.gmail.com',
-  port:              Number(process.env.SMTP_PORT) || 587,
-  secure:            smtpSecure,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  connectionTimeout: 10_000,
-  greetingTimeout:   10_000,
-  socketTimeout:     15_000,
-});
-
-transporter.verify((err) => {
+// Verify once at startup so misconfiguration is caught early
+createTransporter().verify((err) => {
   if (err) {
     console.error('[email] SMTP connection failed:', err.message);
   } else {
     console.log('[email] SMTP ready —', process.env.SMTP_HOST);
   }
 });
+
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 2_000;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+const sendWithRetry = async (
+  mailOptions: Parameters<ReturnType<typeof createTransporter>['sendMail']>[0],
+): Promise<void> => {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const transporter = createTransporter();
+      await transporter.sendMail(mailOptions);
+      transporter.close();
+      return;
+    } catch (err) {
+      lastError = err;
+      console.warn(
+        `[email] Send attempt ${attempt}/${MAX_RETRIES} failed:`,
+        err instanceof Error ? err.message : err,
+      );
+      if (attempt < MAX_RETRIES) await sleep(RETRY_DELAY_MS * attempt);
+    }
+  }
+  throw lastError;
+};
 
 const LOGO_URL = `${process.env.API_URL || 'https://wayn-backend.onrender.com'}/public/images/logo.png`;
 
@@ -114,7 +142,7 @@ export const sendOTPEmail = async (to: string, otp: string, fullName: string) =>
 </html>`;
 
   const fromAddress = process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@example.com';
-  return transporter.sendMail({
+  return sendWithRetry({
     from: `"Wayn" <${fromAddress}>`,
     to,
     subject: 'Your Wayn verification code',
@@ -180,7 +208,7 @@ export const sendPasswordResetEmail = async (
 </html>`;
 
   const fromAddress = process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@example.com';
-  return transporter.sendMail({
+  return sendWithRetry({
     from: `"Wayn" <${fromAddress}>`,
     to,
     subject: 'Reset your Wayn password',
