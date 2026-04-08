@@ -12,6 +12,10 @@ const createTransporter = () =>
     tls: {
       rejectUnauthorized: false,
     },
+    // Force IPv4 — Render (and most cloud hosts) have no outbound IPv6.
+    // Without this, DNS resolves smtp.office365.com to an IPv6 address and
+    // every connection attempt fails with ENETUNREACH immediately.
+    family:            4,
     pool:              false,
     connectionTimeout: 15_000,
     greetingTimeout:   15_000,
