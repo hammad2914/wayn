@@ -16,8 +16,11 @@ const createTransporter = () =>
     // Render (and most cloud hosts) have no outbound IPv6 routing.
     // smtp.office365.com DNS returns AAAA records first, causing ENETUNREACH.
     // Overriding lookup forces the socket to always resolve to an IPv4 address.
-    lookup: (hostname, options, callback) =>
-      dns.lookup(hostname, { ...(typeof options === 'object' ? options : {}), family: 4 }, callback),
+    lookup: (
+      hostname: string,
+      _options: dns.LookupOptions,
+      callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void,
+    ) => dns.lookup(hostname, 4, callback),
     pool:              false,
     connectionTimeout: 15_000,
     greetingTimeout:   15_000,
