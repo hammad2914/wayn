@@ -9,6 +9,11 @@ import usageRoutes from './routes/usage.routes';
 
 const app = express();
 
+// Render (and most cloud hosts) sit behind a reverse proxy that adds
+// X-Forwarded-For. Without this, express-rate-limit can't identify real client
+// IPs and throws ERR_ERL_UNEXPECTED_X_FORWARDED_FOR.
+app.set('trust proxy', 1);
+
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 const allowedOrigins = (process.env.CLIENT_URL || 'https://wayn-app.vercel.app')
