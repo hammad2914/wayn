@@ -1,31 +1,58 @@
-import nodemailer, { type TransportOptions } from 'nodemailer';
+import dns from 'dns';
+import nodemailer, { type TransportOptions, type SendMailOptions } from 'nodemailer';
 
-// dns.setDefaultResultOrder('ipv4first') is set in server.ts before this module
-// loads, so smtp.office365.com resolves to IPv4 on Render automatically.
-const createTransporter = () =>
-  nodemailer.createTransport({
-    host:              process.env.SMTP_HOST || 'smtp.gmail.com',
-    port:              Number(process.env.SMTP_PORT) || 587,
-    secure:            process.env.SMTP_SECURE === 'true',
+const smtpHostname = process.env.SMTP_HOST || 'smtp.office365.com';
+const smtpPort     = Number(process.env.SMTP_PORT) || 587;
+
+// Eagerly resolve the SMTP hostname to an IPv4 address.
+// Render (and most cloud VMs) have no outbound IPv6 routing, so if the OS
+// returns an AAAA record first the connection fails with ENETUNREACH.
+// By resolving once here and passing the raw IP to nodemailer we bypass
+// the OS resolver entirely for every subsequent send.
+const ipv4HostPromise: Promise<string> = new Promise(resolve => {
+  dns.resolve4(smtpHostname, (err, addrs) => {
+    if (!err && addrs.length > 0) {
+      console.log(`[email] ${smtpHostname} → ${addrs[0]} (IPv4)`);
+      resolve(addrs[0]);
+    } else {
+      console.warn(`[email] DNS A-lookup failed for ${smtpHostname}, using hostname`);
+      resolve(smtpHostname);
+    }
+  });
+});
+
+const createTransporter = async () => {
+  const host = await ipv4HostPromise;
+  return nodemailer.createTransport({
+    host,
+    port:   smtpPort,
+    secure: process.env.SMTP_SECURE === 'true',
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
     tls: {
       rejectUnauthorized: false,
+      // Pass the original hostname so Office365's TLS cert is validated
+      // against the right name even though we connected via IP.
+      servername: smtpHostname,
     },
     pool:              false,
     connectionTimeout: 15_000,
     greetingTimeout:   15_000,
     socketTimeout:     20_000,
   } as TransportOptions);
+};
 
-// Verify once at startup so misconfiguration is caught early
-createTransporter().verify((err) => {
-  if (err) {
-    console.error('[email] SMTP connection failed:', err.message);
-  } else {
-    console.log('[email] SMTP ready —', process.env.SMTP_HOST);
+// Non-blocking startup probe — logged for observability, never throws.
+ipv4HostPromise.then(async () => {
+  try {
+    const t = await createTransporter();
+    await t.verify();
+    t.close();
+    console.log(`[email] SMTP ready — ${smtpHostname}:${smtpPort}`);
+  } catch (err) {
+    console.error('[email] SMTP verify failed:', err instanceof Error ? err.message : err);
   }
 });
 
@@ -34,13 +61,11 @@ const RETRY_DELAY_MS = 2_000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-const sendWithRetry = async (
-  mailOptions: Parameters<ReturnType<typeof createTransporter>['sendMail']>[0],
-): Promise<void> => {
+const sendWithRetry = async (mailOptions: SendMailOptions): Promise<void> => {
   let lastError: unknown;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const transporter = createTransporter();
+      const transporter = await createTransporter();
       await transporter.sendMail(mailOptions);
       transporter.close();
       return;
