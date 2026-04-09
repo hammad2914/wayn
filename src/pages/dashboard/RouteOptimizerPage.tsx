@@ -370,7 +370,7 @@ export const RouteOptimizerPage: React.FC = () => {
   // map picker state: null = closed, 'depot' = depot, number = stop index
   const [mapPickerTarget, setMapPickerTarget] = useState<'depot' | number | null>(null);
 
-  const { register, control, handleSubmit, setValue, getValues } = useForm<FormValues>({
+  const { register, control, handleSubmit, setValue } = useForm<FormValues>({
     defaultValues: {
       depot_address: '',
       stops: [
