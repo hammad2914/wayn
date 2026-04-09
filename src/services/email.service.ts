@@ -1,60 +1,37 @@
-import dns from 'dns';
 import nodemailer, { type TransportOptions, type SendMailOptions } from 'nodemailer';
 
-const smtpHostname = process.env.SMTP_HOST || 'smtp.office365.com';
-const smtpPort     = Number(process.env.SMTP_PORT) || 587;
+const smtpHostname = process.env.SMTP_HOST || 'smtp.resend.com';
+const smtpPort     = Number(process.env.SMTP_PORT) || 465;
+const smtpSecure   = process.env.SMTP_SECURE === 'true';
 
-// Eagerly resolve the SMTP hostname to an IPv4 address.
-// Render (and most cloud VMs) have no outbound IPv6 routing, so if the OS
-// returns an AAAA record first the connection fails with ENETUNREACH.
-// By resolving once here and passing the raw IP to nodemailer we bypass
-// the OS resolver entirely for every subsequent send.
-const ipv4HostPromise: Promise<string> = new Promise(resolve => {
-  dns.resolve4(smtpHostname, (err, addrs) => {
-    if (!err && addrs.length > 0) {
-      console.log(`[email] ${smtpHostname} → ${addrs[0]} (IPv4)`);
-      resolve(addrs[0]);
-    } else {
-      console.warn(`[email] DNS A-lookup failed for ${smtpHostname}, using hostname`);
-      resolve(smtpHostname);
-    }
-  });
-});
-
-const createTransporter = async () => {
-  const host = await ipv4HostPromise;
-  return nodemailer.createTransport({
-    host,
+const createTransporter = () =>
+  nodemailer.createTransport({
+    host:   smtpHostname,
     port:   smtpPort,
-    secure: process.env.SMTP_SECURE === 'true',
+    secure: smtpSecure,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    tls: {
-      rejectUnauthorized: false,
-      // Pass the original hostname so Office365's TLS cert is validated
-      // against the right name even though we connected via IP.
-      servername: smtpHostname,
-    },
+    tls: { rejectUnauthorized: false },
     pool:              false,
-    connectionTimeout: 15_000,
-    greetingTimeout:   15_000,
-    socketTimeout:     20_000,
+    connectionTimeout: 20_000,
+    greetingTimeout:   20_000,
+    socketTimeout:     25_000,
   } as TransportOptions);
-};
 
 // Non-blocking startup probe — logged for observability, never throws.
-ipv4HostPromise.then(async () => {
+// Runs after a short delay so env vars and DNS are fully settled.
+setTimeout(async () => {
   try {
-    const t = await createTransporter();
+    const t = createTransporter();
     await t.verify();
     t.close();
     console.log(`[email] SMTP ready — ${smtpHostname}:${smtpPort}`);
   } catch (err) {
     console.error('[email] SMTP verify failed:', err instanceof Error ? err.message : err);
   }
-});
+}, 3000);
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2_000;
@@ -65,7 +42,7 @@ const sendWithRetry = async (mailOptions: SendMailOptions): Promise<void> => {
   let lastError: unknown;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const transporter = await createTransporter();
+      const transporter = createTransporter();
       await transporter.sendMail(mailOptions);
       transporter.close();
       return;
@@ -168,7 +145,7 @@ export const sendOTPEmail = async (to: string, otp: string, fullName: string) =>
 </body>
 </html>`;
 
-  const fromAddress = process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@example.com';
+  const fromAddress = process.env.FROM_EMAIL || 'onboarding@resend.dev';
   return sendWithRetry({
     from: `"Wayn" <${fromAddress}>`,
     to,
@@ -234,7 +211,7 @@ export const sendPasswordResetEmail = async (
 </body>
 </html>`;
 
-  const fromAddress = process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@example.com';
+  const fromAddress = process.env.FROM_EMAIL || 'onboarding@resend.dev';
   return sendWithRetry({
     from: `"Wayn" <${fromAddress}>`,
     to,
