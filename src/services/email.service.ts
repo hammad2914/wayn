@@ -1,50 +1,39 @@
-import nodemailer, { type TransportOptions, type SendMailOptions } from 'nodemailer';
+import { Resend } from 'resend';
 
-const smtpHostname = process.env.SMTP_HOST || 'smtp.resend.com';
-const smtpPort     = Number(process.env.SMTP_PORT) || 465;
-const smtpSecure   = process.env.SMTP_SECURE === 'true';
+// Uses Resend HTTP API (port 443) — immune to SMTP port blocks on Render/cloud hosts.
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const createTransporter = () =>
-  nodemailer.createTransport({
-    host:   smtpHostname,
-    port:   smtpPort,
-    secure: smtpSecure,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-    tls: { rejectUnauthorized: false },
-    pool:              false,
-    connectionTimeout: 20_000,
-    greetingTimeout:   20_000,
-    socketTimeout:     25_000,
-  } as TransportOptions);
+const FROM_ADDRESS = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 
-// Non-blocking startup probe — logged for observability, never throws.
-// Runs after a short delay so env vars and DNS are fully settled.
+// Startup probe — non-blocking, just confirms the API key is valid.
 setTimeout(async () => {
   try {
-    const t = createTransporter();
-    await t.verify();
-    t.close();
-    console.log(`[email] SMTP ready — ${smtpHostname}:${smtpPort}`);
+    // Resend has no "verify" call; send a dry-run by checking the key via domains list.
+    await resend.domains.list();
+    console.log('[email] Resend API key valid ✓');
   } catch (err) {
-    console.error('[email] SMTP verify failed:', err instanceof Error ? err.message : err);
+    console.error('[email] Resend API key check failed:', err instanceof Error ? err.message : err);
   }
 }, 3000);
 
-const MAX_RETRIES = 3;
+const MAX_RETRIES    = 3;
 const RETRY_DELAY_MS = 2_000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-const sendWithRetry = async (mailOptions: SendMailOptions): Promise<void> => {
+interface MailPayload { to: string; subject: string; html: string; }
+
+const sendWithRetry = async ({ to, subject, html }: MailPayload): Promise<void> => {
   let lastError: unknown;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const transporter = createTransporter();
-      await transporter.sendMail(mailOptions);
-      transporter.close();
+      const { error } = await resend.emails.send({
+        from:    `Wayn <${FROM_ADDRESS}>`,
+        to,
+        subject,
+        html,
+      });
+      if (error) throw new Error(error.message);
       return;
     } catch (err) {
       lastError = err;
@@ -145,13 +134,7 @@ export const sendOTPEmail = async (to: string, otp: string, fullName: string) =>
 </body>
 </html>`;
 
-  const fromAddress = process.env.FROM_EMAIL || 'onboarding@resend.dev';
-  return sendWithRetry({
-    from: `"Wayn" <${fromAddress}>`,
-    to,
-    subject: 'Your Wayn verification code',
-    html,
-  });
+  return sendWithRetry({ to, subject: 'Your Wayn verification code', html });
 };
 
 export const sendPasswordResetEmail = async (
@@ -211,11 +194,5 @@ export const sendPasswordResetEmail = async (
 </body>
 </html>`;
 
-  const fromAddress = process.env.FROM_EMAIL || 'onboarding@resend.dev';
-  return sendWithRetry({
-    from: `"Wayn" <${fromAddress}>`,
-    to,
-    subject: 'Reset your Wayn password',
-    html,
-  });
+  return sendWithRetry({ to, subject: 'Reset your Wayn password', html });
 };
