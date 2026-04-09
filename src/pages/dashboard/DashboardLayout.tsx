@@ -99,6 +99,7 @@ export const DashboardLayout: React.FC = () => {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexShrink: 0, backdropFilter: 'blur(16px)',
           flexDirection: isRTL ? 'row-reverse' : 'row',
+          position: 'relative', zIndex: 100,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flexDirection: isRTL ? 'row-reverse' : 'row' }}>
             {/* Mobile: show logo */}

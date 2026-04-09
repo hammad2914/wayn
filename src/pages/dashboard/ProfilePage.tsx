@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
@@ -7,6 +7,7 @@ import { useUsage } from '../../hooks/useUsage';
 import { COUNTRIES } from '../../components/ui/CountryDropdown';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { PageLoader } from '../../components/ui/LoadingOverlay';
 
 const cardStyle: React.CSSProperties = {
   background: 'rgba(12,17,45,0.8)',
@@ -28,14 +29,20 @@ const InfoRow: React.FC<{ icon: string; label: string; value: string; color?: st
 );
 
 export const ProfilePage: React.FC = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, isRefreshing } = useAuth();
   const { usage } = useUsage();
   const { isMobile } = useBreakpoint();
   const { t, lang } = useLanguage();
+  // pageLoading gates the very first render; isRefreshing covers the full
+  // network cycle including any interceptor token-refresh retry, preventing
+  // stale localStorage data from flashing while a 401 is being resolved.
+  const [pageLoading, setPageLoading] = useState(true);
 
-  // Ensure createdAt and latest profile data are always fresh
-  useEffect(() => { refreshUser(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    refreshUser().finally(() => setPageLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (pageLoading || isRefreshing) return <PageLoader message="Loading profile…" />;
   if (!user) return null;
 
   const firstName   = user.fullName?.split(' ')[0] || user.name?.split(' ')[0] || 'User';

@@ -7,13 +7,14 @@ interface AuthContextValue {
   token:           string | null;
   isAuthenticated: boolean;
   isLoading:       boolean;
+  isRefreshing:    boolean;
   login:           (token: string, user: User) => void;
   logout:          () => void;
   refreshUser:     () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue>({
-  user: null, token: null, isAuthenticated: false, isLoading: true,
+  user: null, token: null, isAuthenticated: false, isLoading: true, isRefreshing: false,
   login: () => {}, logout: () => {}, refreshUser: async () => {},
 });
 
@@ -21,9 +22,10 @@ const TOKEN_KEY = 'wayn_token';
 const USER_KEY  = 'wayn_user';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user,      setUser]      = useState<User | null>(null);
-  const [token,     setToken]     = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user,         setUser]         = useState<User | null>(null);
+  const [token,        setToken]        = useState<string | null>(null);
+  const [isLoading,    setIsLoading]    = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const clearLocal = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
@@ -49,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshUser = useCallback(async () => {
     const stored = localStorage.getItem(TOKEN_KEY);
     if (!stored) return;
+    setIsRefreshing(true);
     try {
       const res = await authAPI.me();
       if (res.data?.data) {
@@ -61,6 +64,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // If it still fails here the interceptor will dispatch wayn:logout — don't double-logout.
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status && status !== 401) clearLocal();
+    } finally {
+      setIsRefreshing(false);
     }
   }, [clearLocal]);
 
@@ -98,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider value={{
-      user, token, isAuthenticated: !!user, isLoading, login, logout, refreshUser,
+      user, token, isAuthenticated: !!user, isLoading, isRefreshing, login, logout, refreshUser,
     }}>
       {children}
     </AuthContext.Provider>

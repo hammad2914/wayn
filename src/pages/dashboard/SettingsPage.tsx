@@ -10,6 +10,7 @@ import { GoldButton } from '../../components/ui/GoldButton';
 import { CountryDropdown } from '../../components/ui/CountryDropdown';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { PageLoader } from '../../components/ui/LoadingOverlay';
 
 // ── Shared styles ──────────────────────────────────────────────────────────────
 const cardStyle: React.CSSProperties = {
@@ -77,6 +78,8 @@ export const SettingsPage: React.FC = () => {
   const { toast } = useToast();
   const { isMobile } = useBreakpoint();
   const { t } = useLanguage();
+
+  if (!user) return <PageLoader message="Loading settings…" />;
 
   const [profileLoading, setProfileLoading] = useState(false);
   const [pwLoading,      setPwLoading]      = useState(false);

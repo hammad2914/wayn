@@ -5,39 +5,65 @@ import { Icon } from '@iconify/react';
 import { useAuth } from '../hooks/useAuth';
 import { authAPI } from '../services/api';
 import { useToast } from '../components/ui/Toast';
+import { GoldButton } from '../components/ui/GoldButton';
 import { LangToggle } from '../components/ui/LangToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useLanguage } from '../contexts/LanguageContext';
 import type { User } from '../types';
 
-const OTP_LENGTH = 6;
+const OTP_LENGTH     = 6;
 const RESEND_SECONDS = 120;
 
 export const OTPVerifyPage: React.FC = () => {
-  const navigate    = useNavigate();
-  const [params]    = useSearchParams();
-  const { login }   = useAuth();
-  const { toast }   = useToast();
+  const navigate     = useNavigate();
+  const [params]     = useSearchParams();
+  const { login }    = useAuth();
+  const { toast }    = useToast();
   const { isMobile } = useBreakpoint();
   const { t, isRTL } = useLanguage();
 
-  const userId    = params.get('userId')    || '';
-  const email     = params.get('email')     || '';
-  const emailSent = params.get('emailSent') !== 'false';
+  const userId  = params.get('userId')  || '';
+  const email   = params.get('email')   || '';
+  // source=login  → arrived from login with an unverified account, OTP not sent yet
+  // source=signup → arrived from signup, OTP was already sent during registration
+  const source  = params.get('source')  || 'signup';
+
+  // When coming from login, we haven't sent an OTP yet → show "request code" screen first
+  const [notYetSent, setNotYetSent] = useState(source === 'login');
+  const [sending,    setSending]    = useState(false); // loading for the initial "send code" button
 
   const [digits,    setDigits]    = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState(false);
-  const [countdown, setCountdown] = useState(RESEND_SECONDS);
+  // Countdown only starts after OTP has been sent (0 when notYetSent=true keeps resend available)
+  const [countdown, setCountdown] = useState(source === 'login' ? 0 : RESEND_SECONDS);
   const [resending, setResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Tick the countdown only when an OTP has actually been sent
   useEffect(() => {
+    if (notYetSent) return;
     const interval = setInterval(() => setCountdown(c => (c > 0 ? c - 1 : 0)), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [notYetSent]);
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+
+  // Called when user taps "Send Verification Code" from the login-redirect state
+  const handleSendInitial = async () => {
+    if (!userId) { toast({ type: 'error', title: 'Missing userId parameter' }); return; }
+    setSending(true);
+    try {
+      await authAPI.resendOTP({ userId });
+      setNotYetSent(false);
+      setCountdown(RESEND_SECONDS);
+      toast({ type: 'success', title: 'Code sent!', message: `Check ${email} — also check your spam folder.` });
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+        || 'Failed to send email. Please try again.';
+      toast({ type: 'error', title: 'Send failed', message: msg });
+    } finally { setSending(false); }
+  };
 
   const submit = useCallback(async (otp: string) => {
     if (!userId) { toast({ type: 'error', title: 'Missing userId parameter' }); return; }
@@ -92,13 +118,14 @@ export const OTPVerifyPage: React.FC = () => {
       setCountdown(RESEND_SECONDS);
       toast({ type: 'success', title: 'New OTP sent!', message: `Check ${email} — also check your spam folder.` });
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to send email. Check SMTP config.';
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+        || 'Failed to send email. Check SMTP config.';
       toast({ type: 'error', title: 'Email delivery failed', message: msg });
     } finally { setResending(false); }
   };
 
-  const boxW = isMobile ? '42px' : '52px';
-  const boxH = isMobile ? '50px' : '62px';
+  const boxW        = isMobile ? '42px' : '52px';
+  const boxH        = isMobile ? '50px' : '62px';
   const boxFontSize = isMobile ? '22px' : '28px';
 
   const boxStyle = (i: number): React.CSSProperties => ({
@@ -152,7 +179,7 @@ export const OTPVerifyPage: React.FC = () => {
           padding: isMobile ? '28px 18px 24px' : '40px 36px',
           textAlign: 'center', position: 'relative',
         }}>
-          {/* Loading overlay */}
+          {/* Verifying overlay */}
           <AnimatePresence>
             {loading && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -163,108 +190,125 @@ export const OTPVerifyPage: React.FC = () => {
             )}
           </AnimatePresence>
 
-          {/* Status icon */}
-          <div style={{
-            width: isMobile ? 52 : 64, height: isMobile ? 52 : 64, borderRadius: '50%',
-            background: emailSent ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.12)',
-            border: `1px solid ${emailSent ? 'rgba(16,185,129,0.35)' : 'rgba(245,158,11,0.4)'}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
-          }}>
-            <Icon
-              icon={emailSent ? 'solar:letter-bold-duotone' : 'solar:letter-unread-bold-duotone'}
-              width={isMobile ? 26 : 32}
-              color={emailSent ? '#10B981' : '#F59E0B'}
-            />
-          </div>
+          <AnimatePresence mode="wait">
+            {/* ── "Not yet sent" screen (login redirect) ── */}
+            {notYetSent ? (
+              <motion.div key="not-sent"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Icon */}
+                <div style={{
+                  width: isMobile ? 56 : 68, height: isMobile ? 56 : 68, borderRadius: '50%',
+                  background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px',
+                }}>
+                  <Icon icon="solar:shield-keyhole-bold-duotone" width={isMobile ? 28 : 34} color="#F5C842" />
+                </div>
 
-          <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 12px' }}>
-            {emailSent ? t('auth.checkEmail') : t('auth.emailDeliveryIssue')}
-          </h1>
-
-          {/* Email status banner */}
-          {emailSent ? (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-              style={{
-                display: 'flex', alignItems: 'flex-start', gap: '10px',
-                background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)',
-                borderRadius: '10px', padding: '10px 12px', marginBottom: '18px', textAlign: isRTL ? 'right' : 'left',
-                flexDirection: isRTL ? 'row-reverse' : 'row',
-              }}
-            >
-              <Icon icon="solar:check-circle-bold" width={16} color="#10B981" style={{ flexShrink: 0, marginTop: 2 }} />
-              <div>
-                <p style={{ color: '#10B981', fontSize: '12px', fontWeight: 600, margin: '0 0 2px' }}>{t('auth.emailSentOk')}</p>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', margin: 0, lineHeight: 1.5 }}>
-                  Sent to <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{email}</strong>.{' '}
-                  Also check <strong style={{ color: 'rgba(255,255,255,0.8)' }}>spam / junk</strong>.
+                <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '20px' : '24px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 10px' }}>
+                  Verify Your Account
+                </h1>
+                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', margin: '0 0 8px', lineHeight: 1.6 }}>
+                  Your account is not yet verified.
                 </p>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-              style={{
-                display: 'flex', alignItems: 'flex-start', gap: '10px',
-                background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
-                borderRadius: '10px', padding: '10px 12px', marginBottom: '18px', textAlign: isRTL ? 'right' : 'left',
-                flexDirection: isRTL ? 'row-reverse' : 'row',
-              }}
-            >
-              <Icon icon="solar:danger-triangle-bold" width={16} color="#F59E0B" style={{ flexShrink: 0, marginTop: 2 }} />
-              <div>
-                <p style={{ color: '#F59E0B', fontSize: '12px', fontWeight: 600, margin: '0 0 2px' }}>{t('auth.emailDeliveryFailed')}</p>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', margin: '0 0 4px', lineHeight: 1.5 }}>
-                  Couldn't send to <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{email}</strong>.{' '}
-                  SMTP may not be configured. Try resend once fixed.
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', margin: '0 0 28px', lineHeight: 1.6 }}>
+                  We'll send a 6-digit code to{' '}
+                  <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{email || 'your email'}</strong>.
                 </p>
-              </div>
-            </motion.div>
-          )}
 
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', margin: '0 0 20px' }}>
-            {t('auth.enterCode')}
-          </p>
+                <GoldButton fullWidth size="lg" loading={sending} onClick={handleSendInitial}>
+                  {!sending && <Icon icon="solar:letter-bold" width={16} />}
+                  {sending ? 'Sending…' : 'Send Verification Code'}
+                </GoldButton>
+              </motion.div>
 
-          {/* OTP Boxes */}
-          <div
-            style={{ display: 'flex', justifyContent: 'center', gap: isMobile ? '7px' : '10px', marginBottom: '24px', direction: 'ltr' }}
-            onPaste={handlePaste}
-          >
-            {digits.map((d, i) => (
-              <motion.input
-                key={i}
-                ref={el => { inputRefs.current[i] = el; }}
-                type="text" inputMode="numeric" maxLength={1}
-                value={d}
-                onChange={e => handleChange(i, e.target.value)}
-                onKeyDown={e => handleKeyDown(i, e)}
-                onFocus={e => e.target.select()}
-                style={boxStyle(i)}
-                animate={error ? { x: [0, -6, 6, -6, 6, 0] } : {}}
-                transition={{ duration: 0.4 }}
-              />
-            ))}
-          </div>
-
-          {/* Countdown / Resend */}
-          <div style={{ marginBottom: '8px' }}>
-            {countdown > 0 ? (
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
-                {t('auth.resendIn')} <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{formatTime(countdown)}</strong>
-              </p>
             ) : (
-              <button onClick={handleResend} disabled={resending}
-                style={{ background: 'none', border: 'none', cursor: resending ? 'default' : 'pointer', color: resending ? 'rgba(245,200,66,0.4)' : '#F5C842', fontSize: '13px', fontWeight: 600, padding: 0 }}>
-                {resending ? t('auth.resending') : t('auth.resendCode')}
-              </button>
-            )}
-          </div>
+              /* ── Normal OTP entry screen ── */
+              <motion.div key="otp-entry"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Status icon */}
+                <div style={{
+                  width: isMobile ? 52 : 64, height: isMobile ? 52 : 64, borderRadius: '50%',
+                  background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.35)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
+                }}>
+                  <Icon icon="solar:letter-bold-duotone" width={isMobile ? 26 : 32} color="#10B981" />
+                </div>
 
-          {error && (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ color: '#EF4444', fontSize: '12px', marginTop: '10px' }}>
-              {t('auth.invalidCode')}
-            </motion.p>
-          )}
+                <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 12px' }}>
+                  {t('auth.checkEmail')}
+                </h1>
+
+                {/* Sent banner */}
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: '10px',
+                    background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)',
+                    borderRadius: '10px', padding: '10px 12px', marginBottom: '18px',
+                    textAlign: isRTL ? 'right' : 'left', flexDirection: isRTL ? 'row-reverse' : 'row',
+                  }}
+                >
+                  <Icon icon="solar:check-circle-bold" width={16} color="#10B981" style={{ flexShrink: 0, marginTop: 2 }} />
+                  <div>
+                    <p style={{ color: '#10B981', fontSize: '12px', fontWeight: 600, margin: '0 0 2px' }}>{t('auth.emailSentOk')}</p>
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', margin: 0, lineHeight: 1.5 }}>
+                      Sent to <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{email}</strong>.{' '}
+                      Also check <strong style={{ color: 'rgba(255,255,255,0.8)' }}>spam / junk</strong>.
+                    </p>
+                  </div>
+                </motion.div>
+
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', margin: '0 0 20px' }}>
+                  {t('auth.enterCode')}
+                </p>
+
+                {/* OTP Boxes */}
+                <div
+                  style={{ display: 'flex', justifyContent: 'center', gap: isMobile ? '7px' : '10px', marginBottom: '24px', direction: 'ltr' }}
+                  onPaste={handlePaste}
+                >
+                  {digits.map((d, i) => (
+                    <motion.input
+                      key={i}
+                      ref={el => { inputRefs.current[i] = el; }}
+                      type="text" inputMode="numeric" maxLength={1}
+                      value={d}
+                      onChange={e => handleChange(i, e.target.value)}
+                      onKeyDown={e => handleKeyDown(i, e)}
+                      onFocus={e => e.target.select()}
+                      style={boxStyle(i)}
+                      animate={error ? { x: [0, -6, 6, -6, 6, 0] } : {}}
+                      transition={{ duration: 0.4 }}
+                    />
+                  ))}
+                </div>
+
+                {/* Countdown / Resend */}
+                <div style={{ marginBottom: '8px' }}>
+                  {countdown > 0 ? (
+                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                      {t('auth.resendIn')} <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{formatTime(countdown)}</strong>
+                    </p>
+                  ) : (
+                    <button onClick={handleResend} disabled={resending}
+                      style={{ background: 'none', border: 'none', cursor: resending ? 'default' : 'pointer', color: resending ? 'rgba(245,200,66,0.4)' : '#F5C842', fontSize: '13px', fontWeight: 600, padding: 0 }}>
+                      {resending ? t('auth.resending') : t('auth.resendCode')}
+                    </button>
+                  )}
+                </div>
+
+                {error && (
+                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    style={{ color: '#EF4444', fontSize: '12px', marginTop: '10px' }}>
+                    {t('auth.invalidCode')}
+                  </motion.p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.2)', marginTop: '16px' }}>

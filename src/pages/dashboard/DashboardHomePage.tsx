@@ -13,6 +13,7 @@ import { StatCard } from '../../components/ui/StatCard';
 import { GoldButton } from '../../components/ui/GoldButton';
 import { OutlineButton } from '../../components/ui/OutlineButton';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
+import { Spinner } from '../../components/ui/LoadingOverlay';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -154,7 +155,7 @@ export const DashboardHomePage: React.FC = () => {
           </h3>
           {isLoading ? (
             <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: 28, height: 28, border: '2px solid rgba(245,200,66,0.2)', borderTopColor: '#F5C842', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+              <Spinner size={28} />
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
@@ -231,7 +232,7 @@ export const DashboardHomePage: React.FC = () => {
 
         {isLoading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 0' }}>
-            <div style={{ width: 28, height: 28, border: '2px solid rgba(245,200,66,0.2)', borderTopColor: '#F5C842', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <Spinner size={28} />
           </div>
         ) : activity.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px 0' }}>

@@ -67,17 +67,12 @@ export interface User {
 export interface RouteOptimizerRequest {
   country:                string;
   city:                   string;
-  normalize_addresses:    boolean;
-  optimization_objective: string;
+  optimization_objective: 'distance' | 'time';
   depot: {
     address: string;
-    lat:     number;
-    lng:     number;
   };
   stops: {
     address:        string;
-    lat:            number;
-    lng:            number;
     demand_weight?: number;
     demand_volume?: number;
     service_time?:  number;
