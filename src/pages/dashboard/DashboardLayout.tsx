@@ -72,7 +72,7 @@ export const DashboardLayout: React.FC = () => {
                   cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
-                  zIndex: 50,
+                  zIndex: 101,
                 }}
               >
                 <Icon
