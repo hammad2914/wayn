@@ -1,6 +1,7 @@
-import dns from 'dns';
 import nodemailer, { type TransportOptions } from 'nodemailer';
 
+// dns.setDefaultResultOrder('ipv4first') is set in server.ts before this module
+// loads, so smtp.office365.com resolves to IPv4 on Render automatically.
 const createTransporter = () =>
   nodemailer.createTransport({
     host:              process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -13,14 +14,6 @@ const createTransporter = () =>
     tls: {
       rejectUnauthorized: false,
     },
-    // Render (and most cloud hosts) have no outbound IPv6 routing.
-    // smtp.office365.com DNS returns AAAA records first, causing ENETUNREACH.
-    // Overriding lookup forces the socket to always resolve to an IPv4 address.
-    lookup: (
-      hostname: string,
-      _options: dns.LookupOptions,
-      callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void,
-    ) => dns.lookup(hostname, 4, callback),
     pool:              false,
     connectionTimeout: 15_000,
     greetingTimeout:   15_000,
