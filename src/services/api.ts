@@ -44,8 +44,22 @@ backendClient.interceptors.request.use((config) => {
   return config;
 });
 
-// On 401: try silent token refresh once, then force logout
+// On 401: try silent token refresh once, then force logout.
+// A queue holds any concurrent 401s so they all retry after the single refresh
+// completes rather than being dropped while isRefreshing is true.
 let isRefreshing = false;
+type QueueEntry = { resolve: (token: string) => void; reject: (err: unknown) => void };
+let refreshQueue: QueueEntry[] = [];
+
+const flushQueue = (token: string) => {
+  refreshQueue.forEach(({ resolve }) => resolve(token));
+  refreshQueue = [];
+};
+const rejectQueue = (err: unknown) => {
+  refreshQueue.forEach(({ reject }) => reject(err));
+  refreshQueue = [];
+};
+
 backendClient.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -56,7 +70,19 @@ backendClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (isRefreshing) return Promise.reject(error);
+    // Another refresh is already in flight — queue this request and wait
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        refreshQueue.push({
+          resolve: (token) => {
+            original.headers['Authorization'] = `Bearer ${token}`;
+            resolve(backendClient(original));
+          },
+          reject,
+        });
+      });
+    }
+
     isRefreshing = true;
     original._retry = true;
 
@@ -66,8 +92,10 @@ backendClient.interceptors.response.use(
       const newToken = data.data.token;
       localStorage.setItem(TOKEN_KEY, newToken);
       original.headers['Authorization'] = `Bearer ${newToken}`;
+      flushQueue(newToken); // replay all queued requests with the new token
       return backendClient(original);
-    } catch {
+    } catch (err) {
+      rejectQueue(err);
       // Refresh failed — force logout via custom event (AuthContext listens)
       window.dispatchEvent(new Event('wayn:logout'));
       return Promise.reject(error);

@@ -558,9 +558,10 @@ export const HeroSection: React.FC = () => {
           position: 'absolute',
           ...(isRTL ? { right: 0 } : { left: 0 }),
           // On mobile: sit below the 64px fixed navbar instead of centering
+          // On desktop/laptop: center within the visible area below the navbar
           ...(isMobile
             ? { top: 0, paddingTop: 76 }
-            : { top: '50%', transform: 'translateY(-50%)' }),
+            : { top: 64, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }),
           paddingLeft:  isRTL ? (isMobile ? 24 : 40) : (isMobile ? 24 : isTablet ? 48 : 80),
           paddingRight: isRTL ? (isMobile ? 24 : isTablet ? 48 : 80) : (isMobile ? 24 : 40),
           zIndex: 20,
