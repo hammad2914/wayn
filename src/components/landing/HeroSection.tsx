@@ -65,6 +65,26 @@ const ARABIC_TEXT = 'عند البقالة الكبيرة ورا الفيصلي�
 const INEFF_INDICES = [0, 11, 3, 10, 8, 1, 6, 5, 9, 2, 7, 4];
 const OPT_INDICES   = [3, 2, 1, 0, 4, 11, 7, 6, 5, 10, 9, 8];
 
+// Find the index in `coords` closest to `target`
+function nearestIdx(coords: [number, number][], target: [number, number]): number {
+  let best = 0, bestD = Infinity;
+  for (let i = 0; i < coords.length; i++) {
+    const d = (coords[i][0] - target[0]) ** 2 + (coords[i][1] - target[1]) ** 2;
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
+// Circular sequence-number marker
+function makeSeqIcon(num: number, color: string): L.DivIcon {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:22px;height:22px;border-radius:50%;background:${color};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;font-family:'Inter',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.45);line-height:1">${num}</div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+}
+
 
 type Visibility = {
   search: boolean; google: boolean; wayn: boolean;
@@ -138,6 +158,8 @@ export const HeroSection: React.FC = () => {
   const polylinesRef       = useRef<L.Polyline[]>([]);
   const complexityLinesRef = useRef<L.Polyline[]>([]);
   const cancelledRef       = useRef(false);
+  // Maps STOP_COORDS index → its current Leaflet marker (so we can swap in sequence badges)
+  const stopMarkersMapRef  = useRef<Map<number, L.CircleMarker | L.Marker>>(new Map());
   // Cache OSRM results so they are only fetched once, not every loop
   const routeCache         = useRef<Map<string, [number, number][]>>(new Map());
 
@@ -163,11 +185,11 @@ export const HeroSection: React.FC = () => {
     if (isPausedRef.current) {
       isPausedRef.current = false;
       setIsPaused(false);
-      generationRef.current++;        // wake the pause-wait loop
+      // sl() checks isPausedRef on every tick, so it resumes automatically — no gen bump needed
     } else {
       isPausedRef.current = true;
       setIsPaused(true);
-      generationRef.current++;        // abort current scene mid-flight
+      // Don't abort the scene; sl() will freeze mid-tick until resumed
     }
   }, []);
 
@@ -193,6 +215,7 @@ export const HeroSection: React.FC = () => {
     polylinesRef.current = [];
     complexityLinesRef.current.forEach((p) => p.remove());
     complexityLinesRef.current = [];
+    stopMarkersMapRef.current.clear();
   }, []);
 
   const handleMapReady = useCallback((map: L.Map) => {
@@ -230,11 +253,13 @@ export const HeroSection: React.FC = () => {
     const runLoop = async () => {
       const map = mapRef.current!;
 
-      // Abortable sleep: resolves early when generationRef changes or component unmounts
+      // Abortable sleep: resolves early when generationRef changes or component unmounts.
+      // While isPausedRef is true the remaining time is frozen (pause mid-sleep).
       const sl = (ms: number, gen: number): Promise<void> => new Promise((resolve) => {
         let rem = ms;
         const tick = () => {
           if (cancelledRef.current || generationRef.current !== gen || rem <= 0) { resolve(); return; }
+          if (isPausedRef.current) { setTimeout(tick, 50); return; }
           const w = Math.min(20, rem); rem -= w;
           setTimeout(tick, w);
         };
@@ -250,11 +275,12 @@ export const HeroSection: React.FC = () => {
       // Instantly draw the grey complexity web + stops + depot (for direct scene jumps)
       const drawGreyWebInstant = () => {
         if (markersRef.current.length === 0) {
-          for (const coord of STOP_COORDS) {
-            const m = L.circleMarker(coord, {
+          for (let si = 0; si < STOP_COORDS.length; si++) {
+            const m = L.circleMarker(STOP_COORDS[si], {
               radius: 7, color: '#F5C842', fillColor: '#F5C842', fillOpacity: 0.85, weight: 2,
             }).addTo(map);
             markersRef.current.push(m);
+            stopMarkersMapRef.current.set(si, m);
           }
           const dIcon = L.divIcon({
             className: '',
@@ -291,11 +317,20 @@ export const HeroSection: React.FC = () => {
         const chk = makeChk(gen);
 
         // Per-scene progressive drawer (uses abortable sl + chk)
+        // waypoints: stops to stamp with sequence badges as the line reaches them
         const drawProgressive = async (
           coords: [number, number][],
           options: L.PolylineOptions,
-          totalMs = 1800
+          totalMs = 1800,
+          waypoints?: { stopCoordIdx: number; seqNum: number; color: string }[]
         ): Promise<L.Polyline> => {
+          // Pre-compute the coord index nearest to each waypoint stop
+          const thresholds = (waypoints ?? []).map(wp => ({
+            ...wp,
+            threshold: nearestIdx(coords, STOP_COORDS[wp.stopCoordIdx]),
+            done: false,
+          }));
+
           const poly = L.polyline([], options).addTo(map);
           polylinesRef.current.push(poly);
           if (coords.length === 0) return poly;
@@ -310,6 +345,21 @@ export const HeroSection: React.FC = () => {
             for (let i = drawn; i < end; i++) acc.push(coords[i]);
             poly.setLatLngs(acc);
             drawn = end;
+
+            // Stamp sequence badge when route reaches each stop
+            for (const wp of thresholds) {
+              if (!wp.done && drawn >= wp.threshold) {
+                wp.done = true;
+                const old = stopMarkersMapRef.current.get(wp.stopCoordIdx);
+                if (old) old.remove();
+                const badge = L.marker(STOP_COORDS[wp.stopCoordIdx], {
+                  icon: makeSeqIcon(wp.seqNum, wp.color),
+                }).addTo(map);
+                stopMarkersMapRef.current.set(wp.stopCoordIdx, badge as unknown as L.CircleMarker);
+                markersRef.current.push(badge as unknown as L.CircleMarker);
+              }
+            }
+
             if (drawn < coords.length) await sl(FRAME_MS, gen);
           }
           return poly;
@@ -370,11 +420,12 @@ export const HeroSection: React.FC = () => {
               await sl(700, gen); chk();
               markersRef.current.forEach((m) => m.remove());
               markersRef.current = [];
-              for (const coord of STOP_COORDS) {
+              stopMarkersMapRef.current.clear();
+              for (let si = 0; si < STOP_COORDS.length; si++) {
                 chk();
-                markersRef.current.push(
-                  L.circleMarker(coord, { radius: 7, color: '#F5C842', fillColor: '#F5C842', fillOpacity: 0.85, weight: 2 }).addTo(map)
-                );
+                const m = L.circleMarker(STOP_COORDS[si], { radius: 7, color: '#F5C842', fillColor: '#F5C842', fillOpacity: 0.85, weight: 2 }).addTo(map);
+                markersRef.current.push(m);
+                stopMarkersMapRef.current.set(si, m);
                 await sl(200, gen);
               }
               chk(); await sl(1500, gen); chk();
@@ -384,10 +435,10 @@ export const HeroSection: React.FC = () => {
               setVis({ ...HIDDEN, planning: true });
               // Ensure stops visible when jumped here directly
               if (markersRef.current.length === 0) {
-                for (const coord of STOP_COORDS) {
-                  markersRef.current.push(
-                    L.circleMarker(coord, { radius: 7, color: '#F5C842', fillColor: '#F5C842', fillOpacity: 0.85, weight: 2 }).addTo(map)
-                  );
+                for (let si = 0; si < STOP_COORDS.length; si++) {
+                  const m = L.circleMarker(STOP_COORDS[si], { radius: 7, color: '#F5C842', fillColor: '#F5C842', fillOpacity: 0.85, weight: 2 }).addTo(map);
+                  markersRef.current.push(m);
+                  stopMarkersMapRef.current.set(si, m);
                 }
               }
               const depotIcon4 = L.divIcon({
@@ -414,19 +465,30 @@ export const HeroSection: React.FC = () => {
               const ineffCoords = routeCache.current.get('ineff') ?? [
                 DEPOT, ...INEFF_INDICES.map((i) => STOP_COORDS[i]), DEPOT,
               ];
-              await drawProgressive(ineffCoords, { color: '#EF4444', weight: 5, opacity: 1.0 }, 2000);
-              chk(); await sl(1500, gen); chk();
+              const ineffWaypoints = INEFF_INDICES.map((stopIdx, i) => ({
+                stopCoordIdx: stopIdx,
+                seqNum: i + 1,
+                color: '#EF4444',
+              }));
+              await drawProgressive(ineffCoords, { color: '#EF4444', weight: 5, opacity: 1.0 }, 3500, ineffWaypoints);
+              chk(); await sl(2000, gen); chk();
               break;
             }
             case 6: {
               setVis({ ...HIDDEN, optimal: true });
+              // Keep the red sequence numbers from scene 5 — they flip to green as the optimal line passes each stop
               drawGreyWebInstant(); // no-op if already drawn; ensures state when jumped here
               polylinesRef.current.forEach((p) => p.remove());
               polylinesRef.current = [];
               const optCoords = routeCache.current.get('opt') ?? [
                 DEPOT, ...OPT_INDICES.map((i) => STOP_COORDS[i]), DEPOT,
               ];
-              await drawProgressive(optCoords, { color: '#10B981', weight: 6, opacity: 1.0 }, 2000);
+              const optWaypoints = OPT_INDICES.map((stopIdx, i) => ({
+                stopCoordIdx: stopIdx,
+                seqNum: i + 1,
+                color: '#10B981',
+              }));
+              await drawProgressive(optCoords, { color: '#10B981', weight: 6, opacity: 1.0 }, 3500, optWaypoints);
               chk(); await sl(4000, gen); chk();
               break;
             }
@@ -607,9 +669,9 @@ export const HeroSection: React.FC = () => {
           {/* Subtitle */}
           <motion.div variants={item} style={{ marginBottom: 36 }}>
             <p style={{
-              fontSize: isMobile ? 16 : 20,
+              fontSize: isMobile ? 15 : 18,
               color: 'rgba(255,255,255,0.6)',
-              lineHeight: 1.6, margin: 0, maxWidth: 480,
+              lineHeight: 1.65, margin: 0, maxWidth: 500,
               ...(isMobile ? { marginLeft: 'auto', marginRight: 'auto' } : {}),
             }}>
               {t('hero.subtitle')}
@@ -625,9 +687,9 @@ export const HeroSection: React.FC = () => {
             }}
           >
             {[
-              { to: 99, suffix: '%', label: t('hero.stat1Label') },
-              { to: 48, suffix: '%', label: t('hero.stat2Label') },
-              { to: 3,  suffix: 's', label: t('hero.stat3Label') },
+              { to: 85, suffix: '%',  label: t('hero.stat1Label') },
+              { to: 38, suffix: '%',  label: t('hero.stat2Label') },
+              { to: 60, suffix: '%+', label: t('hero.stat3Label') },
             ].map(({ to, suffix, label }) => (
               <div key={label} style={{ textAlign: 'center' }}>
                 <div style={{

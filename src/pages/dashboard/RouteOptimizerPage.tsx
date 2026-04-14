@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import TabTour, { useTabTour } from '../../components/ui/walktour/Walktour';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { Icon } from '@iconify/react';
@@ -333,6 +334,67 @@ const LOADING_MSGS_AR = [
   'جارٍ اعتماد المسار…',
 ];
 
+// ── AI Example data pool ──────────────────────────────────────────────────────
+const AI_EXAMPLES = [
+  {
+    country: 'AE', city: 'Dubai',
+    depot_address: 'Al Quoz Industrial Area 1, Dubai, UAE',
+    stops: [
+      { address: 'Dubai Mall, Downtown Dubai, UAE',                     weight: '22', volume: '0.9', service_time: '10' },
+      { address: 'Jumeirah Beach Residence, Dubai Marina, UAE',         weight: '16', volume: '0.6', service_time: '8'  },
+      { address: 'Deira City Centre, Deira, Dubai, UAE',                weight: '20', volume: '0.8', service_time: '12' },
+      { address: 'Mall of the Emirates, Al Barsha, Dubai, UAE',         weight: '18', volume: '0.7', service_time: '10' },
+      { address: 'Ibn Battuta Mall, Jebel Ali, Dubai, UAE',             weight: '14', volume: '0.5', service_time: '8'  },
+      { address: 'Dragon Mart, International City, Dubai, UAE',         weight: '24', volume: '1.0', service_time: '15' },
+      { address: 'Mirdif City Centre, Mirdif, Dubai, UAE',              weight: '12', volume: '0.5', service_time: '10' },
+      { address: 'BurJuman Centre, Bur Dubai, UAE',                     weight: '10', volume: '0.4', service_time: '8'  },
+    ],
+    vehicles: [
+      { vehicle_id: 'VAN-001', cap_weight: '40',  cap_volume: '3.0' },
+      { vehicle_id: 'VAN-002', cap_weight: '40',  cap_volume: '3.0' },
+      { vehicle_id: 'TRUCK-01',cap_weight: '80', cap_volume: '6.0' },
+    ],
+  },
+  {
+    country: 'SA', city: 'Riyadh',
+    depot_address: 'Second Industrial City, Riyadh, Saudi Arabia',
+    stops: [
+      { address: 'Riyadh Park Mall, North Riyadh, Saudi Arabia',        weight: '24', volume: '0.9', service_time: '10' },
+      { address: 'Kingdom Centre Tower, Al Olaya, Riyadh, Saudi Arabia',weight: '18', volume: '0.7', service_time: '8'  },
+      { address: 'Al Nakheel Mall, Al Nakheel, Riyadh, Saudi Arabia',   weight: '16', volume: '0.6', service_time: '8'  },
+      { address: 'Panorama Mall, Al Muhammadiyah, Riyadh, Saudi Arabia',weight: '20', volume: '0.8', service_time: '10' },
+      { address: 'Al Andalus Mall, Riyadh, Saudi Arabia',               weight: '28', volume: '1.1', service_time: '12' },
+      { address: 'Hayat Mall, Al Rabi, Riyadh, Saudi Arabia',           weight: '16', volume: '0.6', service_time: '8'  },
+      { address: 'Riyadh Gallery Mall, Al Malqa, Riyadh, Saudi Arabia', weight: '18', volume: '0.7', service_time: '10' },
+    ],
+    vehicles: [
+      { vehicle_id: 'VAN-A', cap_weight: '90',  cap_volume: '3.5' },
+      { vehicle_id: 'VAN-B', cap_weight: '90',  cap_volume: '3.5' },
+    ],
+  },
+  {
+    country: 'QA', city: 'Doha',
+    depot_address: 'Salwa Industrial Area, Doha, Qatar',
+    stops: [
+      { address: 'Villaggio Mall, Al Waab, Doha, Qatar',                weight: '20', volume: '0.8', service_time: '10' },
+      { address: 'City Centre Doha, Al Muntazah, Doha, Qatar',          weight: '22', volume: '0.9', service_time: '10' },
+      { address: 'Lagoona Mall, West Bay, Doha, Qatar',                 weight: '18', volume: '0.7', service_time: '8'  },
+      { address: 'Landmark Mall, Old Airport Road, Doha, Qatar',        weight: '14', volume: '0.5', service_time: '7'  },
+      { address: 'Ezdan Mall, Al Wakra, Qatar',                         weight: '24', volume: '1.0', service_time: '12' },
+      { address: 'Place Vendôme, Lusail, Qatar',                        weight: '26', volume: '1.1', service_time: '12' },
+      { address: 'Mall of Qatar, Al Rayyan, Qatar',                     weight: '30', volume: '1.2', service_time: '15' },
+      { address: 'Hyatt Plaza, Al Luqta, Doha, Qatar',                  weight: '16', volume: '0.6', service_time: '8'  },
+    ],
+    vehicles: [
+      { vehicle_id: 'QA-V1', cap_weight: '80',  cap_volume: '3.0' },
+      { vehicle_id: 'QA-V2', cap_weight: '80',  cap_volume: '3.0' },
+      { vehicle_id: 'QA-V3', cap_weight: '100', cap_volume: '4.0' },
+    ],
+  },
+];
+
+const pickRandomOptimizerExample = () => AI_EXAMPLES[Math.floor(Math.random() * AI_EXAMPLES.length)];
+
 // ── Field styles ──────────────────────────────────────────────────────────────
 const fld: React.CSSProperties = {
   background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
@@ -381,8 +443,32 @@ export const RouteOptimizerPage: React.FC = () => {
     },
   });
 
-  const { fields: stopFields, append: addStop, remove: removeStop } = useFieldArray({ control, name: 'stops' });
-  const { fields: vehFields,  append: addVeh,  remove: removeVeh  } = useFieldArray({ control, name: 'vehicles' });
+  const { fields: stopFields, append: addStop, remove: removeStop, replace: replaceStops } = useFieldArray({ control, name: 'stops' });
+  const { fields: vehFields,  append: addVeh,  remove: removeVeh,  replace: replaceVehs  } = useFieldArray({ control, name: 'vehicles' });
+
+  const ROUTE_TOUR_KEY = 'route_optimizer_tour_seen';
+  const routeTourFirstResult = useRef(true);
+  const routeTour = useTabTour(ROUTE_TOUR_KEY);
+
+  useEffect(() => {
+    if (result && !loading && routeTourFirstResult.current) {
+      routeTourFirstResult.current = false;
+      if (!routeTour.hasSeenTour()) {
+        setTimeout(() => routeTour.startTour(), 600);
+      }
+    }
+    if (!result) routeTourFirstResult.current = true;
+  }, [result, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fillExample = () => {
+    const ex = pickRandomOptimizerExample();
+    setValue('depot_address', ex.depot_address, { shouldDirty: true });
+    setValue('country',       ex.country,       { shouldDirty: true });
+    setValue('city',          ex.city,          { shouldDirty: true });
+    setValue('objective',     'distance',       { shouldDirty: true });
+    replaceStops(ex.stops);
+    replaceVehs(ex.vehicles);
+  };
 
   // ── Map picker confirm ──────────────────────────────────────────────────────
   const handleMapConfirm = useCallback((loc: PickedLocation) => {
@@ -510,6 +596,31 @@ export const RouteOptimizerPage: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+
+        {/* AI Example button */}
+        <div style={{ marginBottom: '14px' }}>
+          <button
+            type="button"
+            onClick={fillExample}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px', width: '100%',
+              justifyContent: 'center',
+              background: 'rgba(245,200,66,0.08)',
+              border: '1px solid rgba(245,200,66,0.3)',
+              borderRadius: '9px', padding: '9px 14px',
+              cursor: 'pointer', color: '#F5C842',
+              fontSize: '13px', fontWeight: 600,
+              fontFamily: "'Inter', sans-serif",
+              transition: 'all 0.18s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,200,66,0.15)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,200,66,0.08)'; }}
+          >
+            <Icon icon="solar:magic-stick-3-bold-duotone" width={15} />
+            Use AI Example
+          </button>
+        </div>
+
         {/* DEPOT */}
         <Section icon="solar:home-2-bold-duotone" title={t('route.depotTitle')} color="#F5C842">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -628,12 +739,12 @@ export const RouteOptimizerPage: React.FC = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                   <StopField label={t('route.weightCap')} unit="kg" icon="solar:scale-bold-duotone" color="#F5C842"
                     tooltip="Maximum weight this vehicle can carry — used to balance load across vehicles"
-                    input={<input style={fld} placeholder="e.g. 1000" type="number" {...register(`vehicles.${i}.cap_weight`)}
+                    input={<input style={fld} placeholder="e.g. 1000" type="number" step="any" {...register(`vehicles.${i}.cap_weight`)}
                       onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
                   />
                   <StopField label={t('route.volumeCap')} unit="m³" icon="solar:box-bold-duotone" color="#A855F7"
                     tooltip="Maximum cargo volume this vehicle can carry — used to balance load across vehicles"
-                    input={<input style={fld} placeholder="e.g. 50" type="number" {...register(`vehicles.${i}.cap_volume`)}
+                    input={<input style={fld} placeholder="e.g. 50" type="number" step="any" {...register(`vehicles.${i}.cap_volume`)}
                       onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
                   />
                 </div>
@@ -768,7 +879,7 @@ export const RouteOptimizerPage: React.FC = () => {
                 { key: 'sequence',  icon: 'solar:list-bold-duotone',           labelKey: 'route.sequence' },
                 { key: 'analytics', icon: 'solar:graph-up-bold-duotone',       labelKey: 'route.analytics' },
               ] as { key: Tab; icon: string; labelKey: 'route.summary' | 'route.mapTab' | 'route.sequence' | 'route.analytics' }[]).map(tab => (
-                <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+                <button key={tab.key} id={`tour-route-${tab.key}`} onClick={() => setActiveTab(tab.key)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: isTablet ? '8px 10px' : '8px 14px',
@@ -883,6 +994,34 @@ export const RouteOptimizerPage: React.FC = () => {
           />
         )}
       </AnimatePresence>
+
+      {/* ── First-time walkthrough ── */}
+      <TabTour
+        run={routeTour.run}
+        onClose={routeTour.endTour}
+        steps={[
+          {
+            target: '#tour-route-summary',
+            title: 'Summary Tab',
+            description: 'See a quick overview of the optimized routes — total distance, time, number of stops served, and efficiency vs. the naive approach.',
+          },
+          {
+            target: '#tour-route-map',
+            title: 'Map Tab',
+            description: 'Visualize all vehicle routes on an interactive map. Each vehicle gets its own color. Click stops for details.',
+          },
+          {
+            target: '#tour-route-sequence',
+            title: 'Sequence Tab',
+            description: 'Review the exact delivery order for each vehicle — stop names, arrival times, and load — in a timeline or table view.',
+          },
+          {
+            target: '#tour-route-analytics',
+            title: 'Analytics Tab',
+            description: 'Dive into charts showing distance and time per vehicle, utilization rates, and cost savings compared to unoptimized delivery.',
+          },
+        ]}
+      />
     </div>
   );
 };

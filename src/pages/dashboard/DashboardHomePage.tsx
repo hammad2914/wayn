@@ -241,7 +241,7 @@ export const DashboardHomePage: React.FC = () => {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            {activity.map((row, i) => {
+            {activity.slice(0, 10).map((row, i) => {
               const isNorm = row.service === 'address_normalizer';
               return (
                 <motion.div key={row.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.22 + i * 0.04 }}

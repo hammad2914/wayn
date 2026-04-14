@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { Icon } from '@iconify/react';
@@ -11,6 +11,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { Tooltip } from '../../components/ui/Tooltip';
 import type { NormalizeRequest, NormalizeResponse } from '../../types';
 import 'leaflet/dist/leaflet.css';
+import TabTour, { useTabTour } from '../../components/ui/walktour/Walktour';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -144,6 +145,20 @@ export const AddressNormalizerPage: React.FC = () => {
   const { register, handleSubmit, control, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: { address: '', country: 'SA', use_ai: true, include_geocoding: true, use_cache: false },
   });
+
+  const TOUR_KEY = 'addr_normalizer_tour_seen';
+  const tourFirstResult = useRef(true);
+  const addrTour = useTabTour(TOUR_KEY);
+
+  useEffect(() => {
+    if (result && !loading && tourFirstResult.current) {
+      tourFirstResult.current = false;
+      if (!addrTour.hasSeenTour()) {
+        setTimeout(() => addrTour.startTour(), 500);
+      }
+    }
+    if (!result) tourFirstResult.current = true;
+  }, [result, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const components      = result?.components;
 
@@ -330,7 +345,7 @@ export const AddressNormalizerPage: React.FC = () => {
                   { key: 'map',     icon: 'solar:map-point-wave-bold-duotone', labelKey: 'addr.mapTab',
                     disabled: !result.geocoding },
                 ] as { key: ResultTab; icon: string; labelKey: 'addr.details' | 'addr.mapTab'; disabled?: boolean }[]).map(tab => (
-                  <button key={tab.key} onClick={() => !tab.disabled && setResultTab(tab.key)}
+                  <button key={tab.key} id={`tour-addr-${tab.key}`} onClick={() => !tab.disabled && setResultTab(tab.key)}
                     disabled={tab.disabled}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px',
@@ -345,20 +360,34 @@ export const AddressNormalizerPage: React.FC = () => {
                   </button>
                 ))}
 
-                {/* Confidence badge on right */}
+                {/* Accuracy badge on right */}
                 <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {result.ai_enhanced && (
-                    <Tooltip text="AI Enhanced — address was processed using AI for higher accuracy">
-                      <Pill><Icon icon="solar:cpu-bolt-bold-duotone" width={12} />AI</Pill>
-                    </Tooltip>
-                  )}
                   {result.from_cache && (
                     <Tooltip text="Cached — result was retrieved from cache for instant response">
                       <Pill color="rgba(139,92,246,0.15)" style={{ color: '#A78BFA' } as React.CSSProperties}><Icon icon="solar:database-bold-duotone" width={12} />{t('addr.cached')}</Pill>
                     </Tooltip>
                   )}
-                  <Tooltip text="Confidence Score — how certain the system is about this result">
-                    <Pill color="rgba(16,185,129,0.12)"><Icon icon="solar:target-bold-duotone" width={12} />{Math.round(result.confidence_score * 100)}%</Pill>
+                  <Tooltip text="Accuracy Confidence — how certain the system is about this result">
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '7px',
+                      background: 'linear-gradient(135deg, rgba(16,185,129,0.14) 0%, rgba(16,185,129,0.07) 100%)',
+                      border: '1px solid rgba(16,185,129,0.35)',
+                      borderRadius: '10px', padding: '5px 10px 5px 7px',
+                      cursor: 'default', boxShadow: '0 0 14px rgba(16,185,129,0.08)',
+                    }}>
+                      <div style={{
+                        width: 26, height: 26, borderRadius: '50%',
+                        background: 'rgba(16,185,129,0.15)',
+                        border: '1.5px solid rgba(16,185,129,0.4)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                      }}>
+                        <Icon icon="solar:target-bold-duotone" width={13} color="#10B981" />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, gap: 2 }}>
+                        <span style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(16,185,129,0.65)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>Accuracy Confidence</span>
+                        <span style={{ fontSize: '15px', fontWeight: 800, color: '#10B981', letterSpacing: '-0.01em' }}>{Math.round(result.confidence_score * 100)}%</span>
+                      </div>
+                    </div>
                   </Tooltip>
                 </div>
               </div>
@@ -374,10 +403,9 @@ export const AddressNormalizerPage: React.FC = () => {
                       <div>
                         <p style={{ ...sectionTitle, marginBottom: '10px' }}>{t('addr.normalizedAddresses')}</p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
-                          <CopyField label={t('addr.original')} value={result.original_address}   dir="auto" />
                           <CopyField label={t('addr.arabic')}   value={result.normalized_address} dir="rtl" />
+                          <CopyField label={t('addr.english')}  value={result.normalized_english} />
                         </div>
-                        <CopyField label={t('addr.english')} value={result.normalized_english} />
                       </div>
 
                       {/* Components */}
@@ -407,15 +435,6 @@ export const AddressNormalizerPage: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Meta row */}
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '4px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                        <Tooltip text="Provider — the service used to normalize this address" position="top">
-                          <Pill color="rgba(59,130,246,0.12)"><Icon icon="solar:bolt-bold" width={12} />{result.provider}</Pill>
-                        </Tooltip>
-                        <Tooltip text="Processing Time — how long it took to normalize your address" position="top">
-                          <Pill color="rgba(16,185,129,0.12)"><Icon icon="solar:clock-circle-bold-duotone" width={12} />{result.processing_time_ms}ms</Pill>
-                        </Tooltip>
-                      </div>
                     </div>
                   )}
 
@@ -438,9 +457,50 @@ export const AddressNormalizerPage: React.FC = () => {
                             </button>
                           ))}
                         </div>
-                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>
-                          {result.geocoding.latitude.toFixed(6)}, {result.geocoding.longitude.toFixed(6)}
-                        </span>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {/* Latitude */}
+                          <div style={{
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                            background: 'linear-gradient(135deg, rgba(59,130,246,0.13) 0%, rgba(59,130,246,0.06) 100%)',
+                            border: '1px solid rgba(59,130,246,0.3)',
+                            borderRadius: '9px', padding: '5px 9px 5px 7px',
+                            boxShadow: '0 0 12px rgba(59,130,246,0.07)',
+                          }}>
+                            <div style={{
+                              width: 22, height: 22, borderRadius: '6px',
+                              background: 'rgba(59,130,246,0.15)',
+                              border: '1px solid rgba(59,130,246,0.3)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                            }}>
+                              <Icon icon="solar:map-arrow-up-bold-duotone" width={12} color="#60A5FA" />
+                            </div>
+                            <div style={{ lineHeight: 1, gap: 2, display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(96,165,250,0.65)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Latitude</span>
+                              <span style={{ fontSize: '11px', fontWeight: 700, color: '#93C5FD', fontFamily: 'monospace' }}>{result.geocoding.latitude.toFixed(6)}</span>
+                            </div>
+                          </div>
+                          {/* Longitude */}
+                          <div style={{
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                            background: 'linear-gradient(135deg, rgba(168,85,247,0.13) 0%, rgba(168,85,247,0.06) 100%)',
+                            border: '1px solid rgba(168,85,247,0.3)',
+                            borderRadius: '9px', padding: '5px 9px 5px 7px',
+                            boxShadow: '0 0 12px rgba(168,85,247,0.07)',
+                          }}>
+                            <div style={{
+                              width: 22, height: 22, borderRadius: '6px',
+                              background: 'rgba(168,85,247,0.15)',
+                              border: '1px solid rgba(168,85,247,0.3)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                            }}>
+                              <Icon icon="solar:map-arrow-right-bold-duotone" width={12} color="#C084FC" />
+                            </div>
+                            <div style={{ lineHeight: 1, gap: 2, display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(192,132,252,0.65)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Longitude</span>
+                              <span style={{ fontSize: '11px', fontWeight: 700, color: '#D8B4FE', fontFamily: 'monospace' }}>{result.geocoding.longitude.toFixed(6)}</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                       <div style={{ borderRadius: '12px', overflow: 'hidden', height: 'calc(100vh - 340px)', minHeight: '380px' }}>
@@ -473,6 +533,24 @@ export const AddressNormalizerPage: React.FC = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* ── First-time walkthrough ── */}
+      <TabTour
+        run={addrTour.run}
+        onClose={addrTour.endTour}
+        steps={[
+          {
+            target: '#tour-addr-details',
+            title: 'Details Tab',
+            description: 'See the fully normalized address in both English and Arabic, plus structured components like city, district, street, and postal code.',
+          },
+          {
+            target: '#tour-addr-map',
+            title: 'Map Tab',
+            description: 'View the geocoded location pinned on an interactive map. Switch between street, satellite, and dark styles to explore the exact coordinates.',
+          },
+        ]}
+      />
     </div>
   );
 };

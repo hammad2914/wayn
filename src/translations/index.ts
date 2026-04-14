@@ -10,13 +10,13 @@ const en = {
   'nav.trustedBy':      'Trusted by 150+ logistics companies',
 
   // ── Hero ─────────────────────────────────────────────────────────────────────
-  'hero.label':       'Logistics Intelligence Platform',
-  'hero.h1Line1':     'Transform Any Address',
-  'hero.h1Line2':     'Into Optimal Routes',
-  'hero.subtitle':    'AI-powered address normalization and route optimization for logistics companies across the Middle East and beyond.',
-  'hero.stat1Label':  'AI Accuracy',
-  'hero.stat2Label':  'Distance Saved',
-  'hero.stat3Label':  'Per Address',
+  'hero.label':       'Logistics Intelligence Infrastructure',
+  'hero.h1Line1':     'The Ground Truth',
+  'hero.h1Line2':     'for Arab Logistics',
+  'hero.subtitle':    'AI-powered automation that masters Arabic address nuances and navigates GCC complexity to transform your last-mile operations.',
+  'hero.stat1Label':  'Reduction',
+  'hero.stat2Label':  'Cost Savings',
+  'hero.stat3Label':  'Faster Delivery Cycles',
   'hero.getStarted':  'Get Started Free',
   'hero.watchDemo':   'Watch Demo',
 
@@ -388,13 +388,13 @@ const ar: typeof en = {
   'nav.trustedBy':      'موثوق به من أكثر من 150 شركة لوجستية',
 
   // ── Hero ─────────────────────────────────────────────────────────────────────
-  'hero.label':       'منصة ذكاء اللوجستيات',
-  'hero.h1Line1':     'حوّل أي عنوان',
-  'hero.h1Line2':     'إلى مسارات مثالية',
-  'hero.subtitle':    'تطبيع العناوين وتحسين المسارات بالذكاء الاصطناعي لشركات اللوجستيات في الشرق الأوسط وما بعده.',
-  'hero.stat1Label':  'دقة الذكاء الاصطناعي',
-  'hero.stat2Label':  'توفير في المسافة',
-  'hero.stat3Label':  'لكل عنوان',
+  'hero.label':       'البنية التحتية لذكاء اللوجستيات',
+  'hero.h1Line1':     'المرجعية الحقيقية',
+  'hero.h1Line2':     'للوجستيات العربية',
+  'hero.subtitle':    'أتمتة مدعومة بالذكاء الاصطناعي تتقن دقائق العناوين العربية وتتنقل في تعقيدات دول الخليج لتحويل عمليات التوصيل للميل الأخير.',
+  'hero.stat1Label':  'تقليل',
+  'hero.stat2Label':  'توفير التكاليف',
+  'hero.stat3Label':  'دورات توصيل أسرع',
   'hero.getStarted':  'ابدأ مجاناً',
   'hero.watchDemo':   'شاهد العرض',
 
