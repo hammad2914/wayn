@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Icon } from '@iconify/react';
 
 interface StatCardProps {
-  icon: string;
+  icon?: string;
   value: string | number;
   label: string;
   sublabel?: string;
@@ -29,7 +28,7 @@ const CountUp: React.FC<{ target: number; duration?: number }> = ({ target, dura
 };
 
 export const StatCard: React.FC<StatCardProps> = ({
-  icon, value, label, sublabel, trend, trendUp, progressRing, color = '#F5C842',
+  value, label, sublabel, trend, trendUp, progressRing, color = '#0B7A5C',
 }) => {
   const numValue = typeof value === 'number' ? value : parseFloat(value.toString().replace(/[^0-9.]/g, ''));
   const isNumeric = !isNaN(numValue);
@@ -38,38 +37,27 @@ export const StatCard: React.FC<StatCardProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(245,200,66,0.12)' }}
-      transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3 }}
       style={{
-        background: 'rgba(12,17,45,0.88)',
-        border: '1px solid rgba(245,200,66,0.18)',
+        background: '#FFFFFF',
+        border: '1px solid rgba(14,26,23,0.1)',
         borderRadius: '16px',
         padding: '24px',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Gold accent line */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: `linear-gradient(90deg, ${color}, transparent)` }} />
-
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: '10px',
-          background: `${color}1A`, border: `1px solid ${color}33`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon icon={icon} width={20} color={color} />
-        </div>
-
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '14px' }}>
+        <div style={{ fontSize: '14px', color: 'rgba(14,26,23,0.74)', fontWeight: 500 }}>{label}</div>
         {progressRing && (
-          <svg width={48} height={48} viewBox="0 0 48 48" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx={24} cy={24} r={18} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={4} />
+          <svg width={40} height={40} viewBox="0 0 48 48" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx={24} cy={24} r={18} fill="none" stroke="rgba(14,26,23,0.13)" strokeWidth={4} />
             <circle
               cx={24} cy={24} r={18} fill="none" stroke={color} strokeWidth={4}
               strokeLinecap="round"
               strokeDasharray={2 * Math.PI * 18}
               strokeDashoffset={2 * Math.PI * 18 * (1 - Math.min(progressRing.value / progressRing.max, 1))}
-              style={{ transition: 'stroke-dashoffset 1s ease', filter: `drop-shadow(0 0 4px ${color}80)` }}
+              style={{ transition: 'stroke-dashoffset 1s ease' }}
             />
           </svg>
         )}
@@ -86,15 +74,14 @@ export const StatCard: React.FC<StatCardProps> = ({
         )}
       </div>
 
-      <div style={{ fontSize: '32px', fontFamily: "'Sora', sans-serif", fontWeight: 800, color, lineHeight: 1 }}>
+      <div style={{ fontSize: '32px', fontWeight: 700, color: '#0E1A17', lineHeight: 1 }}>
         {isNumeric && typeof value === 'number' ? (
           <CountUp target={value} />
         ) : (
           value
         )}
       </div>
-      <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginTop: '6px', fontWeight: 500 }}>{label}</div>
-      {sublabel && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>{sublabel}</div>}
+      {sublabel && <div style={{ fontSize: '12px', color: 'rgba(14,26,23,0.53)', marginTop: '3px' }}>{sublabel}</div>}
     </motion.div>
   );
 };

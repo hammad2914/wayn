@@ -24,19 +24,19 @@ export const GoldButton: React.FC<GoldButtonProps> = ({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      whileHover={!disabled && !loading ? { scale: 1.02, boxShadow: '0 8px 24px rgba(245,200,66,0.35)' } : {}}
+      whileHover={!disabled && !loading ? { scale: 1.02, boxShadow: '0 8px 24px rgba(11,122,92,0.35)' } : {}}
       whileTap={!disabled && !loading ? { scale: 0.98 } : {}}
       transition={{ duration: 0.15 }}
       style={{
         width: fullWidth ? '100%' : undefined,
         padding: sizes[size],
         fontSize: font[size],
-        fontFamily: "'Sora', sans-serif",
+        fontFamily: "'Readex Pro', sans-serif",
         fontWeight: 700,
         background: disabled || loading
-          ? 'rgba(245,200,66,0.3)'
-          : 'linear-gradient(135deg, #F5C842, #D4A017)',
-        color: '#0A0E27',
+          ? 'rgba(11,122,92,0.3)'
+          : 'linear-gradient(135deg, #0B7A5C, #086149)',
+        color: '#FFFFFF',
         border: 'none',
         borderRadius: '12px',
         cursor: disabled || loading ? 'not-allowed' : 'pointer',
@@ -44,7 +44,7 @@ export const GoldButton: React.FC<GoldButtonProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         gap: '8px',
-        boxShadow: '0 4px 16px rgba(245,200,66,0.25)',
+        boxShadow: '0 4px 16px rgba(11,122,92,0.25)',
         transition: 'background 0.2s',
       }}
       className={className}
@@ -53,8 +53,8 @@ export const GoldButton: React.FC<GoldButtonProps> = ({
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
             width: 16, height: 16,
-            border: '2px solid rgba(10,14,39,0.3)',
-            borderTopColor: '#0A0E27',
+            border: '2px solid #F7F8F6',
+            borderTopColor: '#F7F8F6',
             borderRadius: '50%',
             animation: 'spin 0.7s linear infinite',
             flexShrink: 0,

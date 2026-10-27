@@ -67,17 +67,17 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children, position = 'to
       {visible && createPortal(
         <span style={{
           ...bubbleStyle,
-          background:    'rgba(10,14,39,0.97)',
-          border:        '1px solid rgba(245,200,66,0.3)',
+          background:    '#FFFFFF',
+          border:        '1px solid rgba(11,122,92,0.3)',
           borderRadius:  '8px',
           padding:       '7px 11px',
           fontSize:      '11px',
           fontWeight:    500,
-          color:         'rgba(255,255,255,0.85)',
+          color:         'rgba(14,26,23,0.845)',
           zIndex:        99999,
           pointerEvents: 'none',
-          boxShadow:     '0 6px 20px rgba(0,0,0,0.55)',
-          fontFamily:    "'Inter', sans-serif",
+          boxShadow:     '0 6px 20px rgba(14,26,23,0.165)',
+          fontFamily:    "'Readex Pro', sans-serif",
           letterSpacing: '0.01em',
           lineHeight:    1.5,
         }}>
@@ -90,15 +90,15 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children, position = 'to
             transform:  'translateX(-50%) rotate(45deg)',
             width:      8,
             height:     8,
-            background: 'rgba(10,14,39,0.97)',
+            background: '#FFFFFF',
             ...(position === 'top' ? {
               bottom:      -4,
-              borderRight: '1px solid rgba(245,200,66,0.3)',
-              borderBottom:'1px solid rgba(245,200,66,0.3)',
+              borderRight: '1px solid rgba(11,122,92,0.3)',
+              borderBottom:'1px solid rgba(11,122,92,0.3)',
             } : {
               top:         -4,
-              borderLeft:  '1px solid rgba(245,200,66,0.3)',
-              borderTop:   '1px solid rgba(245,200,66,0.3)',
+              borderLeft:  '1px solid rgba(11,122,92,0.3)',
+              borderTop:   '1px solid rgba(11,122,92,0.3)',
             }),
           }} />
         </span>,

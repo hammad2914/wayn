@@ -3,7 +3,7 @@ import React from 'react';
 interface Props {
   /** cap height of the wordmark in px; the mark scales with it */
   size?:  number;
-  /** 'dark' for dark backgrounds (dashboard, auth pages), 'light' for the landing page */
+  /** 'light' (default) for the app's light pages, 'dark' for use on dark panels */
   tone?:  'dark' | 'light';
   /** mark only, for the collapsed sidebar and small headers */
   markOnly?: boolean;
@@ -20,7 +20,7 @@ export const WaynMark: React.FC<{ size: number; color: string }> = ({ size, colo
   </svg>
 );
 
-export const WaynLogo: React.FC<Props> = ({ size = 22, tone = 'dark', markOnly = false }) => {
+export const WaynLogo: React.FC<Props> = ({ size = 22, tone = 'light', markOnly = false }) => {
   const green = tone === 'light' ? GREEN_ON_LIGHT : GREEN_ON_DARK;
   const ink   = tone === 'light' ? '#0E1A17' : '#FFFFFF';
 
@@ -33,10 +33,10 @@ export const WaynLogo: React.FC<Props> = ({ size = 22, tone = 'dark', markOnly =
       style={{ display: 'inline-flex', alignItems: 'center', gap: size * 0.32, lineHeight: 1 }}
     >
       <WaynMark size={size * 1.1} color={green} />
-      <span style={{ fontFamily: "'Readex Pro', 'Sora', sans-serif", fontWeight: 700, fontSize: size, letterSpacing: '-0.03em', color: ink }}>
+      <span style={{ fontFamily: "'Readex Pro', 'Readex Pro', sans-serif", fontWeight: 700, fontSize: size, letterSpacing: '-0.03em', color: ink }}>
         wayn
       </span>
-      <span style={{ fontFamily: "'Readex Pro', 'Cairo', sans-serif", fontWeight: 500, fontSize: size * 0.82, color: green }}>
+      <span style={{ fontFamily: "'Readex Pro', 'Readex Pro', sans-serif", fontWeight: 500, fontSize: size * 0.82, color: green }}>
         وين
       </span>
     </span>

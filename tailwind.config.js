@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sora: ['Sora', 'sans-serif'],
-        inter: ['Inter', 'sans-serif'],
+        sora: ['Readex Pro', 'sans-serif'],
+        inter: ['Readex Pro', 'sans-serif'],
       },
       colors: {
         navy: {

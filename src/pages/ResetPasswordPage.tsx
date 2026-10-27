@@ -65,22 +65,22 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
-    padding: '13px 44px 13px 16px', fontSize: '14px', color: '#FFFFFF',
+    width: '100%', background: '#FFFFFF',
+    border: '1px solid rgba(14,26,23,0.17)', borderRadius: '10px',
+    padding: '13px 44px 13px 16px', fontSize: '14px', color: '#0E1A17',
     outline: 'none', height: '52px', boxSizing: 'border-box',
-    transition: 'border-color 0.2s', fontFamily: "'Inter', sans-serif",
+    transition: 'border-color 0.2s', fontFamily: "'Readex Pro', sans-serif",
     direction: 'ltr',
   };
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#0A0E27',
+      minHeight: '100vh', background: '#F7F8F6',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: isMobile ? '24px 12px' : '40px 16px',
       position: 'relative', overflow: 'hidden',
     }}>
-      <div style={{ position: 'fixed', top: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'rgba(245,200,66,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', top: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'rgba(11,122,92,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-20%', right: '-10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,0.05)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
       {/* Lang toggle */}
@@ -99,15 +99,15 @@ export const ResetPasswordPage: React.FC = () => {
           <Link to="/" style={{ display: 'inline-flex', textDecoration: 'none' }}>
             <WaynLogo size={isMobile ? 26 : 30} />
           </Link>
-          <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>{t('auth.resetPwTitle')}</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>
+          <h1 style={{ fontFamily: isRTL ? "'Readex Pro', sans-serif" : "'Readex Pro', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#0E1A17', margin: '14px 0 6px' }}>{t('auth.resetPwTitle')}</h1>
+          <p style={{ color: 'rgba(14,26,23,0.6)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>
             {t('auth.resetPwSubtitle')}
           </p>
         </div>
 
         <div style={{
-          background: 'rgba(12,17,45,0.92)', backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(245,200,66,0.2)', borderRadius: isMobile ? '16px' : '20px',
+          background: '#FFFFFF', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(11,122,92,0.2)', borderRadius: isMobile ? '16px' : '20px',
           padding: isMobile ? '24px 18px' : '40px',
         }}>
           <AnimatePresence mode="wait">
@@ -116,11 +116,11 @@ export const ResetPasswordPage: React.FC = () => {
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.12)', border: '2px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                   <Icon icon="solar:danger-bold" width={28} color="#EF4444" />
                 </div>
-                <h3 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: '18px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px' }}>{t('auth.invalidLink')}</h3>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', margin: '0 0 20px', lineHeight: 1.6 }}>
+                <h3 style={{ fontFamily: isRTL ? "'Readex Pro', sans-serif" : "'Readex Pro', sans-serif", fontSize: '18px', fontWeight: 700, color: '#0E1A17', margin: '0 0 8px' }}>{t('auth.invalidLink')}</h3>
+                <p style={{ fontSize: '14px', color: 'rgba(14,26,23,0.6)', margin: '0 0 20px', lineHeight: 1.6 }}>
                   {t('auth.invalidLinkMsg')}
                 </p>
-                <Link to="/forgot-password" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.3)', borderRadius: '10px', color: '#F5C842', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+                <Link to="/forgot-password" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', background: 'rgba(11,122,92,0.1)', border: '1px solid rgba(11,122,92,0.3)', borderRadius: '10px', color: '#0B7A5C', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
                   <Icon icon="solar:restart-bold" width={15} />{t('auth.requestNewLink')}
                 </Link>
               </motion.div>
@@ -129,27 +129,27 @@ export const ResetPasswordPage: React.FC = () => {
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(16,185,129,0.12)', border: '2px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                   <Icon icon="solar:check-circle-bold" width={28} color="#10B981" />
                 </div>
-                <h3 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: '18px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px' }}>{t('auth.pwResetSuccess')}</h3>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', margin: '0 0 6px' }}>{t('auth.pwResetSuccessMsg')}</p>
-                <div style={{ width: 40, height: 40, border: '3px solid rgba(245,200,66,0.2)', borderTopColor: '#F5C842', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '16px auto 0' }} />
+                <h3 style={{ fontFamily: isRTL ? "'Readex Pro', sans-serif" : "'Readex Pro', sans-serif", fontSize: '18px', fontWeight: 700, color: '#0E1A17', margin: '0 0 8px' }}>{t('auth.pwResetSuccess')}</h3>
+                <p style={{ fontSize: '14px', color: 'rgba(14,26,23,0.6)', margin: '0 0 6px' }}>{t('auth.pwResetSuccessMsg')}</p>
+                <div style={{ width: 40, height: 40, border: '3px solid rgba(11,122,92,0.2)', borderTopColor: '#0B7A5C', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '16px auto 0' }} />
               </motion.div>
             ) : (
               <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* New password */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>{t('auth.newPassword')}</label>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(14,26,23,0.74)', marginBottom: '6px' }}>{t('auth.newPassword')}</label>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={showPw ? 'text' : 'password'}
                         style={{ ...inputStyle, [isRTL ? 'paddingLeft' : 'paddingRight']: '44px', ...(errors.newPassword ? { borderColor: '#EF4444' } : {}) }}
                         placeholder={isRTL ? '٨ أحرف على الأقل' : 'Min 8 characters'}
-                        onFocus={e => (e.target.style.borderColor = '#F5C842')}
+                        onFocus={e => (e.target.style.borderColor = '#0B7A5C')}
                         {...register('newPassword', { required: 'Required', minLength: { value: 8, message: 'Min 8 characters' } })}
-                        onBlur={e => (e.target.style.borderColor = errors.newPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
+                        onBlur={e => (e.target.style.borderColor = errors.newPassword ? '#EF4444' : 'rgba(14,26,23,0.17)')}
                       />
                       <button type="button" onClick={() => setShowPw(!showPw)}
-                        style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                        style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(14,26,23,0.53)', padding: 0 }}>
                         <Icon icon={showPw ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                       </button>
                     </div>
@@ -158,7 +158,7 @@ export const ResetPasswordPage: React.FC = () => {
                       <div style={{ marginTop: '8px' }}>
                         <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
                           {[1, 2, 3, 4].map(i => (
-                            <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i <= strength ? strengthColors[strength] : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
+                            <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i <= strength ? strengthColors[strength] : 'rgba(14,26,23,0.06)', transition: 'background 0.3s' }} />
                           ))}
                         </div>
                         <p style={{ fontSize: '11px', color: strengthColors[strength], margin: 0 }}>{strengthLabels[strength]}</p>
@@ -168,18 +168,18 @@ export const ResetPasswordPage: React.FC = () => {
 
                   {/* Confirm password */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>{t('auth.confirmNewPassword')}</label>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(14,26,23,0.74)', marginBottom: '6px' }}>{t('auth.confirmNewPassword')}</label>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={showCPw ? 'text' : 'password'}
                         style={{ ...inputStyle, [isRTL ? 'paddingLeft' : 'paddingRight']: '44px', ...(errors.confirmPassword ? { borderColor: '#EF4444' } : {}) }}
                         placeholder={isRTL ? 'أعد كتابة كلمة المرور' : 'Repeat password'}
-                        onFocus={e => (e.target.style.borderColor = '#F5C842')}
+                        onFocus={e => (e.target.style.borderColor = '#0B7A5C')}
                         {...register('confirmPassword', { required: 'Required' })}
-                        onBlur={e => (e.target.style.borderColor = errors.confirmPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
+                        onBlur={e => (e.target.style.borderColor = errors.confirmPassword ? '#EF4444' : 'rgba(14,26,23,0.17)')}
                       />
                       <button type="button" onClick={() => setShowCPw(!showCPw)}
-                        style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                        style={{ position: 'absolute', [isRTL ? 'left' : 'right']: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(14,26,23,0.53)', padding: 0 }}>
                         <Icon icon={showCPw ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                       </button>
                     </div>
@@ -197,9 +197,9 @@ export const ResetPasswordPage: React.FC = () => {
 
           {!done && !invalidLink && (
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#F5C842')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}>
+              <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'rgba(14,26,23,0.565)', textDecoration: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#0B7A5C')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(14,26,23,0.565)')}>
                 <Icon icon={isRTL ? 'solar:arrow-right-bold' : 'solar:arrow-left-bold'} width={14} />
                 {t('auth.backToSignIn')}
               </Link>

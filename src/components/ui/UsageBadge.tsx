@@ -35,13 +35,13 @@ export const UsageBadge: React.FC<UsageBadgeProps> = ({ service, used, limit, co
       borderRadius: '10px', minWidth: compact ? 'auto' : '120px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-        <span style={{ fontSize: compact ? '11px' : '12px', color: 'rgba(255,255,255,0.6)' }}>{service}</span>
+        <span style={{ fontSize: compact ? '11px' : '12px', color: 'rgba(14,26,23,0.67)' }}>{service}</span>
         <span style={{ fontSize: compact ? '11px' : '12px', fontWeight: 700, color }}>
           {used} / {limit}
         </span>
       </div>
       {!compact && (
-        <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+        <div style={{ height: '4px', background: 'rgba(14,26,23,0.06)', borderRadius: '2px', overflow: 'hidden' }}>
           <div style={{
             height: '100%', width: `${Math.min(pct, 100)}%`,
             background: color, borderRadius: '2px',

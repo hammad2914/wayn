@@ -120,8 +120,8 @@ export default function TabTour({ steps, run, onClose }: TabTourProps) {
           borderRadius: 12,
           zIndex: 9001,
           pointerEvents: 'none',
-          boxShadow: '0 0 0 9999px rgba(0,0,0,0.72)',
-          outline: '2.5px solid rgba(245,200,66,0.55)',
+          boxShadow: '0 0 0 9999px rgba(14,26,23,0.216)',
+          outline: '2.5px solid rgba(11,122,92,0.55)',
           outlineOffset: '0px',
           transition: 'left 0.25s, top 0.25s, width 0.25s, height 0.25s',
         }}
@@ -136,45 +136,45 @@ export default function TabTour({ steps, run, onClose }: TabTourProps) {
           top: tooltipTop,
           width: TOOLTIP_W,
           zIndex: 9002,
-          background: 'linear-gradient(135deg, #0f1535 0%, #161d3a 100%)',
-          border: '1px solid rgba(245,200,66,0.28)',
+          background: '#FFFFFF',
+          border: '1px solid rgba(11,122,92,0.28)',
           borderRadius: 16,
-          boxShadow: '0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,200,66,0.1)',
-          fontFamily: "'Inter', sans-serif",
+          boxShadow: '0 24px 64px rgba(14,26,23,0.21), 0 0 0 1px rgba(11,122,92,0.1)',
+          fontFamily: "'Readex Pro', sans-serif",
           overflow: 'hidden',
           animation: 'tourFadeIn 0.22s ease',
         }}
       >
         {/* Header */}
-        <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid rgba(14,26,23,0.12)' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 5,
-            background: 'rgba(245,200,66,0.12)',
-            border: '1px solid rgba(245,200,66,0.25)',
+            background: 'rgba(11,122,92,0.12)',
+            border: '1px solid rgba(11,122,92,0.25)',
             borderRadius: 20, padding: '2px 10px', marginBottom: 8,
           }}>
-            <Icon icon="solar:magic-stick-3-bold-duotone" width={11} color="#F5C842" />
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#F5C842', letterSpacing: '0.06em' }}>
+            <Icon icon="solar:magic-stick-3-bold-duotone" width={11} color="#0B7A5C" />
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#0B7A5C', letterSpacing: '0.06em' }}>
               STEP {index + 1} / {steps.length}
             </span>
           </div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#0E1A17', lineHeight: 1.3 }}>
             {step.title}
           </div>
         </div>
 
         {/* Body */}
         <div style={{ padding: '12px 18px 16px' }}>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.62)', lineHeight: 1.65, margin: 0 }}>
+          <p style={{ fontSize: 13, color: 'rgba(14,26,23,0.684)', lineHeight: 1.65, margin: 0 }}>
             {step.description}
           </p>
         </div>
 
         {/* Progress bar */}
-        <div style={{ height: 2, background: 'rgba(255,255,255,0.06)', position: 'relative' }}>
+        <div style={{ height: 2, background: '#FFFFFF', position: 'relative' }}>
           <div style={{
             position: 'absolute', left: 0, top: 0, height: '100%', width: `${progress}%`,
-            background: 'linear-gradient(90deg, #F5C842, #f0a500)',
+            background: '#0B7A5C',
             borderRadius: 2, transition: 'width 0.3s ease',
           }} />
         </div>
@@ -183,14 +183,14 @@ export default function TabTour({ steps, run, onClose }: TabTourProps) {
         <div style={{
           padding: '12px 18px', display: 'flex',
           alignItems: 'center', justifyContent: 'space-between',
-          borderTop: '1px solid rgba(255,255,255,0.05)',
+          borderTop: '1px solid rgba(14,26,23,0.1)',
         }}>
           {/* Dot indicators */}
           <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
             {steps.map((_, i) => (
               <div key={i} style={{
                 width: i === index ? 14 : 6, height: 6, borderRadius: 3,
-                background: i === index ? '#F5C842' : i < index ? 'rgba(245,200,66,0.4)' : 'rgba(255,255,255,0.15)',
+                background: i === index ? '#0B7A5C' : i < index ? 'rgba(11,122,92,0.4)' : 'rgba(14,26,23,0.09)',
                 transition: 'all 0.3s',
               }} />
             ))}
@@ -226,23 +226,23 @@ export default function TabTour({ steps, run, onClose }: TabTourProps) {
 const baseBtn: React.CSSProperties = {
   border: 'none', borderRadius: 8, cursor: 'pointer',
   fontSize: 12, fontWeight: 600, padding: '7px 14px',
-  fontFamily: "'Inter', sans-serif", transition: 'all 0.18s',
+  fontFamily: "'Readex Pro', sans-serif", transition: 'all 0.18s',
 };
 
 const skipBtn: React.CSSProperties = {
   ...baseBtn, background: 'transparent',
-  color: 'rgba(255,255,255,0.35)', padding: '7px 8px',
+  color: 'rgba(14,26,23,0.495)', padding: '7px 8px',
 };
 
 const backBtn: React.CSSProperties = {
   ...baseBtn,
-  background: 'rgba(255,255,255,0.06)',
-  border: '1px solid rgba(255,255,255,0.12)',
-  color: 'rgba(255,255,255,0.6)',
+  background: '#FFFFFF',
+  border: '1px solid rgba(14,26,23,0.17)',
+  color: 'rgba(14,26,23,0.67)',
 };
 
 const nextBtn: React.CSSProperties = {
   ...baseBtn,
-  background: 'linear-gradient(135deg, #F5C842, #f0a500)',
-  color: '#0f1535', boxShadow: '0 4px 12px rgba(245,200,66,0.3)',
+  background: '#0B7A5C',
+  color: '#FFFFFF', boxShadow: '0 4px 12px rgba(11,122,92,0.3)',
 };

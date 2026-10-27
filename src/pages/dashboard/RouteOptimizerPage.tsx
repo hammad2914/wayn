@@ -59,9 +59,9 @@ const FitBounds: React.FC<{ positions: [number, number][] }> = ({ positions }) =
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const depotIcon = L.divIcon({
-  html: `<div style="width:34px;height:34px;background:#F5C842;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(245,200,66,0.5);">
+  html: `<div style="width:34px;height:34px;background:#0B7A5C;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(11,122,92,0.5);">
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-		<g fill="none" stroke="#0A0E27" stroke-width="1.5">
+		<g fill="none" stroke="#F7F8F6" stroke-width="1.5">
 			<path stroke-linecap="round" d="M22 22H2" />
 			<path stroke-linecap="round" d="M20 22V11M4 22V11" opacity="0.5" />
 			<path stroke-linejoin="round" d="M16.528 2H7.472c-1.203 0-1.804 0-2.287.299c-.484.298-.753.836-1.29 1.912L2.49 7.76c-.324.82-.608 1.786-.062 2.479A2 2 0 0 0 6 9a2 2 0 1 0 4 0a2 2 0 1 0 4 0a2 2 0 1 0 4 0a2 2 0 0 0 3.571 1.238c.546-.693.262-1.659-.062-2.479l-1.404-3.548c-.537-1.076-.806-1.614-1.29-1.912C18.332 2 17.731 2 16.528 2Z" />
@@ -71,12 +71,12 @@ const depotIcon = L.divIcon({
   </div>`,
   className: '', iconAnchor: [17, 17],
 });
-const makeStopIcon = (n: number, color = '#F5C842') => L.divIcon({
-  html: `<div style="width:28px;height:28px;background:#0A0E27;border:2px solid ${color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:${color};font-family:Sora,sans-serif;">${n}</div>`,
+const makeStopIcon = (n: number, color = '#0B7A5C') => L.divIcon({
+  html: `<div style="width:28px;height:28px;background:#F7F8F6;border:2px solid ${color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:${color};font-family:Readex Pro,sans-serif;">${n}</div>`,
   className: '', iconAnchor: [14, 14],
 });
-const makeHoverIcon = (n: number, color = '#F5C842') => L.divIcon({
-  html: `<div style="width:32px;height:32px;background:${color};border:2px solid #FFFFFF;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0A0E27;font-family:Sora,sans-serif;">${n}</div>`,
+const makeHoverIcon = (n: number, color = '#0B7A5C') => L.divIcon({
+  html: `<div style="width:32px;height:32px;background:${color};border:2px solid rgba(14,26,23,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#FFFFFF;font-family:Readex Pro,sans-serif;">${n}</div>`,
   className: '', iconAnchor: [16, 16],
 });
 
@@ -86,12 +86,12 @@ interface PickedLocation { lat: number; lng: number; address: string; }
 const pickCrosshairIcon = L.divIcon({
   html: `<div style="width:32px;height:32px;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;">
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="16" cy="16" r="6" fill="#F5C842" opacity="0.9"/>
-      <circle cx="16" cy="16" r="5" stroke="#0A0E27" stroke-width="2" fill="none"/>
-      <line x1="16" y1="2" x2="16" y2="10" stroke="#F5C842" stroke-width="2" stroke-linecap="round"/>
-      <line x1="16" y1="22" x2="16" y2="30" stroke="#F5C842" stroke-width="2" stroke-linecap="round"/>
-      <line x1="2" y1="16" x2="10" y2="16" stroke="#F5C842" stroke-width="2" stroke-linecap="round"/>
-      <line x1="22" y1="16" x2="30" y2="16" stroke="#F5C842" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="16" cy="16" r="6" fill="#0B7A5C" opacity="0.9"/>
+      <circle cx="16" cy="16" r="5" stroke="#F7F8F6" stroke-width="2" fill="none"/>
+      <line x1="16" y1="2" x2="16" y2="10" stroke="#0B7A5C" stroke-width="2" stroke-linecap="round"/>
+      <line x1="16" y1="22" x2="16" y2="30" stroke="#0B7A5C" stroke-width="2" stroke-linecap="round"/>
+      <line x1="2" y1="16" x2="10" y2="16" stroke="#0B7A5C" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22" y1="16" x2="30" y2="16" stroke="#0B7A5C" stroke-width="2" stroke-linecap="round"/>
     </svg>
   </div>`,
   className: '', iconAnchor: [0, 0],
@@ -163,7 +163,7 @@ const MapPickerDialog: React.FC<{
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9999,
-      background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+      background: 'rgba(14,26,23,0.225)', backdropFilter: 'blur(6px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '16px',
     }}
@@ -175,36 +175,36 @@ const MapPickerDialog: React.FC<{
         exit={{ opacity: 0, scale: 0.95, y: 16 }}
         transition={{ duration: 0.2 }}
         style={{
-          background: '#0D1235',
-          border: '1px solid rgba(245,200,66,0.2)',
+          background: '#FFFFFF',
+          border: '1px solid rgba(11,122,92,0.2)',
           borderRadius: '16px',
           width: '100%', maxWidth: '680px',
           maxHeight: '90vh',
           display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.7)',
+          boxShadow: '0 24px 64px rgba(14,26,23,0.21)',
           direction: isRTL ? 'rtl' : 'ltr',
         }}
       >
         {/* Header */}
         <div style={{
           padding: '16px 20px',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          borderBottom: '1px solid rgba(14,26,23,0.12)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexShrink: 0,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: 32, height: 32, borderRadius: '8px', background: 'rgba(245,200,66,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon icon="solar:map-point-bold-duotone" width={18} color="#F5C842" />
+            <div style={{ width: 32, height: 32, borderRadius: '8px', background: 'rgba(11,122,92,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon icon="solar:map-point-bold-duotone" width={18} color="#0B7A5C" />
             </div>
             <div>
-              <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: '15px', color: '#FFFFFF' }}>{t('route.mapPickerTitle')}</div>
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '1px' }}>{t('route.mapPickerHint')}</div>
+              <div style={{ fontFamily: "'Readex Pro', sans-serif", fontWeight: 700, fontSize: '15px', color: '#0E1A17' }}>{t('route.mapPickerTitle')}</div>
+              <div style={{ fontSize: '11px', color: 'rgba(14,26,23,0.53)', marginTop: '1px' }}>{t('route.mapPickerHint')}</div>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: '4px', display: 'flex', borderRadius: '6px' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#FFFFFF')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(14,26,23,0.53)', padding: '4px', display: 'flex', borderRadius: '6px' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#0E1A17')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(14,26,23,0.53)')}>
             <Icon icon="solar:close-bold" width={18} />
           </button>
         </div>
@@ -219,11 +219,11 @@ const MapPickerDialog: React.FC<{
             zoomControl={true}
           >
             <TileLayer
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
               attribution='Tiles &copy; Esri &mdash; &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
               maxNativeZoom={16}
             />
-            <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}" maxNativeZoom={16} />
+            <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}" maxNativeZoom={16} />
             <MapClickCapture onPick={handlePick} />
             {pin && (
               <Marker position={[pin.lat, pin.lng]} icon={pickCrosshairIcon} />
@@ -233,8 +233,8 @@ const MapPickerDialog: React.FC<{
           {/* Crosshair hint overlay */}
           <div style={{
             position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)',
-            background: 'rgba(10,14,39,0.85)', border: '1px solid rgba(245,200,66,0.2)',
-            borderRadius: '20px', padding: '5px 12px', fontSize: '11px', color: 'rgba(255,255,255,0.6)',
+            background: '#FFFFFF', border: '1px solid rgba(11,122,92,0.2)',
+            borderRadius: '20px', padding: '5px 12px', fontSize: '11px', color: 'rgba(14,26,23,0.67)',
             pointerEvents: 'none', zIndex: 1000, whiteSpace: 'nowrap',
           }}>
             <Icon icon="solar:cursor-bold" width={11} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
@@ -245,27 +245,27 @@ const MapPickerDialog: React.FC<{
         {/* Footer */}
         <div style={{
           padding: '14px 20px',
-          borderTop: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(255,255,255,0.02)',
+          borderTop: '1px solid rgba(14,26,23,0.12)',
+          background: '#FFFFFF',
           flexShrink: 0,
         }}>
           {/* Address preview */}
           {pin && (
-            <div style={{ marginBottom: '12px', padding: '10px 14px', background: 'rgba(245,200,66,0.06)', border: '1px solid rgba(245,200,66,0.12)', borderRadius: '10px' }}>
-              <div style={{ fontSize: '10px', fontWeight: 600, color: '#F5C842', letterSpacing: '0.06em', marginBottom: '4px', textTransform: 'uppercase' }}>
+            <div style={{ marginBottom: '12px', padding: '10px 14px', background: 'rgba(11,122,92,0.06)', border: '1px solid rgba(11,122,92,0.12)', borderRadius: '10px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 600, color: '#0B7A5C', letterSpacing: '0.06em', marginBottom: '4px', textTransform: 'uppercase' }}>
                 {t('route.mapPickerAddress')}
               </div>
               {fetching ? (
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Icon icon="solar:refresh-bold" width={12} style={{ animation: 'spin 1s linear infinite' }} color="rgba(255,255,255,0.4)" />
+                <div style={{ fontSize: '12px', color: 'rgba(14,26,23,0.53)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Icon icon="solar:refresh-bold" width={12} style={{ animation: 'spin 1s linear infinite' }} color="rgba(14,26,23,0.53)" />
                   {t('route.mapPickerFetching')}
                 </div>
               ) : (
-                <div style={{ fontSize: '12px', color: '#FFFFFF', lineHeight: 1.5 }}>
+                <div style={{ fontSize: '12px', color: '#0E1A17', lineHeight: 1.5 }}>
                   {address || t('route.mapPickerNoAddr')}
                 </div>
               )}
-              <div style={{ marginTop: '4px', fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>
+              <div style={{ marginTop: '4px', fontSize: '10px', color: 'rgba(14,26,23,0.46)', fontFamily: 'monospace' }}>
                 {pin.lat.toFixed(6)}, {pin.lng.toFixed(6)}
               </div>
             </div>
@@ -274,9 +274,9 @@ const MapPickerDialog: React.FC<{
           {/* Actions */}
           <div style={{ display: 'flex', gap: '10px', justifyContent: isRTL ? 'flex-start' : 'flex-end' }}>
             <button onClick={onClose}
-              style={{ padding: '9px 18px', borderRadius: '9px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', sans-serif" }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}>
+              style={{ padding: '9px 18px', borderRadius: '9px', background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.15)', color: 'rgba(14,26,23,0.67)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Readex Pro', sans-serif" }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(14,26,23,0.048)')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#FFFFFF')}>
               {t('route.mapPickerCancel')}
             </button>
             <button
@@ -284,10 +284,10 @@ const MapPickerDialog: React.FC<{
               onClick={() => pin && onConfirm({ lat: pin.lat, lng: pin.lng, address: address || t('route.mapPickerNoAddr') })}
               style={{
                 padding: '9px 18px', borderRadius: '9px',
-                background: pin && !fetching ? 'linear-gradient(135deg, #F5C842, #D4A017)' : 'rgba(255,255,255,0.06)',
-                border: 'none', color: pin && !fetching ? '#0A0E27' : 'rgba(255,255,255,0.3)',
+                background: pin && !fetching ? 'linear-gradient(135deg, #0B7A5C, #086149)' : '#FFFFFF',
+                border: 'none', color: pin && !fetching ? '#FFFFFF' : 'rgba(14,26,23,0.46)',
                 fontSize: '13px', fontWeight: 700, cursor: pin && !fetching ? 'pointer' : 'not-allowed',
-                fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', gap: '6px',
+                fontFamily: "'Readex Pro', sans-serif", display: 'flex', alignItems: 'center', gap: '6px',
                 transition: 'opacity 0.15s',
               }}
               onMouseEnter={e => { if (pin && !fetching) e.currentTarget.style.opacity = '0.9'; }}
@@ -319,8 +319,8 @@ interface FormValues {
   objective: 'distance' | 'time';
 }
 
-const chartGridStyle = { strokeDasharray: '3 3', stroke: 'rgba(255,255,255,0.07)' };
-const chartAxisStyle = { fill: 'rgba(255,255,255,0.45)', fontSize: 10 };
+const chartGridStyle = { strokeDasharray: '3 3', stroke: 'rgba(14,26,23,0.12)' };
+const chartAxisStyle = { fill: 'rgba(14,26,23,0.565)', fontSize: 10 };
 type Tab = 'summary' | 'map' | 'sequence' | 'analytics';
 
 const LOADING_MSGS_EN = [
@@ -336,7 +336,7 @@ const LOADING_MSGS_AR = [
   'جارٍ اعتماد المسار…',
 ];
 
-// ── AI Example data pool ──────────────────────────────────────────────────────
+// ── Example data pool ──────────────────────────────────────────────────────
 const AI_EXAMPLES = [
   {
     country: 'AE', city: 'Dubai',
@@ -399,15 +399,15 @@ const pickRandomOptimizerExample = () => AI_EXAMPLES[Math.floor(Math.random() * 
 
 // ── Field styles ──────────────────────────────────────────────────────────────
 const fld: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '8px', padding: '8px 12px', color: '#FFFFFF', fontSize: '13px',
-  outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: "'Inter', sans-serif",
+  background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.15)',
+  borderRadius: '8px', padding: '8px 12px', color: '#0E1A17', fontSize: '13px',
+  outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: "'Readex Pro', sans-serif",
   transition: 'border-color 0.2s',
 };
 
 const lbl: React.CSSProperties = {
   display: 'block', fontSize: '11px', fontWeight: 600,
-  color: 'rgba(255,255,255,0.5)', marginBottom: '4px', letterSpacing: '0.02em',
+  color: 'rgba(14,26,23,0.6)', marginBottom: '4px', letterSpacing: '0.02em',
 };
 
 // ── Main Component ─────────────────────────────────────────────────────────────
@@ -581,17 +581,17 @@ export const RouteOptimizerPage: React.FC = () => {
     <div style={{
       width: isMobile ? '100%' : isTablet ? '360px' : '420px',
       flexShrink: 0,
-      background: 'rgba(10,14,39,0.95)',
-      borderRight: isMobile ? 'none' : '1px solid rgba(245,200,66,0.1)',
-      borderBottom: isMobile ? '1px solid rgba(245,200,66,0.1)' : 'none',
+      background: '#FFFFFF',
+      borderRight: isMobile ? 'none' : '1px solid rgba(11,122,92,0.1)',
+      borderBottom: isMobile ? '1px solid rgba(11,122,92,0.1)' : 'none',
       overflowY: 'auto',
       display: 'flex', flexDirection: 'column',
     }}>
-      <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: '18px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 4px' }}>{t('route.title')}</h2>
+      <div style={{ padding: '20px', borderBottom: '1px solid rgba(14,26,23,0.11)' }}>
+        <h2 style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '18px', fontWeight: 800, color: '#0E1A17', margin: '0 0 4px' }}>{t('route.title')}</h2>
         {usage && (
-          <p style={{ fontSize: '12px', color: usage.routeOptimizerCount >= usage.routeOptimizerLimit ? '#EF4444' : 'rgba(255,255,255,0.4)', margin: 0 }}>
-            <span style={{ fontWeight: 700, color: usage.routeOptimizerCount >= usage.routeOptimizerLimit ? '#EF4444' : '#F5C842' }}>{usage.routeOptimizerCount}</span>
+          <p style={{ fontSize: '12px', color: usage.routeOptimizerCount >= usage.routeOptimizerLimit ? '#EF4444' : 'rgba(14,26,23,0.53)', margin: 0 }}>
+            <span style={{ fontWeight: 700, color: usage.routeOptimizerCount >= usage.routeOptimizerLimit ? '#EF4444' : '#0B7A5C' }}>{usage.routeOptimizerCount}</span>
             {' / '}{usage.routeOptimizerLimit} {t('route.requestsUsed')}
           </p>
         )}
@@ -599,7 +599,7 @@ export const RouteOptimizerPage: React.FC = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
 
-        {/* AI Example button */}
+        {/* Example button */}
         <div style={{ marginBottom: '14px' }}>
           <button
             type="button"
@@ -607,24 +607,24 @@ export const RouteOptimizerPage: React.FC = () => {
             style={{
               display: 'flex', alignItems: 'center', gap: '6px', width: '100%',
               justifyContent: 'center',
-              background: 'rgba(245,200,66,0.08)',
-              border: '1px solid rgba(245,200,66,0.3)',
+              background: 'rgba(11,122,92,0.08)',
+              border: '1px solid rgba(11,122,92,0.3)',
               borderRadius: '9px', padding: '9px 14px',
-              cursor: 'pointer', color: '#F5C842',
+              cursor: 'pointer', color: '#0B7A5C',
               fontSize: '13px', fontWeight: 600,
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Readex Pro', sans-serif",
               transition: 'all 0.18s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,200,66,0.15)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,200,66,0.08)'; }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(11,122,92,0.15)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(11,122,92,0.08)'; }}
           >
-            <Icon icon="solar:magic-stick-3-bold-duotone" width={15} />
-            Use AI Example
+            <Icon icon="solar:shuffle-bold-duotone" width={15} />
+            {t('common.tryExample')}
           </button>
         </div>
 
         {/* DEPOT */}
-        <Section icon="solar:home-2-bold-duotone" title={t('route.depotTitle')} color="#F5C842">
+        <Section icon="solar:home-2-bold-duotone" title={t('route.depotTitle')} color="#0B7A5C">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -635,25 +635,25 @@ export const RouteOptimizerPage: React.FC = () => {
                   </Tooltip>
                 </label>
                 <button type="button" onClick={() => setMapPickerTarget('depot')}
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', color: '#F5C842', fontSize: '11px', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,200,66,0.15)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(245,200,66,0.08)')}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(11,122,92,0.08)', border: '1px solid rgba(11,122,92,0.2)', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', color: '#0B7A5C', fontSize: '11px', fontWeight: 600, fontFamily: "'Readex Pro', sans-serif" }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(11,122,92,0.15)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(11,122,92,0.08)')}>
                   <Icon icon="solar:map-point-bold-duotone" width={12} />
                   {t('route.pickOnMap')}
                 </button>
               </div>
               <input style={fld} placeholder="e.g. Al Quoz Industrial Area, Dubai" {...register('depot_address', { required: true })}
-                onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+                onFocus={e => (e.target.style.borderColor = '#0B7A5C')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />
             </div>
           </div>
-          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: '8px 0 0', lineHeight: 1.5 }}>The API geocodes the address automatically — no coordinates needed.</p>
+          <p style={{ fontSize: '11px', color: 'rgba(14,26,23,0.46)', margin: '8px 0 0', lineHeight: 1.5 }}>The API geocodes the address automatically — no coordinates needed.</p>
         </Section>
 
         {/* STOPS */}
         <Section icon="solar:map-point-wave-bold-duotone" title={t('route.stops')} badge={`${stopFields.length} ${t('route.stop').toLowerCase()}s`} color="#10B981">
           {stopFields.map((field, i) => (
             <motion.div key={field.id} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '12px', marginBottom: '8px' }}>
+              style={{ background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.12)', borderRadius: '10px', padding: '12px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ fontSize: '12px', fontWeight: 700, color: '#10B981' }}>{t('route.stop')} {i + 1}</span>
                 {stopFields.length > 1 && (
@@ -670,7 +670,7 @@ export const RouteOptimizerPage: React.FC = () => {
                     </Tooltip>
                   </label>
                   <button type="button" onClick={() => setMapPickerTarget(i)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', color: '#10B981', fontSize: '11px', fontWeight: 600, fontFamily: "'Inter', sans-serif" }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer', color: '#10B981', fontSize: '11px', fontWeight: 600, fontFamily: "'Readex Pro', sans-serif" }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.15)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.08)')}>
                     <Icon icon="solar:map-point-bold-duotone" width={12} />
@@ -678,28 +678,28 @@ export const RouteOptimizerPage: React.FC = () => {
                   </button>
                 </div>
                 <input style={fld} placeholder="e.g. Dubai Mall, Downtown Dubai" {...register(`stops.${i}.address`, { required: true })}
-                  onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+                  onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />
               </div>
-              <div style={{ marginTop: '8px', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.28)', borderRadius: '8px', padding: '10px 10px 8px' }}>
+              <div style={{ marginTop: '8px', background: '#FFFFFF', border: '1px dashed rgba(14,26,23,0.33)', borderRadius: '8px', padding: '10px 10px 8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px' }}>
-                  <Icon icon="solar:widget-add-bold-duotone" width={12} color="rgba(255,255,255,0.45)" />
-                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Optional Details</span>
+                  <Icon icon="solar:widget-add-bold-duotone" width={12} color="rgba(14,26,23,0.565)" />
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(14,26,23,0.6)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Optional Details</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: '6px' }}>
-                  <StopField label={t('route.weight')} unit="kg" icon="solar:scale-bold-duotone" color="#F5C842"
+                  <StopField label={t('route.weight')} unit="kg" icon="solar:scale-bold-duotone" color="#0B7A5C"
                     tooltip="Package weight in kg — used to ensure the vehicle doesn't exceed its weight limit"
                     input={<input style={fld} placeholder="e.g. 15" type="number" step="any" {...register(`stops.${i}.weight`)}
-                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
+                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />}
                   />
                   <StopField label={t('route.volume')} unit="m³" icon="solar:box-bold-duotone" color="#A855F7"
                     tooltip="Package volume in cubic metres — used to ensure the vehicle doesn't exceed its cargo space"
                     input={<input style={fld} placeholder="e.g. 1.2" type="number" step="any" {...register(`stops.${i}.volume`)}
-                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
+                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />}
                   />
                   <StopField label={t('route.service')} unit="min" icon="solar:clock-circle-bold-duotone" color="#3B82F6"
                     tooltip="Time needed at this location for unloading, signature, or other tasks (in minutes)"
                     input={<input style={fld} placeholder="e.g. 10" type="number" step="any" {...register(`stops.${i}.service_time`)}
-                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
+                      onFocus={e => (e.target.style.borderColor = '#10B981')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />}
                   />
                 </div>
               </div>
@@ -715,7 +715,7 @@ export const RouteOptimizerPage: React.FC = () => {
         <Section icon="solar:bus-bold-duotone" title={t('route.fleet')} badge={`${vehFields.length} ${t('route.vehicle').toLowerCase()}${vehFields.length > 1 ? 's' : ''}`} color="#3B82F6">
           {vehFields.map((field, i) => (
             <motion.div key={field.id} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '12px', marginBottom: '8px' }}>
+              style={{ background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.12)', borderRadius: '10px', padding: '12px', marginBottom: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ fontSize: '12px', fontWeight: 700, color: '#3B82F6' }}>{t('route.vehicle')} {i + 1}</span>
                 {vehFields.length > 1 && (
@@ -731,23 +731,23 @@ export const RouteOptimizerPage: React.FC = () => {
                   </Tooltip>
                 </label>
                 <input style={fld} placeholder="e.g. Truck-01 or Van-A" {...register(`vehicles.${i}.vehicle_id`)}
-                  onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+                  onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />
               </div>
-              <div style={{ marginTop: '8px', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.28)', borderRadius: '8px', padding: '10px 10px 8px' }}>
+              <div style={{ marginTop: '8px', background: '#FFFFFF', border: '1px dashed rgba(14,26,23,0.33)', borderRadius: '8px', padding: '10px 10px 8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '10px' }}>
-                  <Icon icon="solar:widget-add-bold-duotone" width={12} color="rgba(255,255,255,0.45)" />
-                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Optional Details</span>
+                  <Icon icon="solar:widget-add-bold-duotone" width={12} color="rgba(14,26,23,0.565)" />
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(14,26,23,0.6)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Optional Details</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-                  <StopField label={t('route.weightCap')} unit="kg" icon="solar:scale-bold-duotone" color="#F5C842"
+                  <StopField label={t('route.weightCap')} unit="kg" icon="solar:scale-bold-duotone" color="#0B7A5C"
                     tooltip="Maximum weight this vehicle can carry — used to balance load across vehicles"
                     input={<input style={fld} placeholder="e.g. 1000" type="number" step="any" {...register(`vehicles.${i}.cap_weight`)}
-                      onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
+                      onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />}
                   />
                   <StopField label={t('route.volumeCap')} unit="m³" icon="solar:box-bold-duotone" color="#A855F7"
                     tooltip="Maximum cargo volume this vehicle can carry — used to balance load across vehicles"
                     input={<input style={fld} placeholder="e.g. 50" type="number" step="any" {...register(`vehicles.${i}.cap_volume`)}
-                      onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />}
+                      onFocus={e => (e.target.style.borderColor = '#3B82F6')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />}
                   />
                 </div>
               </div>
@@ -777,7 +777,7 @@ export const RouteOptimizerPage: React.FC = () => {
             <div>
               <label style={lbl}>{t('route.city')}</label>
               <input style={fld} placeholder="e.g. Dubai" {...register('city')}
-                onFocus={e => (e.target.style.borderColor = '#F5C842')} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+                onFocus={e => (e.target.style.borderColor = '#0B7A5C')} onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.15)')} />
             </div>
             <div>
               <label style={lbl}>Optimization Objective</label>
@@ -797,9 +797,9 @@ export const RouteOptimizerPage: React.FC = () => {
                           style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                             padding: '8px 10px', borderRadius: '8px', cursor: 'pointer',
-                            background: field.value === value ? 'rgba(245,200,66,0.12)' : 'rgba(255,255,255,0.04)',
-                            border: `1px solid ${field.value === value ? 'rgba(245,200,66,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                            color: field.value === value ? '#F5C842' : 'rgba(255,255,255,0.5)',
+                            background: field.value === value ? 'rgba(11,122,92,0.12)' : '#FFFFFF',
+                            border: `1px solid ${field.value === value ? 'rgba(11,122,92,0.4)' : 'rgba(14,26,23,0.15)'}`,
+                            color: field.value === value ? '#0B7A5C' : 'rgba(14,26,23,0.6)',
                             fontSize: '12px', fontWeight: 600, transition: 'all 0.2s',
                           }}>
                           <Icon icon={icon} width={14} />
@@ -810,7 +810,7 @@ export const RouteOptimizerPage: React.FC = () => {
                   </label>
                 ))}
               </div>
-              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', margin: '6px 0 0' }}>
+              <p style={{ fontSize: '10px', color: 'rgba(14,26,23,0.46)', margin: '6px 0 0' }}>
                 Distance minimises total km travelled · Time minimises total travel time
               </p>
             </div>
@@ -847,20 +847,20 @@ export const RouteOptimizerPage: React.FC = () => {
 
       {loading && (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
-          <div style={{ width: 56, height: 56, border: '4px solid rgba(245,200,66,0.15)', borderTopColor: '#F5C842', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <div style={{ width: 56, height: 56, border: '4px solid rgba(11,122,92,0.15)', borderTopColor: '#0B7A5C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
           <div style={{ textAlign: 'center' }}>
             <AnimatePresence mode="wait">
               <motion.p key={loadingMsg} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                style={{ fontSize: '16px', color: '#FFFFFF', fontWeight: 600, margin: '0 0 16px' }}>
+                style={{ fontSize: '16px', color: '#0E1A17', fontWeight: 600, margin: '0 0 16px' }}>
                 {LOADING_MSGS[loadingMsg]}
               </motion.p>
             </AnimatePresence>
             {/* Progress bar */}
-            <div style={{ width: 280, height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden', margin: '0 auto' }}>
+            <div style={{ width: 280, height: 6, background: 'rgba(14,26,23,0.048)', borderRadius: 3, overflow: 'hidden', margin: '0 auto' }}>
               <motion.div animate={{ width: `${loadingPct}%` }} transition={{ duration: 0.3, ease: 'easeOut' }}
-                style={{ height: '100%', background: 'linear-gradient(90deg, #F5C842, #D4A017)', borderRadius: 3 }} />
+                style={{ height: '100%', background: 'linear-gradient(90deg, #0B7A5C, #086149)', borderRadius: 3 }} />
             </div>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginTop: '8px' }}>{t('route.loadingTime')}</p>
+            <p style={{ fontSize: '12px', color: 'rgba(14,26,23,0.46)', marginTop: '8px' }}>{t('route.loadingTime')}</p>
           </div>
         </div>
       )}
@@ -872,7 +872,7 @@ export const RouteOptimizerPage: React.FC = () => {
             <div style={{
               display: 'flex', gap: '4px',
               padding: '12px 16px',
-              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              borderBottom: '1px solid rgba(14,26,23,0.11)',
               flexShrink: 0, overflowX: 'auto',
             }}>
               {([
@@ -886,11 +886,11 @@ export const RouteOptimizerPage: React.FC = () => {
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: isTablet ? '8px 10px' : '8px 14px',
                     flexShrink: 0,
-                    background: activeTab === tab.key ? 'rgba(245,200,66,0.12)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${activeTab === tab.key ? 'rgba(245,200,66,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                    background: activeTab === tab.key ? 'rgba(11,122,92,0.12)' : '#FFFFFF',
+                    border: `1px solid ${activeTab === tab.key ? 'rgba(11,122,92,0.35)' : 'rgba(14,26,23,0.13)'}`,
                     borderRadius: '10px', cursor: 'pointer',
                     fontSize: isTablet ? '12px' : '13px', fontWeight: 600,
-                    color: activeTab === tab.key ? '#F5C842' : 'rgba(255,255,255,0.5)',
+                    color: activeTab === tab.key ? '#0B7A5C' : 'rgba(14,26,23,0.6)',
                     transition: 'all 0.2s', whiteSpace: 'nowrap',
                   }}>
                   <Icon icon={tab.icon} width={16} />
@@ -929,8 +929,8 @@ export const RouteOptimizerPage: React.FC = () => {
       {/* Mobile sticky header — Configure/Results toggle + result tabs in one block */}
       {isMobile && (
         <div style={{
-          background: 'rgba(10,14,39,0.98)',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          background: '#FFFFFF',
+          borderBottom: '1px solid rgba(14,26,23,0.12)',
           position: 'sticky', top: -20, zIndex: 50, flexShrink: 0,
         }}>
           {/* Row 1: Configure / Results toggle */}
@@ -940,15 +940,15 @@ export const RouteOptimizerPage: React.FC = () => {
                 style={{
                   flex: 1, padding: '8px 12px', borderRadius: '10px', cursor: 'pointer',
                   fontSize: '13px', fontWeight: 700, border: '1px solid',
-                  borderColor: mobileView === v ? 'rgba(245,200,66,0.4)' : 'rgba(255,255,255,0.1)',
-                  background: mobileView === v ? 'rgba(245,200,66,0.1)' : 'rgba(255,255,255,0.03)',
-                  color: mobileView === v ? '#F5C842' : 'rgba(255,255,255,0.5)',
+                  borderColor: mobileView === v ? 'rgba(11,122,92,0.4)' : 'rgba(14,26,23,0.15)',
+                  background: mobileView === v ? 'rgba(11,122,92,0.1)' : '#FFFFFF',
+                  color: mobileView === v ? '#0B7A5C' : 'rgba(14,26,23,0.6)',
                   transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                 }}>
                 <Icon icon={v === 'form' ? 'solar:settings-bold-duotone' : 'solar:chart-square-bold-duotone'} width={15} />
                 {v === 'form' ? t('route.configure') : t('route.results')}
                 {v === 'results' && (result || loading) && (
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: loading ? '#F5C842' : '#10B981', display: 'inline-block' }} />
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: loading ? '#0B7A5C' : '#10B981', display: 'inline-block' }} />
                 )}
               </button>
             ))}
@@ -967,9 +967,9 @@ export const RouteOptimizerPage: React.FC = () => {
                     flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
                     padding: '7px 4px', borderRadius: '8px', cursor: 'pointer',
                     fontSize: '11px', fontWeight: 600, border: '1px solid', whiteSpace: 'nowrap',
-                    borderColor: activeTab === tab.key ? 'rgba(245,200,66,0.4)' : 'rgba(255,255,255,0.08)',
-                    background: activeTab === tab.key ? 'rgba(245,200,66,0.1)' : 'rgba(255,255,255,0.03)',
-                    color: activeTab === tab.key ? '#F5C842' : 'rgba(255,255,255,0.45)',
+                    borderColor: activeTab === tab.key ? 'rgba(11,122,92,0.4)' : 'rgba(14,26,23,0.13)',
+                    background: activeTab === tab.key ? 'rgba(11,122,92,0.1)' : '#FFFFFF',
+                    color: activeTab === tab.key ? '#0B7A5C' : 'rgba(14,26,23,0.565)',
                     transition: 'all 0.2s',
                   }}>
                   <Icon icon={tab.icon} width={13} />
@@ -1035,7 +1035,7 @@ const StopField: React.FC<{ label: string; unit: string; icon: string; color: st
       <Tooltip text={tooltip} position="top">
         <Icon icon={icon} width={11} color={color}  />
       </Tooltip>
-      <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{label} <span style={{ color: 'rgba(255,255,255,0.22)' }}>({unit})</span></span>
+      <span style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(14,26,23,0.53)' }}>{label} <span style={{ color: 'rgba(14,26,23,0.404)' }}>({unit})</span></span>
     </div>
     {input}
   </div>
@@ -1045,13 +1045,13 @@ const StopField: React.FC<{ label: string; unit: string; icon: string; color: st
 const Section: React.FC<{ icon: string; title: string; badge?: string; color: string; children: React.ReactNode }> = ({ icon, title, badge, color, children }) => (
   <div style={{ marginBottom: '0' }}>
     {/* Divider */}
-    <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '6px 0' }} />
+    <div style={{ height: '1px', background: 'rgba(14,26,23,0.06)', margin: '6px 0' }} />
     {/* Section header */}
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 0 10px' }}>
       <div style={{ width: 28, height: 28, borderRadius: '8px', background: `${color}20`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         <Icon icon={icon} width={15} color={color} />
       </div>
-      <span style={{ fontSize: '13px', fontWeight: 700, color: '#FFFFFF', flex: 1 }}>{title}</span>
+      <span style={{ fontSize: '13px', fontWeight: 700, color: '#0E1A17', flex: 1 }}>{title}</span>
       {badge && <span style={{ fontSize: '11px', fontWeight: 700, background: `${color}20`, color, padding: '2px 8px', borderRadius: '20px' }}>{badge}</span>}
     </div>
     <div style={{ paddingBottom: '16px' }}>{children}</div>
@@ -1073,7 +1073,7 @@ const SummaryTab: React.FC<{
     const reason = result.error ?? 'Optimization failed — please check your inputs and try again.';
     return (
       <div style={{
-        background: 'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(10,14,39,0.9) 60%)',
+        background: 'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, #FFFFFF 60%)',
         border: '1px solid rgba(239,68,68,0.35)', borderRadius: '14px', padding: '28px 24px',
         display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '16px',
       }}>
@@ -1082,10 +1082,10 @@ const SummaryTab: React.FC<{
             <Icon icon="solar:danger-triangle-bold-duotone" width={22} color="#EF4444" />
           </div>
           <div>
-            <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '15px', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
+            <p style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '15px', fontWeight: 800, color: '#0E1A17', margin: 0 }}>
               {lang === 'ar' ? 'فشل التحسين' : 'Optimization Failed'}
             </p>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: '2px 0 0' }}>
+            <p style={{ fontSize: '12px', color: 'rgba(14,26,23,0.53)', margin: '2px 0 0' }}>
               {lang === 'ar' ? 'تعذّر على المحرك إيجاد مسار صالح' : 'The engine could not produce a valid route'}
             </p>
           </div>
@@ -1095,11 +1095,11 @@ const SummaryTab: React.FC<{
           <p style={{ fontSize: '11px', fontWeight: 700, color: '#EF4444', letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 6px' }}>
             {lang === 'ar' ? 'سبب الخطأ' : 'Reason'}
           </p>
-          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', margin: 0, lineHeight: 1.6 }}>{reason}</p>
+          <p style={{ fontSize: '13px', color: 'rgba(14,26,23,0.845)', margin: 0, lineHeight: 1.6 }}>{reason}</p>
         </div>
 
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '14px 16px', width: '100%' }}>
-          <p style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 8px' }}>
+        <div style={{ background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.12)', borderRadius: '10px', padding: '14px 16px', width: '100%' }}>
+          <p style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(14,26,23,0.53)', letterSpacing: '0.06em', textTransform: 'uppercase', margin: '0 0 8px' }}>
             {lang === 'ar' ? 'اقتراحات' : 'Suggestions'}
           </p>
           {[
@@ -1108,8 +1108,8 @@ const SummaryTab: React.FC<{
             lang === 'ar' ? 'تقليل الطلب الكلي للمحطات' : 'Reduce total stop demand (weight / volume)',
           ].map((tip, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: i < 2 ? '6px' : 0 }}>
-              <Icon icon="solar:arrow-right-bold" width={12} color="rgba(255,255,255,0.3)" style={{ marginTop: 2, flexShrink: 0 }} />
-              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.55)', margin: 0, lineHeight: 1.5 }}>{tip}</p>
+              <Icon icon="solar:arrow-right-bold" width={12} color="rgba(14,26,23,0.46)" style={{ marginTop: 2, flexShrink: 0 }} />
+              <p style={{ fontSize: '12px', color: 'rgba(14,26,23,0.635)', margin: 0, lineHeight: 1.5 }}>{tip}</p>
             </div>
           ))}
         </div>
@@ -1139,7 +1139,7 @@ const SummaryTab: React.FC<{
   const savedMin = savedMinReal;
 
   const stats = [
-    { icon: 'solar:routing-2-bold-duotone',      label: lang === 'ar' ? 'إجمالي المسافة' : 'Total Distance',   value: `${result.total_distance_km?.toFixed(2)} km`, color: '#F5C842', tooltip: 'Total road distance the vehicle will travel across all stops' },
+    { icon: 'solar:routing-2-bold-duotone',      label: lang === 'ar' ? 'إجمالي المسافة' : 'Total Distance',   value: `${result.total_distance_km?.toFixed(2)} km`, color: '#0B7A5C', tooltip: 'Total road distance the vehicle will travel across all stops' },
     { icon: 'solar:clock-circle-bold-duotone',   label: lang === 'ar' ? 'الوقت الكلي' : 'Total Time',          value: formatTime(result.total_time_minutes),          color: '#3B82F6', tooltip: 'Total estimated time including driving and service time at each stop' },
     { icon: 'solar:map-point-wave-bold-duotone', label: lang === 'ar' ? 'المحطات المُسنَّدة' : 'Stops Assigned', value: `${result.num_stops_assigned} / ${totalStops}`, color: '#10B981', tooltip: 'Number of stops successfully assigned to vehicles out of total stops entered' },
     { icon: 'solar:delivery-bold-duotone',       label: lang === 'ar' ? 'سرعة التوصيل' : 'Delivery Speed',     value: `${deliveryRate}/hr`,                            color: '#A855F7', tooltip: 'Average number of deliveries completed per hour on this route' },
@@ -1151,37 +1151,37 @@ const SummaryTab: React.FC<{
       {/* ── Top stat cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
         {stats.map(s => (
-          <div key={s.label} style={{ background: 'rgba(12,17,45,0.8)', border: `1px solid ${s.color}25`, borderRadius: '12px', padding: '16px' }}>
+          <div key={s.label} style={{ background: '#FFFFFF', border: `1px solid ${s.color}25`, borderRadius: '12px', padding: '16px' }}>
             <Tooltip text={s.tooltip} position="top">
               <Icon icon={s.icon} width={20} color={s.color}  />
             </Tooltip>
-            <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '22px', fontWeight: 800, color: s.color, margin: '8px 0 2px' }}>{s.value}</p>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>{s.label}</p>
+            <p style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '22px', fontWeight: 800, color: s.color, margin: '8px 0 2px' }}>{s.value}</p>
+            <p style={{ fontSize: '12px', color: 'rgba(14,26,23,0.6)', margin: 0 }}>{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* ── Optimization impact card ── */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(245,200,66,0.08) 0%, rgba(10,14,39,0.9) 60%)',
-        border: '1px solid rgba(245,200,66,0.3)', borderRadius: '14px', padding: '20px',
+        background: 'linear-gradient(135deg, rgba(11,122,92,0.08) 0%, #FFFFFF 60%)',
+        border: '1px solid rgba(11,122,92,0.3)', borderRadius: '14px', padding: '20px',
         position: 'relative', overflow: 'hidden',
       }}>
         {/* decorative glow */}
-        <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: 'rgba(245,200,66,0.08)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: 'rgba(11,122,92,0.08)', pointerEvents: 'none' }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-          <div style={{ width: 32, height: 32, borderRadius: '8px', background: 'rgba(245,200,66,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon icon="solar:magic-stick-3-bold-duotone" width={18} color="#F5C842" />
+          <div style={{ width: 32, height: 32, borderRadius: '8px', background: 'rgba(11,122,92,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon icon="solar:shuffle-bold-duotone" width={18} color="#0B7A5C" />
           </div>
           <div>
-            <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Optimization Impact</p>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>vs. unoptimized sequential routing</p>
+            <p style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '14px', fontWeight: 700, color: '#0E1A17', margin: 0 }}>Optimization Impact</p>
+            <p style={{ fontSize: '11px', color: 'rgba(14,26,23,0.53)', margin: 0 }}>vs. unoptimized sequential routing</p>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: '12px' }}>
           <ImpactMetric
-            icon="solar:routing-2-bold-duotone" color="#F5C842"
+            icon="solar:routing-2-bold-duotone" color="#0B7A5C"
             value={hasBaseline ? `${savedKm} km` : '—'}
             label="Distance Saved"
             sub={hasBaseline ? `${savedPct.toFixed(0)}% vs sequential` : 'no baseline'}
@@ -1204,7 +1204,7 @@ const SummaryTab: React.FC<{
         </div>
 
         {hasBaseline && (
-          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', margin: '10px 0 0', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <p style={{ fontSize: '11px', color: 'rgba(14,26,23,0.495)', margin: '10px 0 0', paddingTop: '10px', borderTop: '1px solid rgba(14,26,23,0.11)' }}>
             Sequential baseline: {sequentialDistKm.toFixed(1)} km (Haversine × 1.35 road factor) → Optimized: {result.total_distance_km.toFixed(2)} km
           </p>
         )}
@@ -1212,7 +1212,7 @@ const SummaryTab: React.FC<{
 
       {/* ── Fleet Performance ── */}
       <div>
-        <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 10px' }}>{lang === 'ar' ? 'أداء الأسطول' : 'Fleet Performance'}</p>
+        <p style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '13px', fontWeight: 700, color: 'rgba(14,26,23,0.6)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 10px' }}>{lang === 'ar' ? 'أداء الأسطول' : 'Fleet Performance'}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {result.routes.map((route, ri) => {
             const stops     = route.stops.length;
@@ -1220,16 +1220,16 @@ const SummaryTab: React.FC<{
             const totalSvcMin = route.stops.reduce((a, s) => a + (s.service_time_minutes ?? 0), 0);
             const driveMin  = route.time_minutes - totalSvcMin;
             return (
-              <div key={ri} style={{ background: 'rgba(12,17,45,0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '18px' }}>
+              <div key={ri} style={{ background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.13)', borderRadius: '12px', padding: '18px' }}>
                 {/* Header row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(245,200,66,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon icon="solar:bus-bold-duotone" width={18} color="#F5C842" />
+                    <div style={{ width: 36, height: 36, borderRadius: '10px', background: 'rgba(11,122,92,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon icon="solar:bus-bold-duotone" width={18} color="#0B7A5C" />
                     </div>
                     <div>
-                      <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>{route.vehicle_id}</p>
-                      <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', margin: 0 }}>{stops} stops · {distKm} km</p>
+                      <p style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '14px', fontWeight: 700, color: '#0E1A17', margin: 0 }}>{route.vehicle_id}</p>
+                      <p style={{ fontSize: '11px', color: 'rgba(14,26,23,0.495)', margin: 0 }}>{stops} stops · {distKm} km</p>
                     </div>
                   </div>
                   <span style={{ fontSize: '11px', fontWeight: 700, background: 'rgba(16,185,129,0.12)', color: '#10B981', padding: '3px 10px', borderRadius: '20px' }}>Active</span>
@@ -1243,7 +1243,7 @@ const SummaryTab: React.FC<{
                 </div>
 
                 {/* Load bars */}
-                <CapBar label="Weight Load" used={route.load_weight} cap={route.capacity_weight} color="#F5C842" unit="kg" tooltip="Total package weight loaded on this vehicle vs its maximum weight capacity" />
+                <CapBar label="Weight Load" used={route.load_weight} cap={route.capacity_weight} color="#0B7A5C" unit="kg" tooltip="Total package weight loaded on this vehicle vs its maximum weight capacity" />
                 <CapBar label="Volume Load" used={route.load_volume} cap={route.capacity_volume} color="#3B82F6" unit="m³" tooltip="Total cargo volume loaded on this vehicle vs its maximum volume capacity" />
               </div>
             );
@@ -1257,23 +1257,23 @@ const SummaryTab: React.FC<{
 
 // ── Small helpers for SummaryTab ──────────────────────────────────────────────
 const ImpactMetric: React.FC<{ icon: string; color: string; value: string; label: string; sub: string; tooltip: string }> = ({ icon, color, value, label, sub, tooltip }) => (
-  <div style={{ background: 'rgba(10,14,39,0.6)', borderRadius: '10px', padding: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+  <div style={{ background: '#FFFFFF', borderRadius: '10px', padding: '12px', border: '1px solid rgba(14,26,23,0.11)' }}>
     <Tooltip text={tooltip} position="top">
       <Icon icon={icon} width={16} color={color}  />
     </Tooltip>
-    <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '18px', fontWeight: 800, color, margin: '6px 0 1px' }}>{value}</p>
-    <p style={{ fontSize: '11px', fontWeight: 600, color: '#FFFFFF', margin: '0 0 1px' }}>{label}</p>
-    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', margin: 0 }}>{sub}</p>
+    <p style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '18px', fontWeight: 800, color, margin: '6px 0 1px' }}>{value}</p>
+    <p style={{ fontSize: '11px', fontWeight: 600, color: '#0E1A17', margin: '0 0 1px' }}>{label}</p>
+    <p style={{ fontSize: '10px', color: 'rgba(14,26,23,0.495)', margin: 0 }}>{sub}</p>
   </div>
 );
 
 const MiniStat: React.FC<{ icon: string; color: string; value: string; label: string; tooltip: string }> = ({ icon, color, value, label, tooltip }) => (
-  <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '10px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+  <div style={{ background: '#FFFFFF', borderRadius: '8px', padding: '10px', border: '1px solid rgba(14,26,23,0.1)', textAlign: 'center' }}>
     <Tooltip text={tooltip} position="top">
       <Icon icon={icon} width={14} color={color}  />
     </Tooltip>
-    <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 800, color, margin: '4px 0 2px' }}>{value}</p>
-    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{label}</p>
+    <p style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '14px', fontWeight: 800, color, margin: '4px 0 2px' }}>{value}</p>
+    <p style={{ fontSize: '10px', color: 'rgba(14,26,23,0.53)', margin: 0 }}>{label}</p>
   </div>
 );
 
@@ -1283,11 +1283,11 @@ const CapBar: React.FC<{ label: string; used: number; cap: number; color: string
     <div style={{ marginBottom: '12px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
         <Tooltip text={tooltip} position="top">
-          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', cursor: 'help' }}>{label}</span>
+          <span style={{ fontSize: '12px', color: 'rgba(14,26,23,0.6)', cursor: 'help' }}>{label}</span>
         </Tooltip>
         <span style={{ fontSize: '12px', fontWeight: 700, color }}>{used?.toFixed(1)} / {cap} {unit} — {pct.toFixed(1)}%</span>
       </div>
-      <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+      <div style={{ height: '6px', background: 'rgba(14,26,23,0.048)', borderRadius: '3px', overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: '3px', transition: 'width 0.8s ease' }} />
       </div>
     </div>
@@ -1310,7 +1310,7 @@ const MapTab: React.FC<{
     return pts;
   }, [depot, result.routes]);
 
-  if (!result.routes?.length) return <p style={{ color: 'rgba(255,255,255,0.5)' }}>No route data available.</p>;
+  if (!result.routes?.length) return <p style={{ color: 'rgba(14,26,23,0.6)' }}>No route data available.</p>;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1320,10 +1320,10 @@ const MapTab: React.FC<{
           {result.routes.map((route, vi) => {
             const color = VEHICLE_COLORS[vi % VEHICLE_COLORS.length];
             return (
-              <div key={vi} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${color}40`, borderRadius: '8px', padding: '5px 10px' }}>
+              <div key={vi} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#FFFFFF', border: `1px solid ${color}40`, borderRadius: '8px', padding: '5px 10px' }}>
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: color, flexShrink: 0 }} />
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF' }}>{route.vehicle_id}</span>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>· {route.stops.length} stops</span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#0E1A17' }}>{route.vehicle_id}</span>
+                <span style={{ fontSize: '11px', color: 'rgba(14,26,23,0.53)' }}>· {route.stops.length} stops</span>
               </div>
             );
           })}
@@ -1334,11 +1334,11 @@ const MapTab: React.FC<{
         height: isMobile ? '55vw' : isTablet ? '420px' : 'calc(100vh - 240px)',
         minHeight: isMobile ? '280px' : '380px',
         borderRadius: '12px', overflow: 'hidden',
-        border: '1px solid rgba(245,200,66,0.15)', position: 'relative',
+        border: '1px solid rgba(11,122,92,0.15)', position: 'relative',
       }}>
         <MapContainer center={[25.2, 55.27]} zoom={11} style={{ width: '100%', height: '100%' }} zoomControl={false}>
-          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}" attribution="" maxNativeZoom={16} />
-          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}" attribution="" maxNativeZoom={16} />
+          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}" attribution="" maxNativeZoom={16} />
+          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}" attribution="" maxNativeZoom={16} />
 
           {/* One polyline per vehicle */}
           {result.routes.map((route, vi) => {
@@ -1369,7 +1369,7 @@ const MapTab: React.FC<{
             <Marker position={[depot.lat, depot.lng]} icon={depotIcon}>
               <Popup>
                 <div style={{ minWidth: 140 }}>
-                  <p style={{ fontWeight: 700, margin: '0 0 4px', color: '#F5C842' }}>Depot</p>
+                  <p style={{ fontWeight: 700, margin: '0 0 4px', color: '#0B7A5C' }}>Depot</p>
                   <p style={{ margin: 0, fontSize: 12 }}>{depot.address}</p>
                   <p style={{ margin: 0, fontSize: 11, color: '#888' }}>{depot.lat.toFixed(5)}, {depot.lng.toFixed(5)}</p>
                 </div>
@@ -1427,29 +1427,29 @@ const RoadNode: React.FC<{
       {/* Node circle */}
       <div style={{
         width: isDepot ? 42 : 36, height: isDepot ? 42 : 36, borderRadius: '50%', flexShrink: 0,
-        background: hovered ? color : isDepot ? `${color}20` : 'rgba(10,14,39,0.95)',
+        background: hovered ? color : isDepot ? `${color}20` : '#FFFFFF',
         border: `2.5px solid ${color}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: hovered || isDepot ? `0 0 16px ${color}55` : 'none',
         transition: 'all 0.2s', zIndex: 2,
       }}>
         {isDepot
-          ? <Icon icon={label === 'START' ? 'solar:home-2-bold-duotone' : 'solar:flag-bold-duotone'} width={18} color={hovered ? '#0A0E27' : color} />
-          : <span style={{ fontFamily: "'Sora', sans-serif", fontSize: '12px', fontWeight: 800, color: hovered ? '#0A0E27' : color }}>{label}</span>
+          ? <Icon icon={label === 'START' ? 'solar:home-2-bold-duotone' : 'solar:flag-bold-duotone'} width={18} color={hovered ? '#FFFFFF' : color} />
+          : <span style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '12px', fontWeight: 800, color: hovered ? '#FFFFFF' : color }}>{label}</span>
         }
       </div>
       {/* Content card */}
       <div style={{
-        flex: 1, background: hovered ? 'rgba(245,200,66,0.06)' : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${hovered ? 'rgba(245,200,66,0.25)' : 'rgba(255,255,255,0.06)'}`,
+        flex: 1, background: hovered ? 'rgba(11,122,92,0.06)' : '#FFFFFF',
+        border: `1px solid ${hovered ? 'rgba(11,122,92,0.25)' : 'rgba(14,26,23,0.11)'}`,
         borderRadius: '10px', padding: '10px 14px', transition: 'all 0.2s',
         textAlign: isLeft ? 'left' : 'right',
       }}>
-        <p style={{ fontWeight: 700, color: '#FFFFFF', fontSize: '13px', margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{address}</p>
+        <p style={{ fontWeight: 700, color: '#0E1A17', fontSize: '13px', margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{address}</p>
         {stats.length > 0 && (
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: isLeft ? 'flex-start' : 'flex-end' }}>
             {stats.map((s, si) => (
-              <span key={si} style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>
+              <span key={si} style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: 'rgba(14,26,23,0.6)' }}>
                 <Icon icon={s.icon} width={11} color={s.color} />{s.val}
               </span>
             ))}
@@ -1464,7 +1464,7 @@ const RoadConnector: React.FC<{ fromSide: 'left' | 'right'; toSide: 'left' | 'ri
   <div style={{ display: 'flex', justifyContent: toSide === 'left' ? 'flex-start' : 'flex-end', padding: '0 17px', margin: '2px 0' }}>
     <div style={{
       width: 3, height: 28,
-      background: 'repeating-linear-gradient(to bottom, rgba(245,200,66,0.5) 0px, rgba(245,200,66,0.5) 5px, transparent 5px, transparent 10px)',
+      background: 'repeating-linear-gradient(to bottom, rgba(11,122,92,0.5) 0px, rgba(11,122,92,0.5) 5px, transparent 5px, transparent 10px)',
       borderRadius: 2,
     }} />
   </div>
@@ -1477,7 +1477,7 @@ const RoadTurn: React.FC<{ fromSide: 'left' | 'right' }> = ({ fromSide }) => (
       left: fromSide === 'left' ? 'auto' : '17px',
       right: fromSide === 'left' ? '17px' : 'auto',
       top: 0, bottom: 0, width: 3,
-      background: 'repeating-linear-gradient(to bottom, rgba(245,200,66,0.4) 0px, rgba(245,200,66,0.4) 5px, transparent 5px, transparent 10px)',
+      background: 'repeating-linear-gradient(to bottom, rgba(11,122,92,0.4) 0px, rgba(11,122,92,0.4) 5px, transparent 5px, transparent 10px)',
     }} />
     <div style={{
       position: 'absolute',
@@ -1485,14 +1485,14 @@ const RoadTurn: React.FC<{ fromSide: 'left' | 'right' }> = ({ fromSide }) => (
       right: fromSide === 'left' ? 20 : undefined,
       top: '50%', transform: 'translateY(-50%)',
       height: 3, width: 'calc(100% - 40px)',
-      background: 'repeating-linear-gradient(to right, rgba(245,200,66,0.4) 0px, rgba(245,200,66,0.4) 8px, transparent 8px, transparent 16px)',
+      background: 'repeating-linear-gradient(to right, rgba(11,122,92,0.4) 0px, rgba(11,122,92,0.4) 8px, transparent 8px, transparent 16px)',
     }} />
     <div style={{
       position: 'absolute',
       left: fromSide === 'left' ? 17 : 'auto',
       right: fromSide === 'right' ? 17 : 'auto',
       top: 0, bottom: 0, width: 3,
-      background: 'repeating-linear-gradient(to bottom, rgba(245,200,66,0.4) 0px, rgba(245,200,66,0.4) 5px, transparent 5px, transparent 10px)',
+      background: 'repeating-linear-gradient(to bottom, rgba(11,122,92,0.4) 0px, rgba(11,122,92,0.4) 5px, transparent 5px, transparent 10px)',
     }} />
   </div>
 );
@@ -1524,9 +1524,9 @@ const SequenceTab: React.FC<{
                   display: 'flex', alignItems: 'center', gap: '6px',
                   padding: '6px 14px', borderRadius: '8px', cursor: 'pointer',
                   fontSize: '12px', fontWeight: 600,
-                  border: `1px solid ${selectedVehicle === vi ? col : 'rgba(255,255,255,0.1)'}`,
-                  background: selectedVehicle === vi ? `${col}18` : 'rgba(255,255,255,0.03)',
-                  color: selectedVehicle === vi ? col : 'rgba(255,255,255,0.5)',
+                  border: `1px solid ${selectedVehicle === vi ? col : 'rgba(14,26,23,0.15)'}`,
+                  background: selectedVehicle === vi ? `${col}18` : '#FFFFFF',
+                  color: selectedVehicle === vi ? col : 'rgba(14,26,23,0.6)',
                   transition: 'all 0.2s',
                 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: col }} />
@@ -1541,7 +1541,7 @@ const SequenceTab: React.FC<{
       <div style={{ display: 'flex', gap: '6px', marginBottom: '20px' }}>
         {(['timeline', 'table'] as const).map(v => (
           <button key={v} onClick={() => setView(v)}
-            style={{ padding: '7px 16px', borderRadius: '8px', border: '1px solid rgba(245,200,66,0.25)', cursor: 'pointer', fontSize: '13px', fontWeight: 600, background: view === v ? 'rgba(245,200,66,0.12)' : 'transparent', color: view === v ? '#F5C842' : 'rgba(255,255,255,0.5)' }}>
+            style={{ padding: '7px 16px', borderRadius: '8px', border: '1px solid rgba(11,122,92,0.25)', cursor: 'pointer', fontSize: '13px', fontWeight: 600, background: view === v ? 'rgba(11,122,92,0.12)' : 'transparent', color: view === v ? '#0B7A5C' : 'rgba(14,26,23,0.6)' }}>
             {v === 'timeline' ? (lang === 'ar' ? 'الجدول الزمني' : 'Timeline') : (lang === 'ar' ? 'الجدول' : 'Table')}
           </button>
         ))}
@@ -1550,7 +1550,7 @@ const SequenceTab: React.FC<{
       {view === 'timeline' && (
         <div style={{ padding: '8px 4px' }}>
           <RoadNode
-            label={lang === 'ar' ? 'بداية' : 'START'} isDepot color="#F5C842"
+            label={lang === 'ar' ? 'بداية' : 'START'} isDepot color="#0B7A5C"
             address={lang === 'ar' ? 'المستودع — نقطة الانطلاق' : 'Depot — Starting Point'}
             stats={[]} hovered={false}
             onEnter={() => {}} onLeave={() => {}}
@@ -1567,11 +1567,11 @@ const SequenceTab: React.FC<{
                 <RoadNode
                   label={String(stop.sequence)}
                   isDepot={false}
-                  color={hoveredStop === i ? vehicleColor : '#FFFFFF'}
+                  color={hoveredStop === i ? vehicleColor : '#0E1A17'}
                   address={stop.address}
                   stats={[
                     stop.arrival_time_minutes != null ? { icon: 'solar:clock-circle-bold-duotone', color: '#3B82F6', val: `${stop.arrival_time_minutes} min` } : null,
-                    stop.demand_weight > 0 ? { icon: 'solar:scale-bold-duotone', color: '#F5C842', val: `${stop.demand_weight} kg` } : null,
+                    stop.demand_weight > 0 ? { icon: 'solar:scale-bold-duotone', color: '#0B7A5C', val: `${stop.demand_weight} kg` } : null,
                     stop.demand_volume > 0 ? { icon: 'solar:box-bold-duotone', color: '#A855F7', val: `${stop.demand_volume} m³` } : null,
                     stop.service_time_minutes > 0 ? { icon: 'solar:wrench-minimalistic-bold-duotone', color: '#10B981', val: `${stop.service_time_minutes} min svc` } : null,
                   ].filter(Boolean) as { icon: string; color: string; val: string }[]}
@@ -1600,25 +1600,25 @@ const SequenceTab: React.FC<{
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <tr style={{ borderBottom: '1px solid rgba(14,26,23,0.13)' }}>
                 {(lang === 'ar'
                   ? ['#', 'العنوان', 'الوصول', 'الوزن', 'الحجم', 'الخدمة']
                   : ['#', 'Address', 'Arrival', 'Weight', 'Volume', 'Service']
                 ).map(h => (
-                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: 'rgba(255,255,255,0.35)', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: 'rgba(14,26,23,0.495)', fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {route.stops.map((s, i) => (
                 <tr key={i} onMouseEnter={() => setHoveredStop(i)} onMouseLeave={() => setHoveredStop(null)}
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: hoveredStop === i ? `${vehicleColor}12` : 'transparent', transition: 'background 0.15s', cursor: 'default' }}>
+                  style={{ borderBottom: '1px solid rgba(14,26,23,0.09)', background: hoveredStop === i ? `${vehicleColor}12` : 'transparent', transition: 'background 0.15s', cursor: 'default' }}>
                   <td style={{ padding: '10px 12px', color: vehicleColor, fontWeight: 800 }}>{s.sequence}</td>
-                  <td style={{ padding: '10px 12px', color: '#FFFFFF', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.address}</td>
-                  <td style={{ padding: '10px 12px', color: 'rgba(255,255,255,0.6)' }}>{s.arrival_time_minutes ?? '—'} min</td>
-                  <td style={{ padding: '10px 12px', color: 'rgba(255,255,255,0.6)' }}>{s.demand_weight ?? 0} kg</td>
-                  <td style={{ padding: '10px 12px', color: 'rgba(255,255,255,0.6)' }}>{s.demand_volume ?? 0} m³</td>
-                  <td style={{ padding: '10px 12px', color: 'rgba(255,255,255,0.6)' }}>{s.service_time_minutes ?? 0} min</td>
+                  <td style={{ padding: '10px 12px', color: '#0E1A17', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.address}</td>
+                  <td style={{ padding: '10px 12px', color: 'rgba(14,26,23,0.67)' }}>{s.arrival_time_minutes ?? '—'} min</td>
+                  <td style={{ padding: '10px 12px', color: 'rgba(14,26,23,0.67)' }}>{s.demand_weight ?? 0} kg</td>
+                  <td style={{ padding: '10px 12px', color: 'rgba(14,26,23,0.67)' }}>{s.demand_volume ?? 0} m³</td>
+                  <td style={{ padding: '10px 12px', color: 'rgba(14,26,23,0.67)' }}>{s.service_time_minutes ?? 0} min</td>
                 </tr>
               ))}
             </tbody>
@@ -1659,9 +1659,9 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
                   display: 'flex', alignItems: 'center', gap: '6px',
                   padding: '6px 14px', borderRadius: '8px', cursor: 'pointer',
                   fontSize: '12px', fontWeight: 600,
-                  border: `1px solid ${selectedVehicle === vi ? col : 'rgba(255,255,255,0.1)'}`,
-                  background: selectedVehicle === vi ? `${col}18` : 'rgba(255,255,255,0.03)',
-                  color: selectedVehicle === vi ? col : 'rgba(255,255,255,0.5)',
+                  border: `1px solid ${selectedVehicle === vi ? col : 'rgba(14,26,23,0.15)'}`,
+                  background: selectedVehicle === vi ? `${col}18` : '#FFFFFF',
+                  color: selectedVehicle === vi ? col : 'rgba(14,26,23,0.6)',
                   transition: 'all 0.2s',
                 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: col }} />
@@ -1674,29 +1674,29 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
       )}
 
       {/* Arrival Distribution */}
-      <div style={{ background: 'rgba(12,17,45,0.8)', border: `1px solid ${vehicleColor}25`, borderRadius: '12px', padding: '20px' }}>
-        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: `3px solid ${vehicleColor}`, paddingLeft: '10px' }}>{lang === 'ar' ? 'توزيع وقت الوصول' : 'Arrival Time Distribution'}</h4>
+      <div style={{ background: '#FFFFFF', border: `1px solid ${vehicleColor}25`, borderRadius: '12px', padding: '20px' }}>
+        <h4 style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '14px', fontWeight: 700, color: '#0E1A17', margin: '0 0 16px' }}>{lang === 'ar' ? 'توزيع وقت الوصول' : 'Arrival Time Distribution'}</h4>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={arrivalData}>
             <CartesianGrid {...chartGridStyle} />
             <XAxis dataKey="stop" tick={{ ...chartAxisStyle }} axisLine={false} tickLine={false} />
             <YAxis tick={{ ...chartAxisStyle }} axisLine={false} tickLine={false} width={30} />
-            <ChartTooltip contentStyle={{ background: 'rgba(12,17,45,0.97)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '8px', fontSize: '12px' }} />
+            <ChartTooltip contentStyle={{ background: '#FFFFFF', border: '1px solid rgba(11,122,92,0.2)', borderRadius: '8px', fontSize: '12px' }} />
             <Bar dataKey="arrival" name="Arrival (min)" fill={vehicleColor} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Demand per Stop */}
-      <div style={{ background: 'rgba(12,17,45,0.8)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '12px', padding: '20px' }}>
-        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 4px', borderLeft: '3px solid #3B82F6', paddingLeft: '10px' }}>{lang === 'ar' ? 'الطلب لكل محطة' : 'Demand per Stop'}</h4>
-        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', margin: '0 0 16px 13px' }}>{lang === 'ar' ? 'الحجم مضروب ×10 للوضوح' : 'Volume scaled ×10 for visibility'}</p>
+      <div style={{ background: '#FFFFFF', border: '1px solid rgba(11,122,92,0.15)', borderRadius: '12px', padding: '20px' }}>
+        <h4 style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '14px', fontWeight: 700, color: '#0E1A17', margin: '0 0 4px' }}>{lang === 'ar' ? 'الطلب لكل محطة' : 'Demand per Stop'}</h4>
+        <p style={{ fontSize: '11px', color: 'rgba(14,26,23,0.46)', margin: '0 0 16px 13px' }}>{lang === 'ar' ? 'الحجم مضروب ×10 للوضوح' : 'Volume scaled ×10 for visibility'}</p>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={demandData}>
             <CartesianGrid {...chartGridStyle} />
             <XAxis dataKey="stop" tick={{ ...chartAxisStyle }} axisLine={false} tickLine={false} />
             <YAxis tick={{ ...chartAxisStyle }} axisLine={false} tickLine={false} width={30} />
-            <ChartTooltip contentStyle={{ background: 'rgba(12,17,45,0.97)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '8px', fontSize: '12px' }} />
+            <ChartTooltip contentStyle={{ background: '#FFFFFF', border: '1px solid rgba(11,122,92,0.2)', borderRadius: '8px', fontSize: '12px' }} />
             <Bar dataKey="weight" name="Weight (kg)" fill={vehicleColor} radius={[3, 3, 0, 0]} />
             <Bar dataKey="volume" name="Volume ×10"  fill="#3B82F6"     radius={[3, 3, 0, 0]} />
           </BarChart>
@@ -1704,9 +1704,9 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
       </div>
 
       {/* Capacity Utilization */}
-      <div style={{ background: 'rgba(12,17,45,0.8)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '12px', padding: '20px' }}>
-        <h4 style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 16px', borderLeft: '3px solid #10B981', paddingLeft: '10px' }}>{lang === 'ar' ? 'استغلال الطاقة الاستيعابية' : 'Capacity Utilization'}</h4>
-        <CapBar label={lang === 'ar' ? 'استغلال الوزن' : 'Weight Utilization'} used={route.load_weight}  cap={route.capacity_weight} color="#F5C842" unit="kg" tooltip="How much of the vehicle's weight capacity is being used — higher means better efficiency" />
+      <div style={{ background: '#FFFFFF', border: '1px solid rgba(11,122,92,0.15)', borderRadius: '12px', padding: '20px' }}>
+        <h4 style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '14px', fontWeight: 700, color: '#0E1A17', margin: '0 0 16px' }}>{lang === 'ar' ? 'استغلال الطاقة الاستيعابية' : 'Capacity Utilization'}</h4>
+        <CapBar label={lang === 'ar' ? 'استغلال الوزن' : 'Weight Utilization'} used={route.load_weight}  cap={route.capacity_weight} color="#0B7A5C" unit="kg" tooltip="How much of the vehicle's weight capacity is being used — higher means better efficiency" />
         <CapBar label={lang === 'ar' ? 'استغلال الحجم' : 'Volume Utilization'} used={route.load_volume}  cap={route.capacity_volume} color="#3B82F6" unit="m³" tooltip="How much of the vehicle's cargo space is being used — higher means better efficiency" />
         {(weightPct < 50 && volPct < 50) && (
           <p style={{ fontSize: '13px', color: '#10B981', marginTop: '8px' }}>✅ {lang === 'ar' ? 'ضمن الطاقة الاستيعابية' : 'Well within capacity'}</p>
@@ -1721,9 +1721,9 @@ const AnalyticsTab: React.FC<{ result: RouteOptimizerResponse; formatTime: (m: n
           { label: lang === 'ar' ? 'الحمولة الكلية' : 'Total Load',      value: `${route.load_weight?.toFixed(1)} kg` },
           { label: lang === 'ar' ? 'الحجم الكلي' : 'Total Volume',    value: `${route.load_volume?.toFixed(1)} m³` },
         ].map(s => (
-          <div key={s.label} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${vehicleColor}20`, borderRadius: '10px', padding: '14px' }}>
-            <p style={{ fontSize: '18px', fontWeight: 800, fontFamily: "'Sora', sans-serif", color: vehicleColor, margin: '0 0 4px' }}>{s.value}</p>
-            <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{s.label}</p>
+          <div key={s.label} style={{ background: '#FFFFFF', border: `1px solid ${vehicleColor}20`, borderRadius: '10px', padding: '14px' }}>
+            <p style={{ fontSize: '18px', fontWeight: 800, fontFamily: "'Readex Pro', sans-serif", color: vehicleColor, margin: '0 0 4px' }}>{s.value}</p>
+            <p style={{ fontSize: '11px', color: 'rgba(14,26,23,0.53)', margin: 0 }}>{s.label}</p>
           </div>
         ))}
       </div>

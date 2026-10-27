@@ -15,16 +15,16 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description
   }}>
     <div style={{
       width: 72, height: 72, borderRadius: '50%',
-      background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.2)',
+      background: 'rgba(11,122,92,0.1)', border: '1px solid rgba(11,122,92,0.2)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       marginBottom: '20px',
     }}>
-      <Icon icon={icon} width={36} color="rgba(245,200,66,0.6)" />
+      <Icon icon={icon} width={36} color="rgba(11,122,92,0.6)" />
     </div>
-    <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '18px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px' }}>
+    <h3 style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '18px', fontWeight: 700, color: '#0E1A17', margin: '0 0 8px' }}>
       {title}
     </h3>
-    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', maxWidth: '320px', margin: '0 0 24px', lineHeight: 1.6 }}>
+    <p style={{ color: 'rgba(14,26,23,0.6)', fontSize: '14px', maxWidth: '320px', margin: '0 0 24px', lineHeight: 1.6 }}>
       {description}
     </p>
     {action}

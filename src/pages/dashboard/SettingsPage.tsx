@@ -14,23 +14,23 @@ import { PageLoader } from '../../components/ui/LoadingOverlay';
 
 // ── Shared styles ──────────────────────────────────────────────────────────────
 const cardStyle: React.CSSProperties = {
-  background: 'rgba(12,17,45,0.8)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: '#FFFFFF',
+  border: '1px solid rgba(14,26,23,0.13)',
   borderRadius: '16px', padding: '28px',
   marginBottom: '20px',
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
-  padding: '13px 16px', fontSize: '14px', color: '#FFFFFF',
+  width: '100%', background: '#FFFFFF',
+  border: '1px solid rgba(14,26,23,0.17)', borderRadius: '10px',
+  padding: '13px 16px', fontSize: '14px', color: '#0E1A17',
   outline: 'none', height: '52px', boxSizing: 'border-box',
-  transition: 'border-color 0.2s', fontFamily: "'Inter', sans-serif",
+  transition: 'border-color 0.2s', fontFamily: "'Readex Pro', sans-serif",
 };
 
 const labelStyle: React.CSSProperties = {
   display: 'block', fontSize: '13px', fontWeight: 600,
-  color: 'rgba(255,255,255,0.7)', marginBottom: '6px',
+  color: 'rgba(14,26,23,0.74)', marginBottom: '6px',
 };
 
 const getStrength = (pw: string): number => {
@@ -61,13 +61,13 @@ interface PasswordForm {
 
 // ── Section header ─────────────────────────────────────────────────────────────
 const SectionHead: React.FC<{ icon: string; title: string; subtitle: string; color: string }> = ({ icon, title, subtitle, color }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(14,26,23,0.12)' }}>
     <div style={{ width: 40, height: 40, borderRadius: '12px', background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <Icon icon={icon} width={20} color={color} />
     </div>
     <div>
-      <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '16px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>{title}</h3>
-      <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{subtitle}</p>
+      <h3 style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '16px', fontWeight: 700, color: '#0E1A17', margin: 0 }}>{title}</h3>
+      <p style={{ fontSize: '12px', color: 'rgba(14,26,23,0.53)', margin: 0 }}>{subtitle}</p>
     </div>
   </div>
 );
@@ -165,7 +165,7 @@ export const SettingsPage: React.FC = () => {
             icon="solar:user-bold-duotone"
             title={t('settings.profileInfo')}
             subtitle={t('settings.profileInfoSub')}
-            color="#F5C842"
+            color="#0B7A5C"
           />
 
           <form onSubmit={hsP(onProfileSubmit)}>
@@ -176,9 +176,9 @@ export const SettingsPage: React.FC = () => {
                 <input
                   style={{ ...inputStyle, ...(errsP.fullName ? { borderColor: '#EF4444' } : {}) }}
                   placeholder="John Smith"
-                  onFocus={e => (e.target.style.borderColor = '#F5C842')}
+                  onFocus={e => (e.target.style.borderColor = '#0B7A5C')}
                   {...regP('fullName', { required: t('settings.fullNameReq'), minLength: { value: 2, message: t('settings.min2Chars') } })}
-                  onBlur={e => (e.target.style.borderColor = errsP.fullName ? '#EF4444' : 'rgba(255,255,255,0.12)')}
+                  onBlur={e => (e.target.style.borderColor = errsP.fullName ? '#EF4444' : 'rgba(14,26,23,0.17)')}
                 />
                 <FieldError msg={errsP.fullName?.message} />
               </div>
@@ -187,9 +187,9 @@ export const SettingsPage: React.FC = () => {
                 <input
                   style={{ ...inputStyle, ...(errsP.companyName ? { borderColor: '#EF4444' } : {}) }}
                   placeholder="Acme Logistics"
-                  onFocus={e => (e.target.style.borderColor = '#F5C842')}
+                  onFocus={e => (e.target.style.borderColor = '#0B7A5C')}
                   {...regP('companyName', { required: t('settings.companyReq') })}
-                  onBlur={e => (e.target.style.borderColor = errsP.companyName ? '#EF4444' : 'rgba(255,255,255,0.12)')}
+                  onBlur={e => (e.target.style.borderColor = errsP.companyName ? '#EF4444' : 'rgba(14,26,23,0.17)')}
                 />
                 <FieldError msg={errsP.companyName?.message} />
               </div>
@@ -198,14 +198,14 @@ export const SettingsPage: React.FC = () => {
             {/* Phone + Country */}
             <div style={{ display: 'grid', gridTemplateColumns: twoCol, gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={labelStyle}>{t('settings.phone')} <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>{t('settings.optional')}</span></label>
+                <label style={labelStyle}>{t('settings.phone')} <span style={{ color: 'rgba(14,26,23,0.495)', fontWeight: 400 }}>{t('settings.optional')}</span></label>
                 <input
                   type="tel"
                   style={inputStyle}
                   placeholder="+971 50 000 0000"
-                  onFocus={e => (e.target.style.borderColor = '#F5C842')}
+                  onFocus={e => (e.target.style.borderColor = '#0B7A5C')}
                   {...regP('phone')}
-                  onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.12)')}
+                  onBlur={e => (e.target.style.borderColor = 'rgba(14,26,23,0.17)')}
                 />
               </div>
               <div>
@@ -221,16 +221,16 @@ export const SettingsPage: React.FC = () => {
 
             {/* Email — read only */}
             <div style={{ marginBottom: '24px' }}>
-              <label style={labelStyle}>{t('settings.emailAddress')} <span style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 400 }}>{t('settings.cannotChange')}</span></label>
+              <label style={labelStyle}>{t('settings.emailAddress')} <span style={{ color: 'rgba(14,26,23,0.425)', fontWeight: 400 }}>{t('settings.cannotChange')}</span></label>
               <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}>
-                  <Icon icon="solar:lock-bold" width={16} color="rgba(255,255,255,0.2)" />
+                  <Icon icon="solar:lock-bold" width={16} color="rgba(14,26,23,0.39)" />
                 </div>
                 <input
                   type="email"
                   value={user.email}
                   readOnly
-                  style={{ ...inputStyle, paddingLeft: '42px', color: 'rgba(255,255,255,0.4)', cursor: 'not-allowed', background: 'rgba(255,255,255,0.02)' }}
+                  style={{ ...inputStyle, paddingLeft: '42px', color: 'rgba(14,26,23,0.53)', cursor: 'not-allowed', background: '#FFFFFF' }}
                 />
               </div>
             </div>
@@ -264,18 +264,18 @@ export const SettingsPage: React.FC = () => {
                   placeholder={t('settings.yourCurrPw')}
                   onFocus={e => (e.target.style.borderColor = '#A855F7')}
                   {...regPw('currentPassword', { required: t('settings.required') })}
-                  onBlur={e => (e.target.style.borderColor = errsPw.currentPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
+                  onBlur={e => (e.target.style.borderColor = errsPw.currentPassword ? '#EF4444' : 'rgba(14,26,23,0.17)')}
                 />
                 <button type="button" onClick={() => setShowCurr(!showCurr)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(14,26,23,0.53)', padding: 0 }}>
                   <Icon icon={showCurr ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                 </button>
               </div>
               <FieldError msg={errsPw.currentPassword?.message} />
               <div style={{ textAlign: 'right', marginTop: '5px' }}>
-                <Link to="/forgot-password" style={{ fontSize: '12px', color: 'rgba(245,200,66,0.6)', textDecoration: 'none' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = '#F5C842')}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,200,66,0.6)')}>
+                <Link to="/forgot-password" style={{ fontSize: '12px', color: 'rgba(11,122,92,0.6)', textDecoration: 'none' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#0B7A5C')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(11,122,92,0.6)')}>
                   {t('settings.forgotPw')}
                 </Link>
               </div>
@@ -292,10 +292,10 @@ export const SettingsPage: React.FC = () => {
                     placeholder={t('settings.min8')}
                     onFocus={e => (e.target.style.borderColor = '#A855F7')}
                     {...regPw('newPassword', { required: t('settings.required'), minLength: { value: 8, message: t('settings.min8') } })}
-                    onBlur={e => (e.target.style.borderColor = errsPw.newPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
+                    onBlur={e => (e.target.style.borderColor = errsPw.newPassword ? '#EF4444' : 'rgba(14,26,23,0.17)')}
                   />
                   <button type="button" onClick={() => setShowNew(!showNew)}
-                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(14,26,23,0.53)', padding: 0 }}>
                     <Icon icon={showNew ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                   </button>
                 </div>
@@ -304,7 +304,7 @@ export const SettingsPage: React.FC = () => {
                   <div style={{ marginTop: '6px' }}>
                     <div style={{ display: 'flex', gap: '3px', marginBottom: '3px' }}>
                       {[1, 2, 3, 4].map(i => (
-                        <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i <= strength ? strengthColors[strength] : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' }} />
+                        <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i <= strength ? strengthColors[strength] : 'rgba(14,26,23,0.06)', transition: 'background 0.3s' }} />
                       ))}
                     </div>
                     <p style={{ fontSize: '11px', color: strengthColors[strength], margin: 0 }}>{strengthLabelKeys[strength] ? t(strengthLabelKeys[strength] as Parameters<typeof t>[0]) : ''}</p>
@@ -320,10 +320,10 @@ export const SettingsPage: React.FC = () => {
                     placeholder={t('settings.repeatNewPw')}
                     onFocus={e => (e.target.style.borderColor = '#A855F7')}
                     {...regPw('confirmPassword', { required: t('settings.required') })}
-                    onBlur={e => (e.target.style.borderColor = errsPw.confirmPassword ? '#EF4444' : 'rgba(255,255,255,0.12)')}
+                    onBlur={e => (e.target.style.borderColor = errsPw.confirmPassword ? '#EF4444' : 'rgba(14,26,23,0.17)')}
                   />
                   <button type="button" onClick={() => setShowConf(!showConf)}
-                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(14,26,23,0.53)', padding: 0 }}>
                     <Icon icon={showConf ? 'solar:eye-closed-bold' : 'solar:eye-bold'} width={18} />
                   </button>
                 </div>
@@ -350,10 +350,10 @@ export const SettingsPage: React.FC = () => {
           />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', margin: '0 0 2px', fontWeight: 500 }}>{t('settings.emailLabel')}</p>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{user.email} · <span style={{ color: '#10B981' }}>{t('settings.verified')}</span></p>
+              <p style={{ fontSize: '13px', color: 'rgba(14,26,23,0.74)', margin: '0 0 2px', fontWeight: 500 }}>{t('settings.emailLabel')}</p>
+              <p style={{ fontSize: '13px', color: 'rgba(14,26,23,0.53)', margin: 0 }}>{user.email} · <span style={{ color: '#10B981' }}>{t('settings.verified')}</span></p>
             </div>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', margin: 0 }}>{t('settings.emailChangeSupport')}</p>
+            <p style={{ fontSize: '12px', color: 'rgba(14,26,23,0.425)', margin: 0 }}>{t('settings.emailChangeSupport')}</p>
           </div>
         </div>
 

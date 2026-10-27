@@ -11,7 +11,7 @@
   min-height: 100vh;
   background: var(--paper);
   color: var(--ink);
-  font-family: 'Readex Pro', 'Cairo', system-ui, sans-serif;
+  font-family: 'Readex Pro', 'Readex Pro', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 .wl h1, .wl h2, .wl h3, .wl h4 { font-family: inherit; margin: 0; }
@@ -93,7 +93,7 @@
 .wl-drivers { padding: 88px 0; scroll-margin-top: 64px; }
 .wl-drivers .wl-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
 .wl-phone { width: 300px; margin: 0 auto; border-radius: 36px; background: var(--ink); padding: 12px; box-shadow: 0 40px 70px -30px rgba(14, 26, 23, .4); }
-.wl-screen { background: #fff; border-radius: 26px; overflow: hidden; font-size: 14px; font-family: 'Readex Pro', 'Cairo', sans-serif; }
+.wl-screen { background: #fff; border-radius: 26px; overflow: hidden; font-size: 14px; font-family: 'Readex Pro', 'Readex Pro', sans-serif; }
 .wl-screen-top { background: var(--green); color: #fff; padding: 18px 18px 16px; }
 .wl-screen-top small { opacity: .78; }
 .wl-screen-top h4 { font-size: 19px; margin-top: 4px; font-weight: 600; }

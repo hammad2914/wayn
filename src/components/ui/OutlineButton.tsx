@@ -23,18 +23,18 @@ export const OutlineButton: React.FC<OutlineButtonProps> = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      whileHover={!disabled ? { borderColor: '#F5C842', color: '#F5C842', backgroundColor: 'rgba(245,200,66,0.08)' } : {}}
+      whileHover={!disabled ? { borderColor: '#0B7A5C', color: '#0B7A5C', backgroundColor: 'rgba(11,122,92,0.08)' } : {}}
       whileTap={!disabled ? { scale: 0.98 } : {}}
       transition={{ duration: 0.15 }}
       style={{
         width: fullWidth ? '100%' : undefined,
         padding: sizes[size],
         fontSize: font[size],
-        fontFamily: "'Sora', sans-serif",
+        fontFamily: "'Readex Pro', sans-serif",
         fontWeight: 600,
         background: 'transparent',
-        color: 'rgba(245,200,66,0.85)',
-        border: '1px solid rgba(245,200,66,0.4)',
+        color: 'rgba(11,122,92,0.85)',
+        border: '1px solid rgba(11,122,92,0.4)',
         borderRadius: '12px',
         cursor: disabled ? 'not-allowed' : 'pointer',
         display: 'inline-flex',

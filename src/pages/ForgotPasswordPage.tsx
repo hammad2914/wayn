@@ -24,11 +24,11 @@ export const ForgotPasswordPage: React.FC = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
-    padding: '13px 16px 13px 44px', fontSize: '14px', color: '#FFFFFF',
+    width: '100%', background: '#FFFFFF',
+    border: '1px solid rgba(14,26,23,0.17)', borderRadius: '10px',
+    padding: '13px 16px 13px 44px', fontSize: '14px', color: '#0E1A17',
     outline: 'none', height: '52px', boxSizing: 'border-box',
-    transition: 'border-color 0.2s', fontFamily: "'Inter', sans-serif",
+    transition: 'border-color 0.2s', fontFamily: "'Readex Pro', sans-serif",
     direction: 'ltr',
   };
 
@@ -47,12 +47,12 @@ export const ForgotPasswordPage: React.FC = () => {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#0A0E27',
+      minHeight: '100vh', background: '#F7F8F6',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: isMobile ? '24px 12px' : '40px 16px',
       position: 'relative', overflow: 'hidden',
     }}>
-      <div style={{ position: 'fixed', top: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'rgba(245,200,66,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', top: '-20%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'rgba(11,122,92,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', bottom: '-20%', right: '-10%', width: 400, height: 400, borderRadius: '50%', background: 'rgba(59,130,246,0.05)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
       {/* Lang toggle */}
@@ -71,15 +71,15 @@ export const ForgotPasswordPage: React.FC = () => {
           <Link to="/" style={{ display: 'inline-flex', textDecoration: 'none' }}>
             <WaynLogo size={isMobile ? 26 : 30} />
           </Link>
-          <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>{t('auth.forgotPwTitle')}</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>
+          <h1 style={{ fontFamily: isRTL ? "'Readex Pro', sans-serif" : "'Readex Pro', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#0E1A17', margin: '14px 0 6px' }}>{t('auth.forgotPwTitle')}</h1>
+          <p style={{ color: 'rgba(14,26,23,0.6)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>
             {t('auth.forgotPwSubtitle')}
           </p>
         </div>
 
         <div style={{
-          background: 'rgba(12,17,45,0.92)', backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(245,200,66,0.2)', borderRadius: isMobile ? '16px' : '20px',
+          background: '#FFFFFF', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(11,122,92,0.2)', borderRadius: isMobile ? '16px' : '20px',
           padding: isMobile ? '24px 18px' : '40px',
         }}>
           <AnimatePresence mode="wait">
@@ -87,23 +87,23 @@ export const ForgotPasswordPage: React.FC = () => {
               <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'rgba(14,26,23,0.74)', marginBottom: '6px' }}>
                       {t('auth.emailAddress')}
                     </label>
                     <div style={{ position: 'relative' }}>
                       <div style={{ position: 'absolute', [isRTL ? 'right' : 'left']: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                        <Icon icon="solar:letter-bold" width={18} color="rgba(255,255,255,0.3)" />
+                        <Icon icon="solar:letter-bold" width={18} color="rgba(14,26,23,0.46)" />
                       </div>
                       <input
                         type="email"
                         style={{ ...inputStyle, [isRTL ? 'paddingRight' : 'paddingLeft']: '44px', ...(errors.email ? { borderColor: '#EF4444' } : {}) }}
                         placeholder="you@company.com"
-                        onFocus={e => (e.target.style.borderColor = '#F5C842')}
+                        onFocus={e => (e.target.style.borderColor = '#0B7A5C')}
                         {...register('email', {
                           required: 'Email is required',
                           pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email address' },
                         })}
-                        onBlur={e => (e.target.style.borderColor = errors.email ? '#EF4444' : 'rgba(255,255,255,0.12)')}
+                        onBlur={e => (e.target.style.borderColor = errors.email ? '#EF4444' : 'rgba(14,26,23,0.17)')}
                       />
                     </div>
                     {errors.email && <p style={{ color: '#EF4444', fontSize: '11px', marginTop: '4px' }}>{errors.email.message}</p>}
@@ -120,20 +120,20 @@ export const ForgotPasswordPage: React.FC = () => {
                 <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(16,185,129,0.12)', border: '2px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                   <Icon icon="solar:letter-bold" width={28} color="#10B981" />
                 </div>
-                <h3 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: '18px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 8px' }}>{t('auth.checkInbox')}</h3>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', margin: '0 0 6px', lineHeight: 1.6 }}>
+                <h3 style={{ fontFamily: isRTL ? "'Readex Pro', sans-serif" : "'Readex Pro', sans-serif", fontSize: '18px', fontWeight: 700, color: '#0E1A17', margin: '0 0 8px' }}>{t('auth.checkInbox')}</h3>
+                <p style={{ fontSize: '14px', color: 'rgba(14,26,23,0.635)', margin: '0 0 6px', lineHeight: 1.6 }}>
                   {t('auth.resetSentTo')}
                 </p>
-                <p style={{ fontSize: '14px', fontWeight: 700, color: '#F5C842', margin: '0 0 20px', wordBreak: 'break-all' }}>{sentTo}</p>
-                <div style={{ background: 'rgba(245,200,66,0.06)', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px' }}>
-                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', margin: 0, lineHeight: 1.6 }}>
+                <p style={{ fontSize: '14px', fontWeight: 700, color: '#0B7A5C', margin: '0 0 20px', wordBreak: 'break-all' }}>{sentTo}</p>
+                <div style={{ background: 'rgba(11,122,92,0.06)', border: '1px solid rgba(11,122,92,0.15)', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px' }}>
+                  <p style={{ fontSize: '12px', color: 'rgba(14,26,23,0.565)', margin: 0, lineHeight: 1.6 }}>
                     {t('auth.linkExpiry')}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => { setSent(false); setSentTo(''); }}
-                  style={{ background: 'none', border: 'none', color: 'rgba(245,200,66,0.7)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
+                  style={{ background: 'none', border: 'none', color: 'rgba(11,122,92,0.7)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
                 >
                   {t('auth.differentEmail')}
                 </button>
@@ -142,16 +142,16 @@ export const ForgotPasswordPage: React.FC = () => {
           </AnimatePresence>
 
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#F5C842')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}>
+            <Link to="/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'rgba(14,26,23,0.565)', textDecoration: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#0B7A5C')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(14,26,23,0.565)')}>
               <Icon icon={isRTL ? 'solar:arrow-right-bold' : 'solar:arrow-left-bold'} width={14} />
               {t('auth.backToSignIn')}
             </Link>
           </div>
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.15)', marginTop: '16px' }}>
+        <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(14,26,23,0.355)', marginTop: '16px' }}>
           {t('auth.secured')}
         </p>
       </motion.div>
