@@ -6,7 +6,10 @@ import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { LangToggle } from '../ui/LangToggle';
 
-const NAV_LINK_KEYS = ['nav.features', 'nav.howItWorks', 'nav.pricing', 'nav.docs'] as const;
+const NAV_LINKS = [
+  { key: 'nav.features', href: '#features' },
+  { key: 'nav.howItWorks', href: '#how-it-works' },
+] as const;
 
 // Hamburger bar animation variants
 const TOP_BAR    = { closed: { rotate: 0,   y: 0,  opacity: 1 }, open: { rotate: 45,  y: 7,  opacity: 1 } };
@@ -79,10 +82,10 @@ export const LandingNavbar: React.FC = () => {
         {/* Desktop nav links */}
         {!isMd && (
           <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-            {NAV_LINK_KEYS.map((key) => (
+            {NAV_LINKS.map(({ key, href }) => (
               <a
                 key={key}
-                href="#"
+                href={href}
                 style={{
                   color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: 500,
                   textDecoration: 'none', transition: 'color 0.2s',
@@ -194,15 +197,15 @@ export const LandingNavbar: React.FC = () => {
                 animate="show"
                 variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } } }}
               >
-              {NAV_LINK_KEYS.map((key, i) => (
+              {NAV_LINKS.map(({ key, href }, i) => (
                 <motion.div key={key} variants={MENU_ITEM}>
                   <a
-                    href="#"
+                    href={href}
                     onClick={() => setOpen(false)}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '16px 0',
-                      borderBottom: i < NAV_LINK_KEYS.length - 1
+                      borderBottom: i < NAV_LINKS.length - 1
                         ? '1px solid rgba(255,255,255,0.07)'
                         : 'none',
                       color: 'rgba(255,255,255,0.9)', fontSize: 18, fontWeight: 600,
@@ -251,16 +254,6 @@ export const LandingNavbar: React.FC = () => {
                   </motion.button>
                 </motion.div>
 
-                {/* Social proof */}
-                <motion.div
-                  variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { delay: 0.2 } } }}
-                  style={{
-                    marginTop: 20, textAlign: 'center',
-                    fontSize: 12, color: 'rgba(255,255,255,0.35)',
-                  }}
-                >
-                  {t('nav.trustedBy')}
-                </motion.div>
               </motion.div>
             </motion.div>
           </>

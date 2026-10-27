@@ -33,7 +33,7 @@ export const Features: React.FC = () => {
   ];
 
   return (
-    <section style={{ background: '#0D1232', padding: sectionPad }}>
+    <section id="features" style={{ background: '#0D1232', padding: sectionPad }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
 
         {/* ── Header ── */}

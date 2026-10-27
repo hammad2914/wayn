@@ -219,9 +219,11 @@ const MapPickerDialog: React.FC<{
             zoomControl={true}
           >
             <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+              attribution='Tiles &copy; Esri &mdash; &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+              maxNativeZoom={16}
             />
+            <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}" maxNativeZoom={16} />
             <MapClickCapture onPick={handlePick} />
             {pin && (
               <Marker position={[pin.lat, pin.lng]} icon={pickCrosshairIcon} />
@@ -1335,8 +1337,8 @@ const MapTab: React.FC<{
         border: '1px solid rgba(245,200,66,0.15)', position: 'relative',
       }}>
         <MapContainer center={[25.2, 55.27]} zoom={11} style={{ width: '100%', height: '100%' }} zoomControl={false}>
-          <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png" attribution="" />
-          <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png" attribution="" />
+          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}" attribution="" maxNativeZoom={16} />
+          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}" attribution="" maxNativeZoom={16} />
 
           {/* One polyline per vehicle */}
           {result.routes.map((route, vi) => {

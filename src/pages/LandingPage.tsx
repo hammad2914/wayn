@@ -3,7 +3,6 @@ import { LandingNavbar } from '../components/landing/LandingNavbar';
 import { HeroSection } from '../components/landing/HeroSection';
 import { HowItWorks } from '../components/landing/HowItWorks';
 import { Features } from '../components/landing/Features';
-import { StatsBar } from '../components/landing/StatsBar';
 import { CtaFooter } from '../components/landing/CtaFooter';
 
 export const LandingPage: React.FC = () => {
@@ -13,7 +12,6 @@ export const LandingPage: React.FC = () => {
         <HeroSection />
         <HowItWorks />
         <Features />
-        <StatsBar />
         <CtaFooter />
       </div>
   );

@@ -147,11 +147,6 @@ html[lang="ar"] [style*="monospace"] {
   opacity: 0.92;
 }
 
-/* Labels layer (dark_only_labels) — keep crisp, slight tint to match */
-.hero-map-labels {
-  filter: brightness(1.05) hue-rotate(185deg);
-  opacity: 0.8;
-}
 
 /* GPU-accelerate all panes to prevent flicker on flyTo / zoom */
 .hero-map .leaflet-overlay-pane,

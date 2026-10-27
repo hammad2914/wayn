@@ -11,8 +11,10 @@ export const CtaFooter: React.FC = () => {
   const { t } = useLanguage();
 
   const FOOTER_LINKS = [
-    t('footer.product'), t('footer.pricing'), t('footer.docs'),
-    t('footer.blog'), t('footer.careers'), t('footer.contact'),
+    { label: t('nav.features'), href: '#features' },
+    { label: t('nav.howItWorks'), href: '#how-it-works' },
+    { label: t('footer.signIn'), href: '/login' },
+    { label: t('footer.createAccount'), href: '/signup' },
   ];
   const TRUST_ITEMS = [t('cta.trust1'), t('cta.trust2'), t('cta.trust3')];
 
@@ -140,10 +142,10 @@ export const CtaFooter: React.FC = () => {
             gap: isMobile ? 16 : 28,
             justifyContent: 'center',
           }}>
-            {FOOTER_LINKS.map((link) => (
+            {FOOTER_LINKS.map(({ label, href }) => (
               <a
-                key={link}
-                href="#"
+                key={label}
+                href={href}
                 style={{
                   color: 'rgba(255,255,255,0.45)', fontSize: 13,
                   textDecoration: 'none', transition: 'color 0.2s',
@@ -151,7 +153,7 @@ export const CtaFooter: React.FC = () => {
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#F5C842')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}
               >
-                {link}
+                {label}
               </a>
             ))}
           </div>

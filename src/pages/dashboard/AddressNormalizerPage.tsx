@@ -25,7 +25,7 @@ interface FormValues {
 
 type MapStyle = 'street' | 'satellite' | 'dark';
 
-const MAP_STYLES: Record<MapStyle, { labelKey: 'addr.street' | 'addr.satellite' | 'addr.dark'; icon: string; url: string; attribution: string }> = {
+const MAP_STYLES: Record<MapStyle, { labelKey: 'addr.street' | 'addr.satellite' | 'addr.dark'; icon: string; url: string; attribution: string; labels?: string }> = {
   street: {
     labelKey: 'addr.street', icon: 'solar:map-bold-duotone',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -38,8 +38,9 @@ const MAP_STYLES: Record<MapStyle, { labelKey: 'addr.street' | 'addr.satellite' 
   },
   dark: {
     labelKey: 'addr.dark', icon: 'solar:moon-stars-bold-duotone',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; &copy; OpenStreetMap contributors',
   },
 };
 
@@ -508,7 +509,10 @@ export const AddressNormalizerPage: React.FC = () => {
                           center={[result.geocoding.latitude, result.geocoding.longitude]}
                           zoom={16} style={{ width: '100%', height: '100%' }} zoomControl={false}
                         >
-                          <TileLayer key={mapStyle} url={MAP_STYLES[mapStyle].url} attribution={MAP_STYLES[mapStyle].attribution} maxZoom={20} />
+                          <TileLayer key={mapStyle} url={MAP_STYLES[mapStyle].url} attribution={MAP_STYLES[mapStyle].attribution} maxZoom={20} maxNativeZoom={mapStyle === 'dark' ? 16 : undefined} />
+                          {MAP_STYLES[mapStyle].labels && (
+                            <TileLayer key={`${mapStyle}-labels`} url={MAP_STYLES[mapStyle].labels} maxZoom={20} maxNativeZoom={16} />
+                          )}
                           <MapRecenter lat={result.geocoding.latitude} lng={result.geocoding.longitude} />
                           <Marker position={[result.geocoding.latitude, result.geocoding.longitude]}>
                             <Popup>

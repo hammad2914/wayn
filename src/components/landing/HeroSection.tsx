@@ -102,25 +102,6 @@ const MapReadyHandler: React.FC<{ onReady: (map: L.Map) => void }> = ({ onReady 
   return null;
 };
 
-// ─── CountUp ─────────────────────────────────────────────────────────────────
-const CountUp: React.FC<{
-  to: number; suffix?: string; duration?: number; start?: boolean;
-}> = ({ to, suffix = '', duration = 2, start = true }) => {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    const t0 = performance.now();
-    const tick = (now: number) => {
-      const t = Math.min((now - t0) / (duration * 1000), 1);
-      setVal(Math.round((1 - (1 - t) ** 3) * to));
-      if (t < 1) requestAnimationFrame(tick);
-      else setVal(to);
-    };
-    requestAnimationFrame(tick);
-  }, [to, duration, start]);
-  return <>{val}{suffix}</>;
-};
-
 // ─── Panel shared style ───────────────────────────────────────────────────────
 const PANEL: React.CSSProperties = {
   background: 'rgba(10,14,39,0.88)',
@@ -150,7 +131,6 @@ export const HeroSection: React.FC = () => {
   const [vis, setVis] = useState<Visibility>(HIDDEN);
   const [mapReady, setMapReady] = useState(false);
   const [tilesLoaded, setTilesLoaded] = useState(false);
-  const [startCount, setStartCount] = useState(false);
   const [winW, setWinW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1280);
 
   const mapRef             = useRef<L.Map | null>(null);
@@ -201,11 +181,6 @@ export const HeroSection: React.FC = () => {
     const fn = () => setWinW(window.innerWidth);
     window.addEventListener('resize', fn);
     return () => window.removeEventListener('resize', fn);
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(() => setStartCount(true), 700);
-    return () => clearTimeout(t);
   }, []);
 
   const clearMap = useCallback(() => {
@@ -401,7 +376,7 @@ export const HeroSection: React.FC = () => {
             }
             case 2: {
               setVis({ ...HIDDEN, wayn: true });
-              map.flyTo([25.2692, 55.2977], 17, { duration: 1.5 });
+              map.flyTo([25.2692, 55.2977], 16, { duration: 1.5 });
               await sl(1700, gen); chk();
               markersRef.current.forEach((m) => m.remove());
               markersRef.current = [];
@@ -579,18 +554,10 @@ export const HeroSection: React.FC = () => {
             {/* Base layer: roads + areas, no text clutter */}
             <TileLayer
               className="hero-map-base"
-              url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
-              subdomains="abcd"
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+              maxNativeZoom={16}
               maxZoom={20}
               eventHandlers={{ load: () => setTilesLoaded(true) }}
-            />
-            {/* Labels layer: city names on top */}
-            <TileLayer
-              className="hero-map-labels"
-              url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
-              subdomains="abcd"
-              maxZoom={20}
-              zIndex={10}
             />
             <MapReadyHandler onReady={handleMapReady} />
           </MapContainer>
@@ -676,33 +643,6 @@ export const HeroSection: React.FC = () => {
             }}>
               {t('hero.subtitle')}
             </p>
-          </motion.div>
-
-          {/* Stats row */}
-          <motion.div
-            variants={item}
-            style={{
-              display: 'flex', gap: 40, marginBottom: 40,
-              ...(isMobile ? { justifyContent: 'center' } : {}),
-            }}
-          >
-            {[
-              { to: 85, suffix: '%',  label: t('hero.stat1Label') },
-              { to: 38, suffix: '%',  label: t('hero.stat2Label') },
-              { to: 60, suffix: '%+', label: t('hero.stat3Label') },
-            ].map(({ to, suffix, label }) => (
-              <div key={label} style={{ textAlign: 'center' }}>
-                <div style={{
-                  fontFamily: 'Sora, sans-serif', fontSize: 36, fontWeight: 800,
-                  color: '#F5C842', lineHeight: 1, marginBottom: 6,
-                }}>
-                  <CountUp to={to} suffix={suffix} start={startCount} />
-                </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: 500, letterSpacing: '0.03em' }}>
-                  {label}
-                </div>
-              </div>
-            ))}
           </motion.div>
 
           {/* Buttons */}
@@ -1030,7 +970,7 @@ export const HeroSection: React.FC = () => {
         fontSize: 10, color: 'rgba(255,255,255,0.25)', lineHeight: 1.4,
       }}>
         {'© '}
-        <a href="https://carto.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>CARTO</a>
+        <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Esri</a>
         {' © '}
         <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>OpenStreetMap</a>
         {' contributors'}
