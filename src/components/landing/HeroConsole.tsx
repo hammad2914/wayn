@@ -58,8 +58,10 @@ export const HeroConsole: React.FC = () => {
 
     const map = L.map(mapEl.current!, { zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false,
       doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false, zoomSnap: 0.25 });
-    L.tileLayer(`${TILES}Base/MapServer/tile/{z}/{y}/{x}`, { maxNativeZoom: 16, maxZoom: 19 }).addTo(map);
-    L.tileLayer(`${TILES}Reference/MapServer/tile/{z}/{y}/{x}`, { maxNativeZoom: 16, maxZoom: 19, opacity: 0.7 }).addTo(map);
+    // tiles load once a flight lands, not at every zoom it passes through, and are fetched ahead (warm)
+    const tileOpts = { maxNativeZoom: 16, maxZoom: 19, updateWhenZooming: false, keepBuffer: 4 };
+    L.tileLayer(`${TILES}Base/MapServer/tile/{z}/{y}/{x}`, tileOpts).addTo(map);
+    L.tileLayer(`${TILES}Reference/MapServer/tile/{z}/{y}/{x}`, { ...tileOpts, opacity: 0.7 }).addTo(map);
     const layer = L.layerGroup().addTo(map);
 
     // keep the action in the strip of map between the copy and the console
@@ -69,13 +71,46 @@ export const HeroConsole: React.FC = () => {
       const [l, r] = a.left < b.left ? [a, b] : [b, a];
       return { paddingTopLeft: [l.right + 24, 110], paddingBottomRight: [innerWidth - r.left + 24, 70] };
     };
-    const frame = (bounds: L.LatLngBounds, duration = 1.4) => map.flyToBounds(bounds, { ...pad(), duration: reduce ? 0 : duration });
-    const point = (lat: number, lng: number, zoom: number) => {
+    // where each kind of shot ends up: the centre and zoom of the view
+    const boundsView = (bounds: L.LatLngBounds) => {
+      const p = pad(), size = map.getSize();
+      const tl = L.point(p.paddingTopLeft as L.PointTuple), br = L.point(p.paddingBottomRight as L.PointTuple);
+      const zoom = Math.min(map.getBoundsZoom(bounds, false, tl.add(br)), 16);
+      const mid = map.project(bounds.getCenter(), zoom).add(br.subtract(tl).divideBy(2));
+      return { center: map.unproject(mid, zoom), zoom, size };
+    };
+    const pointView = (lat: number, lng: number, zoom: number) => {
       // centre the point in the free strip, not the screen
       const p = pad(), size = map.getSize();
       const tl = L.point(p.paddingTopLeft as L.PointTuple), br = L.point(p.paddingBottomRight as L.PointTuple);
       const off = L.point((tl.x + size.x - br.x) / 2 - size.x / 2, (tl.y + size.y - br.y) / 2 - size.y / 2);
-      map.flyTo(map.unproject(map.project([lat, lng], zoom).subtract(off), zoom), zoom, { duration: reduce ? 0 : 1.4 });
+      return { center: map.unproject(map.project([lat, lng], zoom).subtract(off), zoom), zoom, size };
+    };
+    // fetch a view's tiles into the browser cache before flying there, so they appear as the map lands
+    const warmed = new Set<string>();
+    const warm = ({ center, zoom, size }: ReturnType<typeof pointView>) => {
+      const z = Math.min(Math.round(zoom), 16), scale = map.getZoomScale(z, zoom);
+      const c = map.project(center, z), half = size.divideBy(2).multiplyBy(scale).add([256, 256]);
+      const a = c.subtract(half).divideBy(256).floor(), b = c.add(half).divideBy(256).floor();
+      for (let x = a.x; x <= b.x; x++) for (let y = a.y; y <= b.y; y++)
+        for (const kind of ['Base', 'Reference']) {
+          const url = `${TILES}${kind}/MapServer/tile/${z}/${y}/${x}`;
+          if (!warmed.has(url)) { warmed.add(url); new Image().src = url; }
+        }
+    };
+    const frame = (bounds: L.LatLngBounds, duration = 1.4) => {
+      const v = boundsView(bounds); warm(v);
+      map.flyTo(v.center, v.zoom, { duration: reduce ? 0 : duration });
+    };
+    const point = (lat: number, lng: number, zoom: number) => {
+      const v = pointView(lat, lng, zoom); warm(v);
+      map.flyTo(v.center, v.zoom, { duration: reduce ? 0 : 1.4 });
+    };
+    // every shot the loop will take, warmed one step ahead
+    const ahead = () => {
+      SAMPLES.forEach(s => warm(pointView(s.lat, s.lng, s.precision === 'district' ? 14 : 15.5)));
+      warm(boundsView(L.latLngBounds(RUN.asReceived.line)));
+      warm(pointView(SAMPLES[0].lat, SAMPLES[0].lng, 14.5));
     };
 
     let token = 0, current = 0;
@@ -207,11 +242,13 @@ export const HeroConsole: React.FC = () => {
     tabs.forEach(b => { b.onclick = () => go(Number(b.dataset.step)); });
 
     map.fitBounds(RIYADH, pad());
+    // the opening view first, then the rest once it has had a moment
+    const aheadTimer = window.setTimeout(ahead, 1500);
     let resizeTimer = 0;
     const onResize = () => { clearTimeout(resizeTimer); resizeTimer = window.setTimeout(() => { map.invalidateSize(); go(current); }, 200); };
     addEventListener('resize', onResize);
     go(0);
-    return () => { token++; removeEventListener('resize', onResize); map.remove(); engine.current = null; };
+    return () => { token++; clearTimeout(aheadTimer); removeEventListener('resize', onResize); map.remove(); engine.current = null; };
   }, []);
 
   // a language switch restarts the current step so its text is redrawn in the new language
