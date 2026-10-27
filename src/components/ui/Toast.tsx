@@ -68,23 +68,23 @@ const ToastContainer: React.FC = () => {
             exit={{ opacity: 0, x: 60, scale: 0.92 }}
             transition={{ duration: 0.25 }}
             style={{
-              background: '#FFFFFF',
+              background: 'rgba(12,17,45,0.97)',
               backdropFilter: 'blur(20px)',
               border: `1px solid ${tColors[t.type]}66`,
               borderRadius: '12px',
               padding: '12px 16px',
               minWidth: '300px',
               maxWidth: '380px',
-              boxShadow: '0 8px 32px rgba(14,26,23,0.15)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               display: 'flex', alignItems: 'flex-start', gap: '12px',
             }}
           >
             <Icon icon={icons[t.type]} width={22} color={tColors[t.type]} style={{ flexShrink: 0, marginTop: '1px' }} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#0E1A17' }}>{t.title}</p>
-              {t.message && <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'rgba(14,26,23,0.67)', lineHeight: 1.4 }}>{t.message}</p>}
+              <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#FFFFFF' }}>{t.title}</p>
+              {t.message && <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>{t.message}</p>}
             </div>
-            <button onClick={() => dismiss(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'rgba(14,26,23,0.53)', flexShrink: 0 }}>
+            <button onClick={() => dismiss(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'rgba(255,255,255,0.4)', flexShrink: 0 }}>
               <Icon icon="solar:close-bold" width={16} />
             </button>
           </motion.div>

@@ -47,26 +47,26 @@ const MAP_STYLES: Record<MapStyle, { labelKey: 'addr.street' | 'addr.satellite' 
 // ── Shared style constants ────────────────────────────────────────────────────
 
 const card: React.CSSProperties = {
-  background: '#FFFFFF', backdropFilter: 'blur(20px)',
-  border: '1px solid rgba(11,122,92,0.18)', borderRadius: '16px',
+  background: 'rgba(12,17,45,0.88)', backdropFilter: 'blur(20px)',
+  border: '1px solid rgba(245,200,66,0.18)', borderRadius: '16px',
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', background: '#FFFFFF',
-  border: '1px solid rgba(14,26,23,0.17)', borderRadius: '10px',
-  padding: '13px 16px', fontSize: '14px', color: '#0E1A17',
+  width: '100%', background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
+  padding: '13px 16px', fontSize: '14px', color: '#FFFFFF',
   outline: 'none', boxSizing: 'border-box',
-  transition: 'border-color 0.2s', fontFamily: "'Readex Pro', sans-serif",
+  transition: 'border-color 0.2s', fontFamily: "'Inter', sans-serif",
 };
 
 const labelStyle: React.CSSProperties = {
   display: 'block', fontSize: '13px', fontWeight: 600,
-  color: 'rgba(14,26,23,0.74)', marginBottom: '6px',
+  color: 'rgba(255,255,255,0.7)', marginBottom: '6px',
 };
 
 const sectionTitle: React.CSSProperties = {
-  fontFamily: "'Readex Pro', sans-serif", fontSize: '15px', fontWeight: 700,
-  color: '#0E1A17', margin: '0 0 16px',
+  fontFamily: "'Sora', sans-serif", fontSize: '15px', fontWeight: 700,
+  color: '#FFFFFF', margin: '0 0 16px',
 };
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -78,19 +78,19 @@ const CopyField: React.FC<{ label: string; value: string; dir?: 'ltr' | 'rtl' | 
   const doCopy = () => { navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1500); };
   return (
     <div>
-      <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(14,26,23,0.495)', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 5px' }}>{label}</p>
+      <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 5px' }}>{label}</p>
       <div style={{ position: 'relative' }}>
         <div dir={dir} style={{
-          background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.13)',
+          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: '8px', padding: '10px 36px 10px 12px',
-          fontSize: '13px', color: value ? '#0E1A17' : 'rgba(14,26,23,0.39)',
+          fontSize: '13px', color: value ? '#FFFFFF' : 'rgba(255,255,255,0.2)',
           minHeight: '40px', lineHeight: 1.5, wordBreak: 'break-word',
         }}>
           {value || '—'}
         </div>
         {value && (
           <button onClick={doCopy}
-            style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: copied ? '#10B981' : 'rgba(14,26,23,0.46)', padding: 0, transition: 'color 0.2s' }}
+            style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: copied ? '#10B981' : 'rgba(255,255,255,0.3)', padding: 0, transition: 'color 0.2s' }}
             title="Copy">
             <Icon icon={copied ? 'solar:check-bold' : 'solar:copy-bold'} width={15} />
           </button>
@@ -100,8 +100,8 @@ const CopyField: React.FC<{ label: string; value: string; dir?: 'ltr' | 'rtl' | 
   );
 };
 
-const Pill: React.FC<{ children: React.ReactNode; color?: string; style?: React.CSSProperties }> = ({ children, color = 'rgba(11,122,92,0.15)', style }) => (
-  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '20px', background: color, fontSize: '11px', fontWeight: 600, color: '#0B7A5C', whiteSpace: 'nowrap', ...style }}>
+const Pill: React.FC<{ children: React.ReactNode; color?: string; style?: React.CSSProperties }> = ({ children, color = 'rgba(245,200,66,0.15)', style }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '20px', background: color, fontSize: '11px', fontWeight: 600, color: '#F5C842', whiteSpace: 'nowrap', ...style }}>
     {children}
   </span>
 );
@@ -191,12 +191,12 @@ export const AddressNormalizerPage: React.FC = () => {
         {/* Usage badge */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
           <div>
-            <h2 style={{ fontFamily: "'Readex Pro', sans-serif", fontWeight: 700, fontSize: '18px', color: '#0E1A17', margin: '0 0 2px' }}>{t('addr.title')}</h2>
-            <p style={{ fontSize: '12px', color: 'rgba(14,26,23,0.53)', margin: 0 }}>{t('addr.subtitle')}</p>
+            <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: '18px', color: '#FFFFFF', margin: '0 0 2px' }}>{t('addr.title')}</h2>
+            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>{t('addr.subtitle')}</p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: isRTL ? 'flex-start' : 'flex-end', gap: '4px' }}>
             <span style={{ fontSize: '12px', color: barColor, fontWeight: 700 }}>{normCount} / {normLimit} {t('addr.used')}</span>
-            <div style={{ width: 100, height: 4, background: 'rgba(14,26,23,0.048)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ width: 100, height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${Math.min(normPct, 100)}%`, background: barColor, borderRadius: 2, transition: 'width 0.6s ease' }} />
             </div>
           </div>
@@ -219,25 +219,25 @@ export const AddressNormalizerPage: React.FC = () => {
                   }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '5px',
-                    background: 'linear-gradient(135deg, rgba(11,122,92,0.15), rgba(11,122,92,0.06))',
-                    border: '1px solid rgba(11,122,92,0.35)',
+                    background: 'linear-gradient(135deg, rgba(245,200,66,0.15), rgba(245,200,66,0.06))',
+                    border: '1px solid rgba(245,200,66,0.35)',
                     borderRadius: '8px', padding: '5px 11px',
-                    cursor: 'pointer', color: '#0B7A5C',
+                    cursor: 'pointer', color: '#F5C842',
                     fontSize: '12px', fontWeight: 700,
-                    fontFamily: "'Readex Pro', sans-serif",
+                    fontFamily: "'Inter', sans-serif",
                     transition: 'all 0.2s',
                     whiteSpace: 'nowrap',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(11,122,92,0.25), rgba(11,122,92,0.12))';
-                    e.currentTarget.style.borderColor = 'rgba(11,122,92,0.6)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,200,66,0.25), rgba(245,200,66,0.12))';
+                    e.currentTarget.style.borderColor = 'rgba(245,200,66,0.6)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(11,122,92,0.15), rgba(11,122,92,0.06))';
-                    e.currentTarget.style.borderColor = 'rgba(11,122,92,0.35)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,200,66,0.15), rgba(245,200,66,0.06))';
+                    e.currentTarget.style.borderColor = 'rgba(245,200,66,0.35)';
                   }}
                 >
-                  <Icon icon="solar:shuffle-bold-duotone" width={13} />
+                  <Icon icon="solar:magic-stick-3-bold-duotone" width={13} />
                   {t('common.tryExample')}
                 </button>
               </div>
@@ -248,9 +248,9 @@ export const AddressNormalizerPage: React.FC = () => {
                   ...inputStyle, height: 'auto', resize: 'none', lineHeight: 1.6,
                   borderColor: errors.address ? '#EF4444' : undefined,
                 }}
-                onFocus={e  => (e.target.style.borderColor = '#0B7A5C')}
+                onFocus={e  => (e.target.style.borderColor = '#F5C842')}
                 {...register('address', { required: t('addr.pleaseEnter') })}
-                onBlur={e   => (e.target.style.borderColor = errors.address ? '#EF4444' : 'rgba(14,26,23,0.17)')}
+                onBlur={e   => (e.target.style.borderColor = errors.address ? '#EF4444' : 'rgba(255,255,255,0.12)')}
               />
               {errors.address && <p style={{ color: '#EF4444', fontSize: '11px', marginTop: '4px' }}>{errors.address.message}</p>}
             </div>
@@ -265,15 +265,15 @@ export const AddressNormalizerPage: React.FC = () => {
             />
 
             {/* Toggles */}
-            {/* <div style={{ background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.12)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {/* <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <Controller name="use_ai" control={control} render={({ field }) => (
                 <Toggle checked={field.value} onChange={field.onChange} label={t('addr.aiEnhancement')} description={t('addr.aiEnhancementDesc')} />
               )} />
-              <div style={{ height: 1, background: '#FFFFFF' }} />
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
               <Controller name="include_geocoding" control={control} render={({ field }) => (
                 <Toggle checked={field.value} onChange={field.onChange} label={t('addr.includeGeocoding')} description={t('addr.includeGeocodingDesc')} />
               )} />
-              <div style={{ height: 1, background: '#FFFFFF' }} />
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
               <Controller name="use_cache" control={control} render={({ field }) => (
                 <Toggle checked={field.value} onChange={field.onChange} label={t('addr.useCache')} description={t('addr.useCacheDesc')} />
               )} />
@@ -284,7 +284,7 @@ export const AddressNormalizerPage: React.FC = () => {
               {!loading && <Icon icon="solar:map-point-bold-duotone" width={17} />}
             </GoldButton>
 
-            <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(14,26,23,0.39)', margin: 0 }}>{t('addr.poweredBy')}</p>
+            <p style={{ textAlign: 'center', fontSize: '11px', color: 'rgba(255,255,255,0.2)', margin: 0 }}>{t('addr.poweredBy')}</p>
           </form>
         </div>
       </div>
@@ -298,8 +298,8 @@ export const AddressNormalizerPage: React.FC = () => {
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
               style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '14px', borderRadius: '12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
               <Icon icon="solar:danger-circle-bold-duotone" width={18} color="#EF4444" style={{ flexShrink: 0, marginTop: 1 }} />
-              <p style={{ flex: 1, fontSize: '13px', color: 'rgba(14,26,23,0.81)', margin: 0 }}>{error}</p>
-              <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(14,26,23,0.53)', padding: 0 }}>
+              <p style={{ flex: 1, fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>{error}</p>
+              <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: 0 }}>
                 <Icon icon="solar:close-bold" width={16} />
               </button>
             </motion.div>
@@ -310,12 +310,12 @@ export const AddressNormalizerPage: React.FC = () => {
         {loading && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ ...card, padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-              <div style={{ width: 88, height: 88, borderRadius: '50%', background: 'rgba(11,122,92,0.06)', animation: 'pulse 1.5s ease infinite', flexShrink: 0 }} />
+              <div style={{ width: 88, height: 88, borderRadius: '50%', background: 'rgba(245,200,66,0.06)', animation: 'pulse 1.5s ease infinite', flexShrink: 0 }} />
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[80, 100, 60].map(w => <div key={w} style={{ height: 12, width: `${w}%`, borderRadius: 6, background: '#FFFFFF', animation: 'pulse 1.5s ease infinite' }} />)}
+                {[80, 100, 60].map(w => <div key={w} style={{ height: 12, width: `${w}%`, borderRadius: 6, background: 'rgba(255,255,255,0.06)', animation: 'pulse 1.5s ease infinite' }} />)}
               </div>
             </div>
-            {[1, 2, 3].map(i => <div key={i} style={{ height: 44, borderRadius: 8, background: '#FFFFFF', marginBottom: 10, animation: 'pulse 1.5s ease infinite' }} />)}
+            {[1, 2, 3].map(i => <div key={i} style={{ height: 44, borderRadius: 8, background: 'rgba(255,255,255,0.04)', marginBottom: 10, animation: 'pulse 1.5s ease infinite' }} />)}
           </motion.div>
         )}
 
@@ -323,11 +323,11 @@ export const AddressNormalizerPage: React.FC = () => {
         {!loading && !result && !error && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             style={{ ...card, padding: '48px 24px', textAlign: 'center' }}>
-            <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(11,122,92,0.06)', border: '1px solid rgba(11,122,92,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-              <Icon icon="solar:map-point-bold-duotone" width={32} color="rgba(11,122,92,0.4)" />
+            <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(245,200,66,0.06)', border: '1px solid rgba(245,200,66,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <Icon icon="solar:map-point-bold-duotone" width={32} color="rgba(245,200,66,0.4)" />
             </div>
-            <h3 style={{ fontFamily: "'Readex Pro', sans-serif", fontSize: '16px', fontWeight: 700, color: 'rgba(14,26,23,0.6)', margin: '0 0 8px' }}>{t('addr.readyTitle')}</h3>
-            <p style={{ fontSize: '13px', color: 'rgba(14,26,23,0.425)', margin: 0, lineHeight: 1.6 }}>
+            <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: '16px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', margin: '0 0 8px' }}>{t('addr.readyTitle')}</h3>
+            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', margin: 0, lineHeight: 1.6 }}>
               {t('addr.readyDesc')}
             </p>
           </motion.div>
@@ -340,7 +340,7 @@ export const AddressNormalizerPage: React.FC = () => {
               style={{ ...card, overflow: 'hidden' }}>
 
               {/* ── Tab bar ── */}
-              <div style={{ display: 'flex', gap: '4px', padding: '14px 16px', borderBottom: '1px solid rgba(14,26,23,0.11)' }}>
+              <div style={{ display: 'flex', gap: '4px', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 {([
                   { key: 'details', icon: 'solar:document-text-bold-duotone', labelKey: 'addr.details' },
                   { key: 'map',     icon: 'solar:map-point-wave-bold-duotone', labelKey: 'addr.mapTab',
@@ -350,11 +350,11 @@ export const AddressNormalizerPage: React.FC = () => {
                     disabled={tab.disabled}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px',
-                      background: resultTab === tab.key ? 'rgba(11,122,92,0.12)' : '#FFFFFF',
-                      border: `1px solid ${resultTab === tab.key ? 'rgba(11,122,92,0.35)' : 'rgba(14,26,23,0.13)'}`,
+                      background: resultTab === tab.key ? 'rgba(245,200,66,0.12)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${resultTab === tab.key ? 'rgba(245,200,66,0.35)' : 'rgba(255,255,255,0.08)'}`,
                       borderRadius: '10px', cursor: tab.disabled ? 'not-allowed' : 'pointer',
                       fontSize: '13px', fontWeight: 600, opacity: tab.disabled ? 0.35 : 1,
-                      color: resultTab === tab.key ? '#0B7A5C' : 'rgba(14,26,23,0.6)', transition: 'all 0.2s',
+                      color: resultTab === tab.key ? '#F5C842' : 'rgba(255,255,255,0.5)', transition: 'all 0.2s',
                     }}>
                     <Icon icon={tab.icon} width={15} />
                     {t(tab.labelKey)}
@@ -430,7 +430,7 @@ export const AddressNormalizerPage: React.FC = () => {
                           <p style={{ ...sectionTitle, marginBottom: '8px' }}>{t('addr.landmarks')}</p>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                             {components.landmarks.map((lm, i) => (
-                              <span key={i} style={{ padding: '4px 12px', background: 'rgba(11,122,92,0.1)', border: '1px solid rgba(11,122,92,0.2)', borderRadius: '20px', fontSize: '12px', color: '#0B7A5C', fontWeight: 600 }}>{lm}</span>
+                              <span key={i} style={{ padding: '4px 12px', background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '20px', fontSize: '12px', color: '#F5C842', fontWeight: 600 }}>{lm}</span>
                             ))}
                           </div>
                         </div>
@@ -443,14 +443,14 @@ export const AddressNormalizerPage: React.FC = () => {
                     <div>
                       {/* Map style switcher */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px', background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.13)', borderRadius: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px' }}>
                           {(Object.keys(MAP_STYLES) as MapStyle[]).map(key => (
                             <button key={key} type="button" onClick={() => setMapStyle(key)}
                               style={{
                                 display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 10px', borderRadius: '7px',
-                                background: mapStyle === key ? 'rgba(11,122,92,0.15)' : 'none',
+                                background: mapStyle === key ? 'rgba(245,200,66,0.15)' : 'none',
                                 border: 'none', cursor: 'pointer',
-                                color: mapStyle === key ? '#0B7A5C' : 'rgba(14,26,23,0.53)',
+                                color: mapStyle === key ? '#F5C842' : 'rgba(255,255,255,0.4)',
                                 fontSize: '12px', fontWeight: mapStyle === key ? 700 : 500, transition: 'all 0.15s',
                               }}>
                               <Icon icon={MAP_STYLES[key].icon} width={14} />

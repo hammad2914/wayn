@@ -33,7 +33,7 @@ const UsageBar: React.FC<{ label: string; icon: string; used: number; limit: num
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: collapsed ? 0 : '5px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Icon icon={icon} width={collapsed ? 18 : 14} color={color} style={{ flexShrink: 0, transition: `width ${ANIM}` }} />
-          <SlideLabel collapsed={collapsed} style={{ fontSize: '11px', color: 'rgba(14,26,23,0.6)', fontWeight: 500 }}>
+          <SlideLabel collapsed={collapsed} style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>
             {label}
           </SlideLabel>
         </div>
@@ -42,7 +42,7 @@ const UsageBar: React.FC<{ label: string; icon: string; used: number; limit: num
         </SlideLabel>
       </div>
       <div style={{
-        height: '4px', background: 'rgba(14,26,23,0.048)', borderRadius: '2px', overflow: 'hidden',
+        height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden',
         maxHeight: collapsed ? 0 : '4px', transition: `max-height ${ANIM}`,
       }}>
         <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: '2px', transition: 'width 0.6s ease' }} />
@@ -76,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
     { to: '/dashboard/settings', icon: 'solar:settings-bold-duotone', label: t('dash.settings') },
   ];
 
-  // the active item is marked by its tint (set where it's used), not an edge bar
+  // the active item is marked by its tint, not an edge bar
   const activeAccent = {};
   const inactiveAccent = {};
 
@@ -85,9 +85,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       animate={{ width: collapsed ? 72 : 260 }}
       transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
       style={{
-        background: '#FFFFFF',
-        borderRight: isRTL ? 'none' : '1px solid rgba(11,122,92,0.1)',
-        borderLeft:  isRTL ? '1px solid rgba(11,122,92,0.1)' : 'none',
+        background: 'rgba(10,14,39,0.97)',
+        borderRight: isRTL ? 'none' : '1px solid rgba(245,200,66,0.1)',
+        borderLeft:  isRTL ? '1px solid rgba(245,200,66,0.1)' : 'none',
         display: 'flex', flexDirection: 'column', height: '100vh',
         overflow: 'hidden', flexShrink: 0,
         backdropFilter: 'blur(20px)',
@@ -98,9 +98,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       <div style={{
         display: 'flex', alignItems: 'center', height: '60px',
         padding: '0 12px',
-        borderBottom: '1px solid rgba(14,26,23,0.11)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
         flexShrink: 0, overflow: 'hidden',
-
+       
       }}>
         {collapsed ? (
           <WaynLogo size={26} markOnly />
@@ -117,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
           onClick={() => onCollapse(true)}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            color: 'rgba(14,26,23,0.46)', padding: '4px', display: 'flex',
+            color: 'rgba(255,255,255,0.3)', padding: '4px', display: 'flex',
             borderRadius: '6px', flexShrink: 0,
             opacity:    collapsed ? 0 : 1,
             maxWidth:   collapsed ? 0 : '32px',
@@ -125,8 +125,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             pointerEvents: collapsed ? 'none' : 'auto',
             transition: `opacity ${ANIM}, max-width ${ANIM}`,
           }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#0B7A5C')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(14,26,23,0.46)')}
+          onMouseEnter={e => (e.currentTarget.style.color = '#F5C842')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
         >
           <Icon icon="solar:sidebar-minimalistic-bold" width={18} />
         </button>
@@ -143,17 +143,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
               <div style={{
                 display: 'flex', alignItems: 'center', padding: '10px 12px',
                 borderRadius: '10px',
-                background: isActive ? 'rgba(11,122,92,0.1)' : 'transparent',
+                background: isActive ? 'rgba(245,200,66,0.1)' : 'transparent',
                 ...(isActive ? activeAccent : inactiveAccent),
                 transition: `background 0.15s, border-color 0.15s`,
                 cursor: 'pointer', overflow: 'hidden',
-
+               
               }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#FFFFFF'; }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
               >
-                <Icon icon={icon} width={20} color={isActive ? '#0B7A5C' : 'rgba(14,26,23,0.565)'} style={{ flexShrink: 0 }} />
-                <SlideLabel collapsed={collapsed} style={{ fontSize: '13.5px', fontWeight: isActive ? 700 : 500, color: isActive ? '#0B7A5C' : 'rgba(14,26,23,0.67)', marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0 }}>
+                <Icon icon={icon} width={20} color={isActive ? '#F5C842' : 'rgba(255,255,255,0.45)'} style={{ flexShrink: 0 }} />
+                <SlideLabel collapsed={collapsed} style={{ fontSize: '13.5px', fontWeight: isActive ? 700 : 500, color: isActive ? '#F5C842' : 'rgba(255,255,255,0.6)', marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0 }}>
                   {label}
                 </SlideLabel>
               </div>
@@ -162,7 +162,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
         ))}
 
         {/* Divider */}
-        <div style={{ height: '1px', background: 'rgba(14,26,23,0.08)', margin: '8px 4px' }} />
+        <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '8px 4px' }} />
 
         {/* Profile + Settings */}
         {bottomNavItems.map(({ to, icon, label }) => (
@@ -174,17 +174,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
               <div style={{
                 display: 'flex', alignItems: 'center', padding: '10px 12px',
                 borderRadius: '10px',
-                background: isActive ? 'rgba(11,122,92,0.1)' : 'transparent',
+                background: isActive ? 'rgba(245,200,66,0.1)' : 'transparent',
                 ...(isActive ? activeAccent : inactiveAccent),
                 transition: `background 0.15s, border-color 0.15s`,
                 cursor: 'pointer', overflow: 'hidden',
-
+               
               }}
-                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#FFFFFF'; }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
                 onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
               >
-                <Icon icon={icon} width={20} color={isActive ? '#0B7A5C' : 'rgba(14,26,23,0.565)'} style={{ flexShrink: 0 }} />
-                <SlideLabel collapsed={collapsed} style={{ fontSize: '13.5px', fontWeight: isActive ? 700 : 500, color: isActive ? '#0B7A5C' : 'rgba(14,26,23,0.67)', marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0 }}>
+                <Icon icon={icon} width={20} color={isActive ? '#F5C842' : 'rgba(255,255,255,0.45)'} style={{ flexShrink: 0 }} />
+                <SlideLabel collapsed={collapsed} style={{ fontSize: '13.5px', fontWeight: isActive ? 700 : 500, color: isActive ? '#F5C842' : 'rgba(255,255,255,0.6)', marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0 }}>
                   {label}
                 </SlideLabel>
               </div>
@@ -194,13 +194,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       </nav>
 
       {/* ── Usage ───────────────────────────────────────────────────── */}
-      <div style={{ padding: '12px 12px', borderTop: '1px solid rgba(14,26,23,0.11)', borderBottom: '1px solid rgba(14,26,23,0.11)', flexShrink: 0, opacity: collapsed ? 0 : 1, maxHeight: collapsed ? 0 : '200px', overflow: 'hidden', transition: `opacity ${ANIM}, max-height ${ANIM}`, paddingTop: collapsed ? 0 : '12px', paddingBottom: collapsed ? 0 : '12px', borderTopWidth: collapsed ? 0 : '1px', borderBottomWidth: collapsed ? 0 : '1px' }}>
+      <div style={{ padding: '12px 12px', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0, opacity: collapsed ? 0 : 1, maxHeight: collapsed ? 0 : '200px', overflow: 'hidden', transition: `opacity ${ANIM}, max-height ${ANIM}`, paddingTop: collapsed ? 0 : '12px', paddingBottom: collapsed ? 0 : '12px', borderTopWidth: collapsed ? 0 : '1px', borderBottomWidth: collapsed ? 0 : '1px' }}>
         <div style={{
           opacity: collapsed ? 0 : 1, maxHeight: collapsed ? 0 : '20px', overflow: 'hidden',
           transition: `opacity ${ANIM}, max-height ${ANIM}`,
           marginBottom: collapsed ? 0 : '10px',
         }}>
-          <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(14,26,23,0.425)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>{t('dash.usage')}</p>
+          <p style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>{t('dash.usage')}</p>
         </div>
         {usage && (
           <>
@@ -215,7 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
       {/* ── Lang Toggle ─────────────────────────────────────────────── */}
       <div style={{
         padding: '8px 12px',
-        borderBottom: '1px solid rgba(14,26,23,0.11)',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
         flexShrink: 0,
         display: 'flex', justifyContent: 'center',
         opacity: collapsed ? 0 : 1,
@@ -236,15 +236,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             <div style={{
               display: 'flex', alignItems: 'center', padding: '10px 8px',
               borderRadius: '10px',
-              background: isActive ? 'rgba(11,122,92,0.1)' : collapsed ? 'transparent' : '#FFFFFF',
+              background: isActive ? 'rgba(245,200,66,0.1)' : collapsed ? 'transparent' : 'rgba(255,255,255,0.04)',
               transition: `background ${ANIM}`,
               overflow: 'hidden', cursor: 'pointer',
-
+             
             }}
-              onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(14,26,23,0.042)'; }}
-              onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = isActive ? 'rgba(11,122,92,0.1)' : collapsed ? 'transparent' : '#FFFFFF'; }}
+              onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+              onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = isActive ? 'rgba(245,200,66,0.1)' : collapsed ? 'transparent' : 'rgba(255,255,255,0.04)'; }}
             >
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #0B7A5C, #086149)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#FFFFFF', fontFamily: 'Readex Pro', flexShrink: 0 }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#0A0E27', fontFamily: 'Sora', flexShrink: 0 }}>
                 {firstName.charAt(0).toUpperCase()}
               </div>
               <div style={{
@@ -252,8 +252,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
                 opacity: collapsed ? 0 : 1, maxWidth: collapsed ? 0 : '160px', overflow: 'hidden',
                 transition: `opacity ${ANIM}, max-width ${ANIM}`,
               }}>
-                <p style={{ fontSize: '13px', fontWeight: 600, color: isActive ? '#0B7A5C' : '#0E1A17', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{firstName}</p>
-                <p style={{ fontSize: '11px', color: 'rgba(14,26,23,0.53)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.companyName || user?.email}</p>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: isActive ? '#F5C842' : '#FFFFFF', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{firstName}</p>
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.companyName || user?.email}</p>
               </div>
             </div>
           )}
@@ -267,12 +267,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
             padding: '10px 8px',
             justifyContent: 'flex-start',
             background: 'none', border: 'none', cursor: 'pointer', borderRadius: '10px',
-            color: 'rgba(14,26,23,0.53)', transition: `all 0.2s`,
+            color: 'rgba(255,255,255,0.4)', transition: `all 0.2s`,
             overflow: 'hidden',
-
+           
           }}
           onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(14,26,23,0.53)'; e.currentTarget.style.background = 'none'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.background = 'none'; }}
         >
           <Icon icon="solar:logout-line-duotone" width={24} style={{ flexShrink: 0 }} />
           <SlideLabel collapsed={collapsed} style={{ fontSize: '13px', fontWeight: 500, marginLeft: isRTL ? 0 : '10px', marginRight: isRTL ? '10px' : 0 }}>

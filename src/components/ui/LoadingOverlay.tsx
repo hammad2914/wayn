@@ -13,7 +13,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message = 'Loadi
     exit={{ opacity: 0 }}
     style={{
       position: 'absolute', inset: 0,
-      background: '#FFFFFF',
+      background: 'rgba(10,14,39,0.8)',
       backdropFilter: 'blur(8px)',
       borderRadius: 'inherit',
       display: 'flex', flexDirection: 'column',
@@ -22,7 +22,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message = 'Loadi
     }}
   >
     <Spinner size={40} />
-    <p style={{ color: 'rgba(14,26,23,0.74)', fontSize: '14px' }}>{message}</p>
+    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{message}</p>
   </motion.div>
 );
 
@@ -30,8 +30,8 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message = 'Loadi
 export const Spinner: React.FC<{ size?: number }> = ({ size = 28 }) => (
   <div style={{
     width: size, height: size,
-    border: `${size <= 24 ? 2 : 3}px solid rgba(11,122,92,0.2)`,
-    borderTopColor: '#0B7A5C',
+    border: `${size <= 24 ? 2 : 3}px solid rgba(245,200,66,0.2)`,
+    borderTopColor: '#F5C842',
     borderRadius: '50%',
     animation: 'spin 0.8s linear infinite',
     flexShrink: 0,
@@ -54,21 +54,21 @@ export const PageLoader: React.FC<{ message?: string }> = ({ message }) => (
     <div style={{ position: 'relative', width: 56, height: 56 }}>
       <div style={{
         position: 'absolute', inset: 0,
-        border: '3px solid rgba(11,122,92,0.12)',
-        borderTopColor: '#0B7A5C',
+        border: '3px solid rgba(245,200,66,0.12)',
+        borderTopColor: '#F5C842',
         borderRadius: '50%',
         animation: 'spin 0.9s linear infinite',
       }} />
       <div style={{
         position: 'absolute', inset: 8,
-        border: '2px solid rgba(11,122,92,0.06)',
-        borderTopColor: 'rgba(11,122,92,0.5)',
+        border: '2px solid rgba(245,200,66,0.06)',
+        borderTopColor: 'rgba(245,200,66,0.5)',
         borderRadius: '50%',
         animation: 'spin 0.6s linear infinite reverse',
       }} />
     </div>
     {message && (
-      <p style={{ color: 'rgba(14,26,23,0.53)', fontSize: '13px', margin: 0 }}>{message}</p>
+      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', margin: 0 }}>{message}</p>
     )}
   </motion.div>
 );

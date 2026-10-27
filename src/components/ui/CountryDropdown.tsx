@@ -48,20 +48,20 @@ function getLocalizedName(code: string, locale: string): string {
 }
 
 const INPUT_BASE: React.CSSProperties = {
-  width: '100%', background: '#FFFFFF',
-  border: '1px solid rgba(14,26,23,0.17)', borderRadius: '10px',
-  padding: '13px 16px', fontSize: '14px', color: '#0E1A17',
+  width: '100%', background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px',
+  padding: '13px 16px', fontSize: '14px', color: '#FFFFFF',
   cursor: 'pointer', height: '52px', boxSizing: 'border-box',
   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-  fontFamily: "'Readex Pro', sans-serif", outline: 'none',
+  fontFamily: "'Inter', sans-serif", outline: 'none',
   transition: 'border-color 0.2s',
 };
 
 const INPUT_COMPACT: React.CSSProperties = {
   ...INPUT_BASE,
   padding: '8px 12px', fontSize: '13px', height: 'auto',
-  borderRadius: '8px', background: '#FFFFFF',
-  border: '1px solid rgba(14,26,23,0.15)',
+  borderRadius: '8px', background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.1)',
 };
 
 export const CountryDropdown: React.FC<Props> = ({ value, onChange, label, error, compact = false }) => {
@@ -93,7 +93,7 @@ export const CountryDropdown: React.FC<Props> = ({ value, onChange, label, error
           display: 'block', marginBottom: compact ? '4px' : '6px',
           fontSize: compact ? '11px' : '13px',
           fontWeight: 600,
-          color: compact ? 'rgba(14,26,23,0.6)' : 'rgba(14,26,23,0.74)',
+          color: compact ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.7)',
           letterSpacing: compact ? '0.02em' : undefined,
         }}>
           {resolvedLabel}
@@ -103,19 +103,19 @@ export const CountryDropdown: React.FC<Props> = ({ value, onChange, label, error
       <button type="button" onClick={() => setOpen(!open)}
         style={{
           ...(compact ? INPUT_COMPACT : INPUT_BASE),
-          borderColor: error ? '#EF4444' : open ? '#0B7A5C' : compact ? 'rgba(14,26,23,0.15)' : 'rgba(14,26,23,0.17)',
-          boxShadow:   open ? '0 0 0 2px rgba(11,122,92,0.15)' : 'none',
+          borderColor: error ? '#EF4444' : open ? '#F5C842' : compact ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.12)',
+          boxShadow:   open ? '0 0 0 2px rgba(245,200,66,0.15)' : 'none',
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon={selected.flag} width={compact ? 16 : 20} style={{ flexShrink: 0, borderRadius: '2px' }} />
-          <span style={{ color: '#0E1A17', fontSize: compact ? '13px' : '14px' }}>
+          <span style={{ color: '#FFFFFF', fontSize: compact ? '13px' : '14px' }}>
             {compact ? selected.code + ' — ' + localizedNames[selected.code] : localizedNames[selected.code]}
           </span>
         </span>
         <Icon
           icon="solar:alt-arrow-down-bold"
-          width={16} color="rgba(14,26,23,0.53)"
+          width={16} color="rgba(255,255,255,0.4)"
           style={{ transform: open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', flexShrink: 0 }}
         />
       </button>
@@ -129,9 +129,9 @@ export const CountryDropdown: React.FC<Props> = ({ value, onChange, label, error
             transition={{ duration: 0.15 }}
             style={{
               position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0,
-              background: '#FFFFFF', backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(11,122,92,0.2)', borderRadius: '12px',
-              boxShadow: '0 12px 40px rgba(14,26,23,0.18)',
+              background: 'rgba(10,14,39,0.98)', backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(245,200,66,0.2)', borderRadius: '12px',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.6)',
               zIndex: 300, overflow: 'hidden',
             }}
           >
@@ -142,18 +142,18 @@ export const CountryDropdown: React.FC<Props> = ({ value, onChange, label, error
                   style={{
                     width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
                     padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer',
-                    color: c.code === value ? '#0B7A5C' : 'rgba(14,26,23,0.74)',
+                    color: c.code === value ? '#F5C842' : 'rgba(255,255,255,0.7)',
                     fontSize: '13.5px', textAlign: lang === 'ar' ? 'right' : 'left',
                     transition: 'background 0.12s',
-                    backgroundColor: c.code === value ? 'rgba(11,122,92,0.08)' : 'transparent',
+                    backgroundColor: c.code === value ? 'rgba(245,200,66,0.08)' : 'transparent',
                     direction: lang === 'ar' ? 'rtl' : 'ltr',
                   }}
-                  onMouseEnter={e => { if (c.code !== value) e.currentTarget.style.backgroundColor = '#FFFFFF'; }}
+                  onMouseEnter={e => { if (c.code !== value) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'; }}
                   onMouseLeave={e => { if (c.code !== value) e.currentTarget.style.backgroundColor = 'transparent'; }}
                 >
                   <Icon icon={c.flag} width={20} style={{ flexShrink: 0, borderRadius: '2px' }} />
                   <span style={{ flex: 1 }}>{localizedNames[c.code]}</span>
-                  {c.code === value && <Icon icon="solar:check-bold" width={14} color="#0B7A5C" />}
+                  {c.code === value && <Icon icon="solar:check-bold" width={14} color="#F5C842" />}
                 </button>
               ))}
             </div>

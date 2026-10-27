@@ -11,11 +11,11 @@ interface GlassCardProps {
 
 export const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', hover = false, style, onClick }) => {
   const base: React.CSSProperties = {
-    background:     '#FFFFFF',
+    background:     'rgba(12,17,45,0.88)',
     backdropFilter: 'blur(16px)',
-    border:         '1px solid rgba(11,122,92,0.18)',
+    border:         '1px solid rgba(245,200,66,0.18)',
     borderRadius:   '16px',
-    boxShadow:      '0 8px 32px rgba(14,26,23,0.12)',
+    boxShadow:      '0 8px 32px rgba(0,0,0,0.4)',
     ...style,
   };
 
@@ -24,7 +24,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', 
       <motion.div
         style={base}
         className={className}
-        whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(11,122,92,0.15)' }}
+        whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(245,200,66,0.15)' }}
         transition={{ duration: 0.2 }}
         onClick={onClick}
       >

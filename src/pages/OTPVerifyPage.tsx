@@ -131,16 +131,16 @@ export const OTPVerifyPage: React.FC = () => {
 
   const boxStyle = (i: number): React.CSSProperties => ({
     width: boxW, height: boxH,
-    background: '#FFFFFF',
-    border: `2px solid ${error ? '#EF4444' : digits[i] ? '#0B7A5C' : 'rgba(14,26,23,0.2)'}`,
+    background: 'rgba(255,255,255,0.05)',
+    border: `2px solid ${error ? '#EF4444' : digits[i] ? '#F5C842' : 'rgba(255,255,255,0.15)'}`,
     borderRadius: '12px',
     fontSize: boxFontSize, fontWeight: 800,
-    fontFamily: "'Readex Pro', sans-serif",
-    color: error ? '#EF4444' : '#0B7A5C',
+    fontFamily: "'Sora', sans-serif",
+    color: error ? '#EF4444' : '#F5C842',
     textAlign: 'center',
     outline: 'none',
     transition: 'border-color 0.2s, box-shadow 0.2s',
-    boxShadow: digits[i] && !error ? '0 0 12px rgba(11,122,92,0.25)' : 'none',
+    boxShadow: digits[i] && !error ? '0 0 12px rgba(245,200,66,0.25)' : 'none',
     cursor: 'default',
     animation: error ? 'shake 0.4s ease' : 'none',
     flexShrink: 0,
@@ -148,12 +148,12 @@ export const OTPVerifyPage: React.FC = () => {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#F7F8F6',
+      minHeight: '100vh', background: '#0A0E27',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: isMobile ? '24px 12px' : '40px 16px',
       position: 'relative', overflow: 'hidden',
     }}>
-      <div style={{ position: 'fixed', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: 500, height: 500, borderRadius: '50%', background: 'rgba(11,122,92,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: 500, height: 500, borderRadius: '50%', background: 'rgba(245,200,66,0.04)', filter: 'blur(120px)', pointerEvents: 'none' }} />
 
       {/* Lang toggle */}
       <div style={{ position: 'fixed', top: 16, right: isRTL ? 'auto' : 16, left: isRTL ? 16 : 'auto', zIndex: 100 }}>
@@ -175,8 +175,8 @@ export const OTPVerifyPage: React.FC = () => {
 
         {/* Card */}
         <div style={{
-          background: '#FFFFFF', backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(11,122,92,0.2)', borderRadius: isMobile ? '16px' : '20px',
+          background: 'rgba(12,17,45,0.92)', backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(245,200,66,0.2)', borderRadius: isMobile ? '16px' : '20px',
           padding: isMobile ? '28px 18px 24px' : '40px 36px',
           textAlign: 'center', position: 'relative',
         }}>
@@ -184,9 +184,9 @@ export const OTPVerifyPage: React.FC = () => {
           <AnimatePresence>
             {loading && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                style={{ position: 'absolute', inset: 0, background: '#FFFFFF', borderRadius: isMobile ? '16px' : '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, zIndex: 10, backdropFilter: 'blur(8px)' }}>
-                <div style={{ width: 40, height: 40, border: '3px solid rgba(11,122,92,0.2)', borderTopColor: '#0B7A5C', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                <p style={{ color: 'rgba(14,26,23,0.74)', fontSize: '14px' }}>{t('auth.verifyingCode')}</p>
+                style={{ position: 'absolute', inset: 0, background: 'rgba(10,14,39,0.85)', borderRadius: isMobile ? '16px' : '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, zIndex: 10, backdropFilter: 'blur(8px)' }}>
+                <div style={{ width: 40, height: 40, border: '3px solid rgba(245,200,66,0.2)', borderTopColor: '#F5C842', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{t('auth.verifyingCode')}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -201,21 +201,21 @@ export const OTPVerifyPage: React.FC = () => {
                 {/* Icon */}
                 <div style={{
                   width: isMobile ? 56 : 68, height: isMobile ? 56 : 68, borderRadius: '50%',
-                  background: 'rgba(11,122,92,0.1)', border: '1px solid rgba(11,122,92,0.3)',
+                  background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.3)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px',
                 }}>
-                  <Icon icon="solar:shield-keyhole-bold-duotone" width={isMobile ? 28 : 34} color="#0B7A5C" />
+                  <Icon icon="solar:shield-keyhole-bold-duotone" width={isMobile ? 28 : 34} color="#F5C842" />
                 </div>
 
-                <h1 style={{ fontFamily: isRTL ? "'Readex Pro', sans-serif" : "'Readex Pro', sans-serif", fontSize: isMobile ? '20px' : '24px', fontWeight: 800, color: '#0E1A17', margin: '0 0 10px' }}>
+                <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '20px' : '24px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 10px' }}>
                   Verify Your Account
                 </h1>
-                <p style={{ color: 'rgba(14,26,23,0.565)', fontSize: '13px', margin: '0 0 8px', lineHeight: 1.6 }}>
+                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', margin: '0 0 8px', lineHeight: 1.6 }}>
                   Your account is not yet verified.
                 </p>
-                <p style={{ color: 'rgba(14,26,23,0.495)', fontSize: '12px', margin: '0 0 28px', lineHeight: 1.6 }}>
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', margin: '0 0 28px', lineHeight: 1.6 }}>
                   We'll send a 6-digit code to{' '}
-                  <strong style={{ color: 'rgba(14,26,23,0.74)' }}>{email || 'your email'}</strong>.
+                  <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{email || 'your email'}</strong>.
                 </p>
 
                 <GoldButton fullWidth size="lg" loading={sending} onClick={handleSendInitial}>
@@ -239,7 +239,7 @@ export const OTPVerifyPage: React.FC = () => {
                   <Icon icon="solar:letter-bold-duotone" width={isMobile ? 26 : 32} color="#10B981" />
                 </div>
 
-                <h1 style={{ fontFamily: isRTL ? "'Readex Pro', sans-serif" : "'Readex Pro', sans-serif", fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: '#0E1A17', margin: '0 0 12px' }}>
+                <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '20px' : '26px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 12px' }}>
                   {t('auth.checkEmail')}
                 </h1>
 
@@ -255,14 +255,14 @@ export const OTPVerifyPage: React.FC = () => {
                   <Icon icon="solar:check-circle-bold" width={16} color="#10B981" style={{ flexShrink: 0, marginTop: 2 }} />
                   <div>
                     <p style={{ color: '#10B981', fontSize: '12px', fontWeight: 600, margin: '0 0 2px' }}>{t('auth.emailSentOk')}</p>
-                    <p style={{ color: 'rgba(14,26,23,0.6)', fontSize: '11px', margin: 0, lineHeight: 1.5 }}>
-                      Sent to <strong style={{ color: 'rgba(14,26,23,0.81)' }}>{email}</strong>.{' '}
-                      Also check <strong style={{ color: 'rgba(14,26,23,0.81)' }}>spam / junk</strong>.
+                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', margin: 0, lineHeight: 1.5 }}>
+                      Sent to <strong style={{ color: 'rgba(255,255,255,0.8)' }}>{email}</strong>.{' '}
+                      Also check <strong style={{ color: 'rgba(255,255,255,0.8)' }}>spam / junk</strong>.
                     </p>
                   </div>
                 </motion.div>
 
-                <p style={{ color: 'rgba(14,26,23,0.495)', fontSize: '12px', margin: '0 0 20px' }}>
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', margin: '0 0 20px' }}>
                   {t('auth.enterCode')}
                 </p>
 
@@ -290,12 +290,12 @@ export const OTPVerifyPage: React.FC = () => {
                 {/* Countdown / Resend */}
                 <div style={{ marginBottom: '8px' }}>
                   {countdown > 0 ? (
-                    <p style={{ fontSize: '13px', color: 'rgba(14,26,23,0.53)', margin: 0 }}>
-                      {t('auth.resendIn')} <strong style={{ color: 'rgba(14,26,23,0.74)' }}>{formatTime(countdown)}</strong>
+                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                      {t('auth.resendIn')} <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{formatTime(countdown)}</strong>
                     </p>
                   ) : (
                     <button onClick={handleResend} disabled={resending}
-                      style={{ background: 'none', border: 'none', cursor: resending ? 'default' : 'pointer', color: resending ? 'rgba(11,122,92,0.4)' : '#0B7A5C', fontSize: '13px', fontWeight: 600, padding: 0 }}>
+                      style={{ background: 'none', border: 'none', cursor: resending ? 'default' : 'pointer', color: resending ? 'rgba(245,200,66,0.4)' : '#F5C842', fontSize: '13px', fontWeight: 600, padding: 0 }}>
                       {resending ? t('auth.resending') : t('auth.resendCode')}
                     </button>
                   )}
@@ -312,9 +312,9 @@ export const OTPVerifyPage: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(14,26,23,0.39)', marginTop: '16px' }}>
+        <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.2)', marginTop: '16px' }}>
           {t('auth.wrongEmail')}{' '}
-          <Link to="/signup" style={{ color: 'rgba(11,122,92,0.5)', textDecoration: 'none' }}>{t('auth.startOver')}</Link>
+          <Link to="/signup" style={{ color: 'rgba(245,200,66,0.5)', textDecoration: 'none' }}>{t('auth.startOver')}</Link>
         </p>
       </motion.div>
     </div>

@@ -46,7 +46,7 @@ export const DashboardLayout: React.FC = () => {
 
   return (
     <UsageProvider>
-    <div style={{ display: 'flex', height: '100vh', background: '#F7F8F6', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ display: 'flex', height: '100vh', background: '#0A0E27', overflow: 'hidden', position: 'relative' }}>
 
       {/* ── Sidebar (desktop only) + expand button ─────────────────────── */}
       {!isMd && (
@@ -68,18 +68,18 @@ export const DashboardLayout: React.FC = () => {
                   transform: 'translateY(-50%)',
                   width: 24, height: 24,
                   borderRadius: '50%',
-                  background: '#0B7A5C',
-                  border: '2px solid #F7F8F6',
+                  background: '#F5C842',
+                  border: '2px solid rgba(10,14,39,0.9)',
                   cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 2px 10px rgba(14,26,23,0.15)',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
                   zIndex: 101,
                 }}
               >
                 <Icon
                   icon="solar:alt-arrow-right-linear"
                   width={12}
-                  color="#FFFFFF"
+                  color="#0A0E27"
                   // style={{ transform: isRTL ? 'scaleX(-1)' : 'none' }}
                 />
               </motion.button>
@@ -93,13 +93,13 @@ export const DashboardLayout: React.FC = () => {
 
         {/* Top Bar */}
         <header style={{
-          background: '#FFFFFF',
-          borderBottom: '1px solid rgba(11,122,92,0.08)',
+          background: 'rgba(10,14,39,0.97)',
+          borderBottom: '1px solid rgba(245,200,66,0.08)',
           padding: isMd ? '0 16px' : '0 24px',
           height: '60px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexShrink: 0, backdropFilter: 'blur(16px)',
-
+         
           position: 'relative', zIndex: 100,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
@@ -110,11 +110,11 @@ export const DashboardLayout: React.FC = () => {
               </div>
             )}
             <div style={{ minWidth: 0 }}>
-              <h1 style={{ fontFamily: "'Readex Pro', sans-serif", fontWeight: 700, color: '#0E1A17', fontSize: isMd ? '15px' : '17px', margin: 0, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <h1 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, color: '#FFFFFF', fontSize: isMd ? '15px' : '17px', margin: 0, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {pageInfo.title}
               </h1>
               {!isMd && (
-                <p style={{ color: 'rgba(14,26,23,0.495)', fontSize: '12px', margin: 0 }}>{pageInfo.subtitle}</p>
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', margin: 0 }}>{pageInfo.subtitle}</p>
               )}
             </div>
           </div>
@@ -123,21 +123,21 @@ export const DashboardLayout: React.FC = () => {
             {/* Lang toggle — visible on desktop in topbar */}
             {!isMd && <LangToggle variant="minimal" />}
 
-            <button style={{ background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.13)', borderRadius: '10px', padding: '8px', cursor: 'pointer', color: 'rgba(14,26,23,0.67)' }}>
+            <button style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '8px', cursor: 'pointer', color: 'rgba(255,255,255,0.6)' }}>
               <Icon icon="solar:bell-bold-duotone" width={18} />
             </button>
 
             {/* User dropdown */}
             <div style={{ position: 'relative' }}>
               <button onClick={() => setDropOpen(!dropOpen)}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#FFFFFF', border: '1px solid rgba(14,26,23,0.13)', borderRadius: '10px', padding: '6px 10px', cursor: 'pointer' }}>
-                <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg, #0B7A5C, #086149)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#FFFFFF', fontFamily: 'Readex Pro', flexShrink: 0 }}>
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '6px 10px', cursor: 'pointer' }}>
+                <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg, #F5C842, #D4A017)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#0A0E27', fontFamily: 'Sora', flexShrink: 0 }}>
                   {firstName.charAt(0).toUpperCase()}
                 </div>
                 {!isMd && (
                   <>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#0E1A17', whiteSpace: 'nowrap' }}>{firstName}</span>
-                    <Icon icon="solar:alt-arrow-down-bold" width={14} color="rgba(14,26,23,0.53)" />
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF', whiteSpace: 'nowrap' }}>{firstName}</span>
+                    <Icon icon="solar:alt-arrow-down-bold" width={14} color="rgba(255,255,255,0.4)" />
                   </>
                 )}
               </button>
@@ -149,7 +149,7 @@ export const DashboardLayout: React.FC = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    style={{ position: 'absolute', [isRTL ? 'left' : 'right']: 0, top: 'calc(100% + 8px)', background: '#FFFFFF', backdropFilter: 'blur(16px)', border: '1px solid rgba(11,122,92,0.2)', borderRadius: '12px', padding: '6px', minWidth: '160px', boxShadow: '0 8px 32px rgba(14,26,23,0.15)', zIndex: 200 }}
+                    style={{ position: 'absolute', [isRTL ? 'left' : 'right']: 0, top: 'calc(100% + 8px)', background: 'rgba(12,17,45,0.98)', backdropFilter: 'blur(16px)', border: '1px solid rgba(245,200,66,0.2)', borderRadius: '12px', padding: '6px', minWidth: '160px', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', zIndex: 200 }}
                     onMouseLeave={() => setDropOpen(false)}
                   >
                     {[
@@ -157,13 +157,13 @@ export const DashboardLayout: React.FC = () => {
                       { icon: 'solar:settings-bold-duotone', label: t('dash.settings'), to: '/dashboard/settings' },
                     ].map(item => (
                       <button key={item.label} onClick={() => { setDropOpen(false); navigate(item.to); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '9px 12px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', color: 'rgba(14,26,23,0.74)', fontSize: '13px', textAlign: isRTL ? 'right' : 'left' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(11,122,92,0.08)')}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '9px 12px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', color: 'rgba(255,255,255,0.7)', fontSize: '13px', textAlign: isRTL ? 'right' : 'left' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,200,66,0.08)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'none')}>
-                        <Icon icon={item.icon} width={16} color="#0B7A5C" />{item.label}
+                        <Icon icon={item.icon} width={16} color="#F5C842" />{item.label}
                       </button>
                     ))}
-                    <div style={{ height: '1px', background: 'rgba(14,26,23,0.08)', margin: '4px 0' }} />
+                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
                     <button onClick={handleLogout}
                       style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '9px 12px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', color: '#EF4444', fontSize: '13px', textAlign: isRTL ? 'right' : 'left' }}
                       onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.08)')}
@@ -197,8 +197,8 @@ export const DashboardLayout: React.FC = () => {
         {isMd && (
           <nav style={{
             display: 'flex',
-            background: '#FFFFFF',
-            borderTop: '1px solid rgba(11,122,92,0.1)',
+            background: 'rgba(10,14,39,0.97)',
+            borderTop: '1px solid rgba(245,200,66,0.1)',
             padding: '6px 0',
             flexShrink: 0,
             paddingBottom: 'max(6px, env(safe-area-inset-bottom))',
@@ -208,11 +208,11 @@ export const DashboardLayout: React.FC = () => {
                 {({ isActive }) => (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', padding: '6px 4px' }}>
                     <motion.div animate={{ scale: isActive ? 1.15 : 1 }} transition={{ duration: 0.15 }}>
-                      <Icon icon={icon} width={22} color={isActive ? '#0B7A5C' : 'rgba(14,26,23,0.495)'} />
+                      <Icon icon={icon} width={22} color={isActive ? '#F5C842' : 'rgba(255,255,255,0.35)'} />
                     </motion.div>
-                    <span style={{ fontSize: '10px', fontWeight: isActive ? 700 : 500, color: isActive ? '#0B7A5C' : 'rgba(14,26,23,0.495)' }}>{label}</span>
+                    <span style={{ fontSize: '10px', fontWeight: isActive ? 700 : 500, color: isActive ? '#F5C842' : 'rgba(255,255,255,0.35)' }}>{label}</span>
                     {isActive && (
-                      <motion.div layoutId="bottomNavDot" style={{ width: 4, height: 4, borderRadius: '50%', background: '#0B7A5C', marginTop: '1px' }} />
+                      <motion.div layoutId="bottomNavDot" style={{ width: 4, height: 4, borderRadius: '50%', background: '#F5C842', marginTop: '1px' }} />
                     )}
                   </div>
                 )}
