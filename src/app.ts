@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
 import usageRoutes from './routes/usage.routes';
+import engineRoutes from './routes/engine.routes';
 
 const app = express();
 
@@ -37,6 +38,7 @@ const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { su
 
 app.use('/api/auth',  authLimiter, authRoutes);
 app.use('/api/usage', usageRoutes);
+app.use('/api/engine', engineRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
