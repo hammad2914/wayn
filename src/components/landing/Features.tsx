@@ -1,140 +1,114 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Icon } from '@iconify/react';
-import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useLanguage } from '../../contexts/LanguageContext';
+import './features.css';
 
-const FEATURE_ICONS = [
-  'solar:earth-bold-duotone',
-  'solar:map-point-wave-bold-duotone',
-  'solar:routing-2-bold-duotone',
-  'solar:server-square-bold-duotone',
-  'solar:shield-keyhole-bold-duotone',
-  'solar:chart-square-bold-duotone',
-];
+// Results below are real engine output from 27 Oct 2026 (the same runs as the hero).
+// The van split is optimize() on the hero's eight Riyadh stops, two vans with 35 kg limits.
+const RESULTS = [
+  { en: 'Al Nakheel Mall', ar: 'النخيل مول', prec: 'place', conf: 90 },
+  { en: 'Al Olaya Street, building 7720', ar: 'شارع العليا، مبنى 7720', prec: 'street', conf: 88 },
+  { en: 'Al Naseem District West, villa 14', ar: 'النسيم الغربي، فيلا 14', prec: 'district', conf: 78 },
+] as const;
 
-const cardVariant = {
-  hidden: { opacity: 0, y: 28 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
-};
+const VANS = [
+  { id: 1, km: 95.7, min: 108, load: 30, stops: [['Al Naseem', 'النسيم', 15], ['Al Rawdah', 'الروضة', 4], ['Al Mughrizat', 'المغرزات', 5], ['Al Yasmin', 'الياسمين', 6]] },
+  { id: 2, km: 79.4, min: 91, load: 32, stops: [['Al Malqa', 'الملقا', 12], ['Al Nakheel', 'النخيل', 8], ['Al Olaya', 'العليا', 9], ['Al Sulimaniyah', 'السليمانية', 3]] },
+] as const;
+const CAPACITY = 35;
 
 export const Features: React.FC = () => {
-  const { isMobile, isMd } = useBreakpoint();
-  const { t } = useLanguage();
-  const sectionPad = isMobile ? '64px 20px' : isMd ? '72px 24px' : '100px 24px';
-
-  const FEATURES = [
-    { icon: FEATURE_ICONS[0], title: t('feat.f1Title'), desc: t('feat.f1Desc') },
-    { icon: FEATURE_ICONS[1], title: t('feat.f2Title'), desc: t('feat.f2Desc') },
-    { icon: FEATURE_ICONS[2], title: t('feat.f3Title'), desc: t('feat.f3Desc') },
-    { icon: FEATURE_ICONS[3], title: t('feat.f4Title'), desc: t('feat.f4Desc') },
-    { icon: FEATURE_ICONS[4], title: t('feat.f5Title'), desc: t('feat.f5Desc') },
-    { icon: FEATURE_ICONS[5], title: t('feat.f6Title'), desc: t('feat.f6Desc') },
-  ];
+  const { t, lang } = useLanguage();
+  const ar = lang === 'ar';
+  const hm = (min: number) => (ar ? `${Math.floor(min / 60)} س ${min % 60} د` : `${Math.floor(min / 60)} h ${min % 60} min`);
 
   return (
-    <section id="features" style={{ background: '#0D1232', padding: sectionPad }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <section id="features" className="wf">
+      <div className="wf-wrap">
+        <header className="wf-head">
+          <p className="wf-label">{t('wf.label')}</p>
+          <h2>{t('wf.h2')}</h2>
+        </header>
 
-        {/* ── Header ── */}
-        <div style={{ textAlign: 'center', marginBottom: isMobile ? 40 : 64 }}>
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div style={{
-              display: 'inline-block', padding: '6px 18px', borderRadius: 9999,
-              background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.3)',
-              color: '#F5C842', fontSize: 12, fontWeight: 600,
-              letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 20,
-            }}>
-              {t('feat.sectionLabel')}
-            </div>
-            <h2 style={{
-              fontFamily: 'Sora, sans-serif',
-              fontSize: isMobile ? 28 : isMd ? 34 : 42,
-              fontWeight: 800, color: '#FFFFFF', margin: '0 0 16px',
-              lineHeight: 1.2,
-            }}>
-              {t('feat.h2Part1')}{' '}
-              <span style={{ color: '#F5C842' }}>{t('feat.h2Part2')}</span>
-            </h2>
-            <p style={{
-              fontSize: isMobile ? 15 : 18,
-              color: 'rgba(255,255,255,0.6)',
-              maxWidth: 580, margin: '0 auto', lineHeight: 1.6,
-            }}>
-              {t('feat.subheading')}
+        {/* 1 · nothing in the message is thrown away */}
+        <div className="wf-row">
+          <div className="wf-text">
+            <p className="wf-num">01</p>
+            <h3>{t('wf.f1T')}</h3>
+            <p>{t('wf.f1')}</p>
+          </div>
+          <div className="wf-vis">
+            <p className="wf-msg" dir="rtl">
+              <mark className="n">ورا مسجد الراجحي</mark><span>، </span>
+              <mark>حي النسيم الغربي</mark><span>، </span>
+              <mark>فيلا رقم ١٤</mark> <mark className="n">البوابة السودا</mark><span>، </span>
+              <mark>الرياض</mark>
             </p>
-          </motion.div>
+            <ul className="wf-map">
+              <li><span className="from" dir="rtl">ورا مسجد الراجحي</span><span className="arrow">→</span><span className="to n"><small>{t('wf.toNote')}</small><b dir="rtl">ورا مسجد الراجحي</b></span></li>
+              <li><span className="from" dir="rtl">حي النسيم الغربي</span><span className="arrow">→</span><span className="to"><small>{t('wf.toDistrict')}</small><b>{ar ? 'النسيم الغربي' : 'Al Naseem District West'}</b></span></li>
+              <li><span className="from" dir="rtl">فيلا رقم ١٤ البوابة السودا</span><span className="arrow">→</span><span className="to"><small>{t('wf.toBuilding')}</small><b>14</b></span></li>
+              <li><span className="from" dir="rtl">الرياض</span><span className="arrow">→</span><span className="to"><small>{t('wf.toCity')}</small><b>{ar ? 'الرياض' : 'Riyadh'}</b></span></li>
+              <li><span className="from">{t('wf.notTyped')}</span><span className="arrow">→</span><span className="to added"><small>{t('wf.toPostal')}</small><b>14231</b></span></li>
+            </ul>
+            <div className="wf-key"><span><i />{t('wf.keyField')}</span><span><i className="n" />{t('wf.keyNote')}</span></div>
+          </div>
         </div>
 
-        {/* ── Grid — uses CSS classes for responsive columns ── */}
-        <motion.div
-          variants={{ show: { transition: { staggerChildren: 0.08 } } }}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-40px' }}
-          className="lp-grid-3"
-        >
-          {FEATURES.map((f, i) => (
-            <FeatureCard key={i} feature={f} isMobile={isMobile} />
-          ))}
-        </motion.div>
+        {/* 2 · precision is shown, not hidden */}
+        <div className="wf-row flip">
+          <div className="wf-text">
+            <p className="wf-num">02</p>
+            <h3>{t('wf.f2T')}</h3>
+            <p>{t('wf.f2')}</p>
+          </div>
+          <div className="wf-vis">
+            <ul className="wf-res">
+              {RESULTS.map(r => (
+                <li key={r.en} className={r.prec === 'district' ? 'check' : ''}>
+                  <div className="top"><b>{ar ? r.ar : r.en}</b><em>{r.conf}%</em></div>
+                  <div className="sub">
+                    <span>{t(r.prec === 'place' ? 'wf.precPlace' : r.prec === 'street' ? 'wf.precStreet' : 'wf.precDistrict')}</span>
+                    {r.prec === 'district' && <span className="wf-flag">{t('wf.checkFirst')}</span>}
+                  </div>
+                  <div className="bar"><i style={{ width: `${r.conf}%` }} /></div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* 3 · one run, shared between vans by load */}
+        <div className="wf-row">
+          <div className="wf-text">
+            <p className="wf-num">03</p>
+            <h3>{t('wf.f3T')}</h3>
+            <p>{t('wf.f3')}</p>
+          </div>
+          <div>
+            <div className="wf-vis wf-vans">
+              {VANS.map(v => (
+                <div className="wf-van" key={v.id}>
+                  <div className="vh"><b>{t('wf.van')} {v.id}</b><span><span dir="ltr">{v.km} km</span> · <span dir={ar ? 'rtl' : 'ltr'}>{hm(v.min)}</span></span></div>
+                  <div className="wf-load"><span>{t('wf.load')}</span><b dir="ltr">{v.load} / {CAPACITY} kg</b></div>
+                  <div className="bar"><i style={{ width: `${(v.load / CAPACITY) * 100}%` }} /></div>
+                  <ol>
+                    {v.stops.map(([en, arName, kg], i) => (
+                      <li key={en}><span className="n">{i + 1}</span><span>{ar ? arName : en}</span><span className="kg" dir="ltr">{kg} kg</span></li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
+            </div>
+            <p className="wf-cap">{t('wf.vansCap')}</p>
+          </div>
+        </div>
+
+        <div className="wf-facts">
+          <p><b>{t('wf.x1T')}</b>{t('wf.x1')}</p>
+          <p><b>{t('wf.x2T')}</b>{t('wf.x2')}</p>
+          <p><b>{t('wf.x3T')}</b>{t('wf.x3')}</p>
+        </div>
       </div>
     </section>
-  );
-};
-
-type FeatureItem = { icon: string; title: string; desc: string };
-
-const FeatureCard: React.FC<{
-  feature: FeatureItem;
-  isMobile: boolean;
-}> = ({ feature, isMobile }) => {
-  const [hovered, setHovered] = React.useState(false);
-
-  return (
-    <motion.div
-      variants={cardVariant}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: '#12183A',
-        border: `1px solid ${hovered ? 'rgba(245,200,66,0.45)' : 'rgba(245,200,66,0.1)'}`,
-        borderRadius: 16,
-        padding: isMobile ? '22px 18px' : '28px 26px',
-        cursor: 'default',
-        transition: 'border-color 0.25s, box-shadow 0.25s, transform 0.25s',
-        boxShadow: hovered ? '0 0 24px rgba(245,200,66,0.13)' : '0 4px 16px rgba(0,0,0,0.25)',
-        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-      }}
-    >
-      <div style={{
-        width: 46, height: 46, borderRadius: 12,
-        background: hovered
-          ? 'linear-gradient(135deg, rgba(245,200,66,0.25) 0%, rgba(245,200,66,0.1) 100%)'
-          : 'rgba(245,200,66,0.1)',
-        border: '1px solid rgba(245,200,66,0.25)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: 16, transition: 'background 0.25s',
-      }}>
-        <Icon icon={feature.icon} width={24} style={{ color: '#F5C842' }} />
-      </div>
-      <h3 style={{
-        fontFamily: 'Sora, sans-serif', fontSize: 15, fontWeight: 700,
-        color: '#FFFFFF', margin: '0 0 9px',
-      }}>
-        {feature.title}
-      </h3>
-      <p style={{
-        fontSize: 13, color: 'rgba(255,255,255,0.58)',
-        lineHeight: 1.65, margin: 0,
-      }}>
-        {feature.desc}
-      </p>
-    </motion.div>
   );
 };
