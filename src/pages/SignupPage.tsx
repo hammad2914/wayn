@@ -10,6 +10,7 @@ import { CountryDropdown } from '../components/ui/CountryDropdown';
 import { LangToggle } from '../components/ui/LangToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useLanguage } from '../contexts/LanguageContext';
+import { WaynLogo } from '../components/ui/WaynLogo';
 
 interface FormValues {
   fullName:        string;
@@ -122,7 +123,7 @@ export const SignupPage: React.FC = () => {
         {/* Logo + heading */}
         <div style={{ textAlign: 'center', marginBottom: isMobile ? '20px' : '28px' }}>
           <Link to="/" style={{ display: 'inline-flex', textDecoration: 'none' }}>
-            <img src="/wayn-full.png" alt="Wayn" style={{ height: isMobile ? 40 : 48, width: 'auto', objectFit: 'contain', display: 'block' }} />
+            <WaynLogo size={isMobile ? 26 : 30} />
           </Link>
           <h1 style={{ fontFamily: isRTL ? "'Cairo', sans-serif" : "'Sora', sans-serif", fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: '#FFFFFF', margin: '14px 0 6px' }}>{t('auth.createAccount')}</h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: isMobile ? '13px' : '14px', margin: 0 }}>{t('auth.createAccountSubtitle')}</p>

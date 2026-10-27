@@ -1161,7 +1161,7 @@ const SummaryTab: React.FC<{
         ))}
       </div>
 
-      {/* ── Wayn Impact card ── */}
+      {/* ── Optimization impact card ── */}
       <div style={{
         background: 'linear-gradient(135deg, rgba(245,200,66,0.08) 0%, rgba(10,14,39,0.9) 60%)',
         border: '1px solid rgba(245,200,66,0.3)', borderRadius: '14px', padding: '20px',
@@ -1174,7 +1174,7 @@ const SummaryTab: React.FC<{
             <Icon icon="solar:magic-stick-3-bold-duotone" width={18} color="#F5C842" />
           </div>
           <div>
-            <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Wayn Optimization Impact</p>
+            <p style={{ fontFamily: "'Sora', sans-serif", fontSize: '14px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Optimization Impact</p>
             <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>vs. unoptimized sequential routing</p>
           </div>
         </div>

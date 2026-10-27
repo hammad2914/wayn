@@ -10,6 +10,7 @@ import { LangToggle } from '../components/ui/LangToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useLanguage } from '../contexts/LanguageContext';
 import type { User } from '../types';
+import { WaynLogo } from '../components/ui/WaynLogo';
 
 const OTP_LENGTH     = 6;
 const RESEND_SECONDS = 120;
@@ -168,7 +169,7 @@ export const OTPVerifyPage: React.FC = () => {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: isMobile ? '20px' : '28px' }}>
           <Link to="/" style={{ display: 'inline-flex', textDecoration: 'none' }}>
-            <img src="/wayn-full.png" alt="Wayn" style={{ height: isMobile ? 38 : 44, width: 'auto', objectFit: 'contain', display: 'block' }} />
+            <WaynLogo size={isMobile ? 24 : 28} />
           </Link>
         </div>
 

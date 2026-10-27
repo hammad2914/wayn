@@ -1,23 +1,6 @@
 import axios from 'axios';
 import type { NormalizeRequest, NormalizeResponse, RouteOptimizerRequest, RouteOptimizerResponse } from '../types';
-import { EXTERNAL_API, BACKEND_API } from '../config/api';
-
-// ── External Wayn API ──────────────────────────────────────────────────────
-const externalClient = axios.create({
-  baseURL: EXTERNAL_API.BASE,
-  headers: { 'Content-Type': 'application/json', 'X-API-Key': EXTERNAL_API.KEY },
-  timeout: 35000,
-});
-
-export const normalizeAddress = async (payload: NormalizeRequest): Promise<NormalizeResponse> => {
-  const { data } = await externalClient.post<NormalizeResponse>('/normalize', payload);
-  return data;
-};
-
-export const optimizeRoute = async (payload: RouteOptimizerRequest): Promise<RouteOptimizerResponse> => {
-  const { data } = await externalClient.post<RouteOptimizerResponse>('/optimize-route', payload);
-  return data;
-};
+import { BACKEND_API } from '../config/api';
 
 // ── Backend Auth API ──────────────────────────────────────────────────────────
 const TOKEN_KEY = 'wayn_token';
@@ -119,4 +102,17 @@ export const authAPI = {
   changePassword: (body: object) => backendClient.post('/auth/change-password', body),
 };
 
-export default externalClient;
+// ── Address & route engine (our backend) ─────────────────────────────────────
+// Geocoding runs at one request a second on OpenStreetMap, so a route with
+// many stops can take a while: give these calls far longer than auth calls.
+export const normalizeAddress = async (payload: NormalizeRequest): Promise<NormalizeResponse> => {
+  const { data } = await backendClient.post<NormalizeResponse>('/engine/normalize', payload, { timeout: 60000 });
+  return data;
+};
+
+export const optimizeRoute = async (payload: RouteOptimizerRequest): Promise<RouteOptimizerResponse> => {
+  const { data } = await backendClient.post<RouteOptimizerResponse>('/engine/optimize-route', payload, { timeout: 120000 });
+  return data;
+};
+
+export default backendClient;

@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useUsage } from '../../hooks/useUsage';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { LangToggle } from '../ui/LangToggle';
+import { WaynLogo } from '../ui/WaynLogo';
 
 const ANIM = '0.22s cubic-bezier(0.4,0,0.2,1)'; // shared easing
 
@@ -105,17 +106,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onCollapse }) => {
         flexDirection: isRTL ? 'row-reverse' : 'row',
       }}>
         {collapsed ? (
-          <img
-            src="/wayn-small.png"
-            alt="Wayn"
-            style={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0, display: 'block' }}
-          />
+          <WaynLogo size={26} markOnly />
         ) : (
-          <img
-            src="/wayn-full.png"
-            alt="Wayn"
-            style={{ height: 34, width: 'auto', maxWidth: '160px', objectFit: 'contain', flexShrink: 0, display: 'block', marginLeft: isRTL ? 0 : '2px', marginRight: isRTL ? '2px' : 0 }}
-          />
+          <span style={{ display: 'block', flexShrink: 0, marginLeft: isRTL ? 0 : '6px', marginRight: isRTL ? '6px' : 0 }}>
+            <WaynLogo size={22} />
+          </span>
         )}
 
         {/* Pushes collapse button to the far end */}

@@ -8,6 +8,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { UsageProvider } from '../../contexts/UsageContext';
+import { WaynLogo } from '../../components/ui/WaynLogo';
 
 export const DashboardLayout: React.FC = () => {
   const location               = useLocation();
@@ -105,7 +106,7 @@ export const DashboardLayout: React.FC = () => {
             {/* Mobile: show logo */}
             {isMd && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: isRTL ? 0 : '8px', marginLeft: isRTL ? '8px' : 0, flexShrink: 0 }}>
-                <img src="/wayn-small.png" alt="Wayn" style={{ width: 28, height: 28, objectFit: 'contain', display: 'block' }} />
+                <WaynLogo size={22} markOnly />
               </div>
             )}
             <div style={{ minWidth: 0 }}>
