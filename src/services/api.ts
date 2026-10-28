@@ -7,7 +7,7 @@ const TOKEN_KEY = 'wayn_token';
 
 // Public endpoints that must never trigger the refresh-retry loop
 const PUBLIC_PATHS = [
-  '/auth/login', '/auth/signup', '/auth/verify-otp', '/auth/resend-otp',
+  '/auth/login', '/auth/signup',
   '/auth/forgot-password', '/auth/reset-password', '/auth/refresh',
 ];
 
@@ -90,9 +90,7 @@ backendClient.interceptors.response.use(
 
 export const authAPI = {
   signup:         (body: object) => backendClient.post('/auth/signup',          body),
-  verifyOTP:      (body: object) => backendClient.post('/auth/verify-otp',      body),
   login:          (body: object) => backendClient.post('/auth/login',           body),
-  resendOTP:      (body: object) => backendClient.post('/auth/resend-otp',      body),
   forgotPassword: (body: object) => backendClient.post('/auth/forgot-password', body),
   resetPassword:  (body: object) => backendClient.post('/auth/reset-password',  body),
   refresh:        ()             => backendClient.post('/auth/refresh'),

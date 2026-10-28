@@ -8,7 +8,6 @@ import { GuestRoute } from './components/layout/GuestRoute';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
-import { OTPVerifyPage } from './pages/OTPVerifyPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { DashboardLayout } from './pages/dashboard/DashboardLayout';
@@ -41,7 +40,6 @@ const App: React.FC = () => {
               {/* Guest-only — redirect to dashboard if already logged in */}
               <Route path="/login"           element={<GuestRoute><LoginPage /></GuestRoute>} />
               <Route path="/signup"          element={<GuestRoute><SignupPage /></GuestRoute>} />
-              <Route path="/verify-otp"      element={<GuestRoute><OTPVerifyPage /></GuestRoute>} />
               <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
               <Route path="/reset-password"  element={<GuestRoute><ResetPasswordPage /></GuestRoute>} />
 

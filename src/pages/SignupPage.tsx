@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { Icon } from '@iconify/react';
+import { useAuth } from '../hooks/useAuth';
 import { authAPI } from '../services/api';
 import { useToast } from '../components/ui/Toast';
 import { GoldButton } from '../components/ui/GoldButton';
@@ -11,6 +12,7 @@ import { LangToggle } from '../components/ui/LangToggle';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import { useLanguage } from '../contexts/LanguageContext';
 import { WaynLogo } from '../components/ui/WaynLogo';
+import type { User } from '../types';
 
 interface FormValues {
   fullName:        string;
@@ -34,6 +36,7 @@ const getStrength = (pw: string): number => {
 export const SignupPage: React.FC = () => {
   const navigate     = useNavigate();
   const { toast }    = useToast();
+  const { login }    = useAuth();
   const { isMobile } = useBreakpoint();
   const { t, isRTL } = useLanguage();
   const [loading,  setLoading]  = useState(false);
@@ -77,15 +80,9 @@ export const SignupPage: React.FC = () => {
         phone:       data.phone || undefined,
         country:     data.country || undefined,
       });
-      const { userId, emailSent } = res.data?.data as { userId: string; emailSent: boolean };
-
-      if (emailSent) {
-        toast({ type: 'success', title: 'Verification email sent!', message: `We sent a 6-digit code to ${data.email}` });
-      } else {
-        toast({ type: 'warning', title: 'Email delivery failed', message: "Account created but we couldn't send the email. Try resend." });
-      }
-
-      navigate(`/verify-otp?userId=${userId}&email=${encodeURIComponent(data.email)}&emailSent=${emailSent}`);
+      const { token, user } = res.data.data as { token: string; user: User };
+      login(token, user);
+      navigate('/dashboard', { replace: true });
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Signup failed. Please try again.';
       toast({ type: 'error', title: 'Signup failed', message: msg });

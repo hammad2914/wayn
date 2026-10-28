@@ -46,12 +46,8 @@ export const LoginPage: React.FC = () => {
       login(token, user);
       navigate(from, { replace: true });
     } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string; needsVerification?: boolean; userId?: string } } };
-      if (e?.response?.data?.needsVerification) {
-        navigate(`/verify-otp?userId=${e.response!.data!.userId}&email=${encodeURIComponent(data.email)}&source=login`);
-      } else {
-        toast({ type: 'error', title: 'Login failed', message: e?.response?.data?.message || 'Invalid email or password.' });
-      }
+      const e = err as { response?: { data?: { message?: string } } };
+      toast({ type: 'error', title: 'Login failed', message: e?.response?.data?.message || 'Invalid email or password.' });
     } finally { setLoading(false); }
   };
 
