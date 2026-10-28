@@ -3,6 +3,7 @@ import { HeroConsole } from '../components/landing/HeroConsole';
 import { HowItWorks } from '../components/landing/HowItWorks';
 import { Features } from '../components/landing/Features';
 import { TryIt } from '../components/landing/TryIt';
+import { Cities } from '../components/landing/Cities';
 import { CtaFooter } from '../components/landing/CtaFooter';
 
 export const LandingPage: React.FC = () => {
@@ -12,6 +13,7 @@ export const LandingPage: React.FC = () => {
         <HowItWorks />
         <Features />
         <TryIt />
+        <Cities />
         <CtaFooter />
       </div>
   );

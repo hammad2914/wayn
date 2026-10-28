@@ -134,6 +134,17 @@ const en = {
   'wt.down':        'The map service isn’t answering. Try again in a minute.',
   'wt.signup':      'Make a free account for 10 addresses a month',
   'wt.SA': 'Saudi Arabia', 'wt.AE': 'UAE', 'wt.QA': 'Qatar', 'wt.KW': 'Kuwait', 'wt.BH': 'Bahrain', 'wt.OM': 'Oman',
+  // cities covered
+  'wc.label':     'Where it knows the districts',
+  'wc.h2':        'Twelve Gulf cities, district by district.',
+  'wc.intro':     'For these cities Wayn keeps the named districts in English and Arabic, so a message that only says “حي الملقا” or “Al Malga” still lands in the right district. Pick a city to see them.',
+  'wc.all':       'Show all twelve',
+  'wc.districts': 'districts',
+  'wc.inAll':     'districts in 12 cities',
+  'wc.src':       'OpenStreetMap · saved {d}',
+  'wc.noteT':     'Outside these cities',
+  'wc.note':      'Wayn still works: it searches OpenStreetMap directly, which finds streets, buildings and landmarks well, and bare district names less reliably.',
+  'wc.SA': 'Saudi Arabia', 'wc.AE': 'United Arab Emirates', 'wc.QA': 'Qatar', 'wc.KW': 'Kuwait', 'wc.BH': 'Bahrain', 'wc.OM': 'Oman',
 
 
   // ── CTA / Footer ─────────────────────────────────────────────────────────────
@@ -570,6 +581,17 @@ const ar: typeof en = {
   'wt.down':        'خدمة الخرائط لا تستجيب. حاول بعد دقيقة.',
   'wt.signup':      'أنشئ حساباً مجانياً لـ ١٠ عناوين شهرياً',
   'wt.SA': 'السعودية', 'wt.AE': 'الإمارات', 'wt.QA': 'قطر', 'wt.KW': 'الكويت', 'wt.BH': 'البحرين', 'wt.OM': 'عُمان',
+  // cities covered
+  'wc.label':     'أين يعرف الأحياء',
+  'wc.h2':        'اثنتا عشرة مدينة خليجية، حياً حياً.',
+  'wc.intro':     'في هذه المدن يحتفظ وين بأسماء الأحياء بالعربية والإنجليزية، فالرسالة التي تقول «حي الملقا» أو «Al Malga» فقط تصل إلى الحي الصحيح. اختر مدينة لتراها.',
+  'wc.all':       'عرض المدن الاثنتي عشرة',
+  'wc.districts': 'حي',
+  'wc.inAll':     'حي في ١٢ مدينة',
+  'wc.src':       'OpenStreetMap · حُفظت {d}',
+  'wc.noteT':     'خارج هذه المدن',
+  'wc.note':      'يعمل وين أيضاً: يبحث في OpenStreetMap مباشرة، فيجد الشوارع والمباني والمعالم جيداً، وأسماء الأحياء وحدها بدقة أقل.',
+  'wc.SA': 'السعودية', 'wc.AE': 'الإمارات', 'wc.QA': 'قطر', 'wc.KW': 'الكويت', 'wc.BH': 'البحرين', 'wc.OM': 'عُمان',
 
 
   // ── CTA / Footer ─────────────────────────────────────────────────────────────
