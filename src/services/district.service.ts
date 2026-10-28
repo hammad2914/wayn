@@ -56,6 +56,30 @@ export function cityOf(name: string): string | null {
   return cities.find(c => c.names.includes(n))?.city ?? null;
 }
 
+/** One spelling-proof key per name, so "Al Barsha 1" and "البرشاء 1" compare with OpenStreetMap's own spellings */
+const keyOf = (name: string) => ARABIC.test(name) ? 'ar:' + arabic(name) : 'en:' + soft(name);
+
+/**
+ * Whether a point lies in the district with one of these names. Without boundaries, a point
+ * belongs to the district whose centre is nearest to it, among the saved districts of its city.
+ * Null when the point is outside every city we have a list for.
+ */
+export function inDistrict(point: { lat: number; lng: number }, names: string[]): boolean | null {
+  const c = cities.find(x => inBox(x.bbox, point));
+  if (!c) return null;
+  let best: District | null = null, bestD = Infinity;
+  const kx = Math.cos(point.lat * Math.PI / 180);
+  for (const d of c.districts) {
+    const dd = (d.lat - point.lat) ** 2 + ((d.lng - point.lng) * kx) ** 2;
+    if (dd < bestD) { bestD = dd; best = d; }
+  }
+  const want = new Set(names.map(keyOf));
+  return !!best && [best.n, best.en, best.ar].some(n => !!n && want.has(keyOf(n)));
+}
+
+/** Whether two district names are the same district, spelling aside */
+export const sameDistrict = (a: string, b: string) => keyOf(a) === keyOf(b);
+
 export interface DistrictMatch { district: District; city: string; cityAr: string }
 
 /**

@@ -1,4 +1,4 @@
-import { search, bestMatch, candidates, lookup, type Place } from './geocode.service';
+import { search, bestMatch, candidates, lookup, landmarkIn, AREA_TYPES, type Place } from './geocode.service';
 
 // Rule-based cleanup for addresses written the way people type them in the
 // Arabic-speaking world: mixed scripts, Arabic-Indic digits, landmarks instead
@@ -33,7 +33,7 @@ const cleanSegment = (s: string) =>
 const PRECISION: Record<string, number> = {
   building: 0.95, house: 0.95, amenity: 0.9, shop: 0.9, office: 0.9, place: 0.88,
   road: 0.85, primary: 0.85, secondary: 0.85, tertiary: 0.85, trunk: 0.8, motorway: 0.75,
-  residential: 0.82, quarter: 0.75, neighbourhood: 0.75, suburb: 0.72,
+  residential: 0.82, landmark: 0.82, quarter: 0.75, neighbourhood: 0.75, suburb: 0.72,
   city_district: 0.65, village: 0.6, town: 0.55, city: 0.5, county: 0.4, state: 0.3, country: 0.2,
 };
 
@@ -119,10 +119,18 @@ export async function normalize(input: NormalizeInput) {
     };
   }
 
+  // "behind Mall of the Emirates, Al Barsha 1": when the match only reached the district, a landmark
+  // the customer named pins it closer, as long as that landmark is inside the same district
+  let pin: Place | null = null;
+  if (AREA_TYPES.has(place.type)) {
+    const named = landmarks.filter(l => LANDMARK_RE.test(l)).map(l => cleanSegment(l.replace(LANDMARK_RE, ' '))).filter(l => l.length > 2);
+    if (named.length) pin = await landmarkIn(place, named, input.country);
+  }
+
   const ar = (await lookup(place, 'ar')) ?? place;
   const en = place.address, arA = ar.address;
 
-  let confidence = PRECISION[place.type] ?? 0.6;
+  let confidence = pin ? PRECISION.landmark : PRECISION[place.type] ?? 0.6;
   confidence -= 0.1 * fallbacks;
   if (building) confidence += 0.03;
   confidence = Math.round(Math.min(0.99, Math.max(0.1, confidence)) * 100) / 100;
@@ -157,9 +165,9 @@ export async function normalize(input: NormalizeInput) {
     from_cache: false, from_learning: false, ai_enhanced: false,
     provider: 'openstreetmap',
     geocoding: input.include_geocoding === false ? null : {
-      latitude: place.lat,
-      longitude: place.lng,
-      accuracy: place.type,
+      latitude: (pin ?? place).lat,
+      longitude: (pin ?? place).lng,
+      accuracy: pin ? 'landmark' : place.type,
       provider: 'openstreetmap',
     },
     error: null,

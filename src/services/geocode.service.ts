@@ -2,7 +2,7 @@
 // Its usage policy allows at most one request per second with a real
 // User-Agent, so every call goes through one queue and results are cached.
 
-import { cityOf, findDistrict, type DistrictMatch } from './district.service';
+import { cityOf, findDistrict, inDistrict, sameDistrict, type DistrictMatch } from './district.service';
 
 const NOMINATIM = process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org';
 const USER_AGENT = process.env.GEOCODER_USER_AGENT || 'Wayn/1.0 (address normalizer; contact via github.com/hammad2914)';
@@ -82,17 +82,17 @@ export async function search(
 
 async function searchMany(
   query: string, country: string | undefined, addressOnly: boolean,
-  near: { lat: number; lng: number } | undefined, limit: number,
+  near: { lat: number; lng: number } | undefined, limit: number, reach = 0.5,
 ): Promise<Place[]> {
-  const key = `s|${country ?? ''}|${addressOnly}|${near ? `${near.lat.toFixed(2)},${near.lng.toFixed(2)}` : ''}|${limit}|${query.toLowerCase()}`;
+  const key = `s|${country ?? ''}|${addressOnly}|${near ? `${near.lat.toFixed(3)},${near.lng.toFixed(3)},${reach}` : ''}|${limit}|${query.toLowerCase()}`;
   if (cache.has(key)) return cache.get(key)!;
 
   const params = new URLSearchParams({ q: query, format: 'jsonv2', addressdetails: '1', namedetails: '1', limit: String(limit), 'accept-language': 'en' });
   if (country) params.set('countrycodes', country.toLowerCase());
   if (addressOnly) params.set('layer', 'address');
-  // keep matches within ~50 km of a known point (the route's city)
+  // keep matches within reach of a known point: ~50 km of the route's city by default
   if (near) {
-    const d = 0.5;
+    const d = reach;
     params.set('viewbox', [near.lng - d, near.lat + d, near.lng + d, near.lat - d].join(','));
     params.set('bounded', '1');
   }
@@ -212,4 +212,44 @@ export async function bestMatch(query: string, country?: string, near?: { lat: n
   if (addr && fits(addr)) return addr;
   // loose mode: a business near the right street is still better than nothing
   return strict ? null : top[0] ?? addr;
+}
+
+// kinds of match that only reached an area, where a landmark can pin the place closer
+export const AREA_TYPES = new Set(['neighbourhood', 'suburb', 'quarter', 'city_district', 'district']);
+const LANDMARK_REACH = 0.03; // degrees, ~3 km around the district's centre
+const ONE_PLACE_KM = 0.4;    // matches further apart than this are different places of the same name
+// words that say what kind of place it is, not which one: "the pharmacy" names no place in particular
+const KINDS = new Set(['the', 'mosque', 'masjid', 'mall', 'pharmacy', 'school', 'hospital', 'clinic', 'tower', 'bank', 'hotel', 'park',
+  'market', 'centre', 'center', 'station', 'restaurant', 'supermarket', 'gate', 'building', 'مسجد', 'جامع', 'مول', 'صيدلية', 'صيدليه',
+  'مدرسة', 'مدرسه', 'مستشفى', 'مستوصف', 'برج', 'بنك', 'مصرف', 'فندق', 'حديقة', 'سوق', 'مركز', 'محطة', 'مطعم', 'بوابة', 'البوابة']);
+/** The landmark and the place share a word that names it, beyond what kind of place it is */
+const namesIt = (place: Place, landmark: string) => {
+  const own = words(landmark).filter(w => !KINDS.has(w));
+  return place.names.some(n => words(n).some(w => own.includes(w)));
+};
+
+/**
+ * A landmark the customer named ("Mall of the Emirates", "مسجد الراجحي"), found inside the
+ * district the address matched. Only a place whose name the landmark gives, and that lies in
+ * that same district, counts: there are many Al Rajhi mosques, and the one in the next
+ * district over is the wrong door.
+ */
+export async function landmarkIn(area: Place, landmarks: string[], country?: string): Promise<Place | null> {
+  // inside when OpenStreetMap's own address for the place names the district, or, by the saved
+  // list, the district centre nearest to it is this one (long districts like Al Olaya need the first)
+  const inside = (p: Place) => {
+    const own = [p.address.neighbourhood, p.address.suburb, p.address.quarter, p.address.city_district].filter((n): n is string => !!n);
+    return own.some(o => area.names.some(n => sameDistrict(o, n))) || inDistrict(p, area.names) === true;
+  };
+  for (const name of landmarks) {
+    const found = await searchMany(name, country, false, { lat: area.lat, lng: area.lng }, 10, LANDMARK_REACH);
+    const hits = found.filter(p => !ADDRESS_TYPES.has(p.type) && nameScore(p, name) >= 0.5 && namesIt(p, name) && inside(p));
+    if (!hits.length) continue;
+    // a chain ("Nahdi pharmacy") can have several branches in one district; then the
+    // landmark doesn't say which, and the district stays the answer
+    const kx = Math.cos(hits[0].lat * Math.PI / 180);
+    const km = (p: Place) => 111 * Math.hypot(p.lat - hits[0].lat, (p.lng - hits[0].lng) * kx);
+    return hits.every(p => km(p) <= ONE_PLACE_KM) ? hits[0] : null;
+  }
+  return null;
 }
