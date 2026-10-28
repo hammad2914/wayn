@@ -46,8 +46,10 @@ async function locate(address: string, country: string, city?: string, near?: { 
   return { address, lat: at.lat, lng: at.lng, rough: !pin && ROUGH.has(place.type) };
 }
 
+interface Spot { lat: number; lng: number }
+
 /** Driving distance (m) and duration (s) between every pair of points */
-async function matrix(points: Point[]) {
+async function matrix(points: Spot[]) {
   const coords = points.map(p => `${p.lng},${p.lat}`).join(';');
   type Table = { code: string; distances: (number | null)[][]; durations: (number | null)[][] };
   let body: Table | null = null, lastErr: unknown;
@@ -88,6 +90,76 @@ function orderStops(ids: number[], cost: number[][]): number[] {
   return out;
 }
 
+export interface PlanStop extends Spot { weight?: number; volume?: number; service?: number }
+export interface PlanVehicle { id: string; capacity_weight?: number; capacity_volume?: number }
+
+/**
+ * Share stops that are already on the map between vehicles and order each one's stops,
+ * on real road distances. Legs point back into `stops` by index; arrival is minutes after leaving.
+ */
+export async function plan(depot: Spot, stops: PlanStop[], vehicles: PlanVehicle[], objective: 'distance' | 'time' = 'distance') {
+  const points = [depot, ...stops];
+  const { dist, dur } = await matrix(points);
+  const cost = objective === 'time' ? dur : dist;
+
+  // share stops between vehicles: sweep around the depot by angle, so each van
+  // gets one part of the city, and move on when its weight or volume is full
+  const angle = (p: Spot) => Math.atan2(p.lat - depot.lat, p.lng - depot.lng);
+  const sweep = stops.map((p, i) => i + 1).sort((a, b) => angle(points[a]) - angle(points[b]));
+  const demand = (id: number) => stops[id - 1];
+
+  const vans = vehicles.map(v => ({
+    id: v.id,
+    capW: v.capacity_weight ?? 1000,
+    capV: v.capacity_volume ?? 50,
+    ids: [] as number[],
+    w: 0, v: 0,
+  }));
+  const unassigned: number[] = [];
+  let vi = 0;
+  for (const id of sweep) {
+    const w = demand(id).weight ?? 0, v = demand(id).volume ?? 0;
+    // try the current van first, then any other van with room left
+    const order = [...vans.slice(vi), ...vans.slice(0, vi)];
+    const van = order.find(x => x.w + w <= x.capW && x.v + v <= x.capV);
+    if (!van) { unassigned.push(id - 1); continue; }
+    van.ids.push(id); van.w += w; van.v += v;
+    vi = vans.indexOf(van);
+    // spread the work: move to the next van once this one has its fair share
+    if (van.ids.length >= Math.ceil(stops.length / vans.length)) vi = (vi + 1) % vans.length;
+  }
+
+  const routes = vans.filter(v => v.ids.length).map(v => {
+    let clock = 0, meters = 0, prev = 0;
+    const legs = orderStops(v.ids, cost).map(id => {
+      const legM = dist[prev][id], legMin = dur[prev][id] / 60;
+      meters += legM; clock += legMin;
+      const arrival = clock;
+      clock += demand(id).service ?? 0;
+      prev = id;
+      return { index: id - 1, arrival, legM, legMin };
+    });
+    meters += dist[prev][0]; clock += dur[prev][0] / 60;
+    return { id: v.id, legs, meters, minutes: clock, w: v.w, v: v.v, capW: v.capW, capV: v.capV };
+  });
+  return { routes, unassigned };
+}
+
+/** The driving line through the points in order, as [lat, lng] pairs for a map */
+export async function roadLine(points: Spot[]): Promise<[number, number][]> {
+  const coords = points.map(p => `${p.lng},${p.lat}`).join(';');
+  for (const server of OSRM_SERVERS) {
+    try {
+      const res = await fetch(`${server}/route/v1/driving/${coords}?overview=simplified&geometries=geojson`, { signal: AbortSignal.timeout(20000) });
+      if (!res.ok) continue;
+      const body = await res.json() as { code: string; routes?: { geometry: { coordinates: [number, number][] } }[] };
+      if (body.code === 'Ok' && body.routes?.length) return body.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+    } catch { /* try the next server */ }
+  }
+  // no routing server answered: straight lines still show the order of the stops
+  return points.map(p => [p.lat, p.lng]);
+}
+
 export async function optimize(input: RouteInput) {
   const started = Date.now();
   if (!input.stops.length) throw new RouteInputError('Add at least one stop.');
@@ -101,70 +173,35 @@ export async function optimize(input: RouteInput) {
   const stops: Point[] = [];
   for (const s of input.stops) stops.push(await locate(s.address, input.country, input.city, near));
 
-  const points = [depot, ...stops];
-  const { dist, dur } = await matrix(points);
-  const cost = input.optimization_objective === 'time' ? dur : dist;
-
-  // share stops between vehicles: sweep around the depot by angle, so each van
-  // gets one part of the city, and move on when its weight or volume is full
-  const angle = (p: Point) => Math.atan2(p.lat - depot.lat, p.lng - depot.lng);
-  const sweep = stops.map((p, i) => i + 1).sort((a, b) => angle(points[a]) - angle(points[b]));
-  const demand = (id: number) => input.stops[id - 1];
-
-  const vehicles = input.vehicles.map(v => ({
-    id: v.id,
-    capW: v.capacity_weight ?? 1000,
-    capV: v.capacity_volume ?? 50,
-    ids: [] as number[],
-    w: 0, v: 0,
-  }));
-  const unassigned: number[] = [];
-  let vi = 0;
-  for (const id of sweep) {
-    const w = demand(id).demand_weight ?? 0, v = demand(id).demand_volume ?? 0;
-    // try the current van first, then any other van with room left
-    const order = [...vehicles.slice(vi), ...vehicles.slice(0, vi)];
-    const van = order.find(x => x.w + w <= x.capW && x.v + v <= x.capV);
-    if (!van) { unassigned.push(id); continue; }
-    van.ids.push(id); van.w += w; van.v += v;
-    vi = vehicles.indexOf(van);
-    // spread the work: move to the next van once this one has its fair share
-    if (van.ids.length >= Math.ceil(stops.length / vehicles.length)) vi = (vi + 1) % vehicles.length;
-  }
+  const planned = await plan(depot,
+    input.stops.map((s, i) => ({ lat: stops[i].lat, lng: stops[i].lng, weight: s.demand_weight, volume: s.demand_volume, service: s.service_time })),
+    input.vehicles, input.optimization_objective);
+  const unassigned = planned.unassigned;
 
   let totalM = 0, totalMin = 0;
-  const routes = vehicles.filter(v => v.ids.length).map(v => {
-    const seq = orderStops(v.ids, cost);
-    let clock = 0, meters = 0, prev = 0;
-    const routeStops = seq.map((id, i) => {
-      const s = demand(id);
-      const legM = dist[prev][id], legMin = dur[prev][id] / 60;
-      meters += legM; clock += legMin;
-      const arrival = clock;
-      clock += s.service_time ?? 0;
-      prev = id;
-      return {
-        sequence: i + 1,
-        address: points[id].address,
-        lat: points[id].lat,
-        lng: points[id].lng,
-        arrival_time_minutes: Math.round(arrival),
-        demand_weight: s.demand_weight ?? 0,
-        demand_volume: s.demand_volume ?? 0,
-        service_time_minutes: s.service_time ?? 0,
-        leg_distance: Math.round(legM),
-        leg_time: Math.round(legMin),
-      };
-    });
-    meters += dist[prev][0]; clock += dur[prev][0] / 60;
-    totalM += meters; totalMin += clock;
+  const routes = planned.routes.map(v => {
+    totalM += v.meters; totalMin += v.minutes;
     const loc = { address: depot.address, lat: depot.lat, lng: depot.lng };
     return {
       vehicle_id: v.id,
       vehicle_info: { id: v.id, capacity_weight: v.capW, capacity_volume: v.capV, start_location: loc, end_location: loc },
-      stops: routeStops,
-      distance_meters: Math.round(meters),
-      time_minutes: Math.round(clock),
+      stops: v.legs.map((l, i) => {
+        const s = input.stops[l.index];
+        return {
+          sequence: i + 1,
+          address: stops[l.index].address,
+          lat: stops[l.index].lat,
+          lng: stops[l.index].lng,
+          arrival_time_minutes: Math.round(l.arrival),
+          demand_weight: s.demand_weight ?? 0,
+          demand_volume: s.demand_volume ?? 0,
+          service_time_minutes: s.service_time ?? 0,
+          leg_distance: Math.round(l.legM),
+          leg_time: Math.round(l.legMin),
+        };
+      }),
+      distance_meters: Math.round(v.meters),
+      time_minutes: Math.round(v.minutes),
       method: 'nearest-neighbour + 2-opt',
       load_weight: v.w,
       load_volume: v.v,
@@ -186,8 +223,8 @@ export async function optimize(input: RouteInput) {
     processing_time_ms: Date.now() - started,
     optimization_method: 'sweep + nearest-neighbour + 2-opt (OSRM road distances)',
     error: [
-      unassigned.length && `${unassigned.length} stop(s) did not fit any vehicle's capacity: ${unassigned.map(id => points[id].address).join('; ')}`,
-      points.some(p => p.rough) && `Only found the area, not the exact spot, for: ${points.filter(p => p.rough).map(p => p.address).join('; ')}. Add a street or landmark for a better route.`,
+      unassigned.length && `${unassigned.length} stop(s) did not fit any vehicle's capacity: ${unassigned.map(i => stops[i].address).join('; ')}`,
+      [depot, ...stops].some(p => p.rough) && `Only found the area, not the exact spot, for: ${[depot, ...stops].filter(p => p.rough).map(p => p.address).join('; ')}. Add a street or landmark for a better route.`,
     ].filter(Boolean).join(' ') || null,
   };
 }
