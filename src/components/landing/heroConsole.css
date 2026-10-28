@@ -35,10 +35,9 @@
 
 /* copy */
 .hc-copy{position:absolute;z-index:3;inset-inline-start:48px;top:50%;transform:translateY(-46%);width:min(480px,36vw)}
-.hc-kicker{font-size:13px;color:var(--muted);letter-spacing:.02em;margin-bottom:22px}
-.hc h1{font-size:clamp(40px,4.4vw,64px);line-height:1.04;font-weight:600;letter-spacing:-.035em;color:var(--ink)}
+.hc h1{font-size:clamp(40px,4.4vw,64px);line-height:1.04;font-weight:600;letter-spacing:-.035em;color:var(--ink);text-wrap:balance}
 [dir=rtl] .hc h1{letter-spacing:0;line-height:1.25}
-.hc-echo{margin-top:16px;font-size:20px;color:var(--muted);font-weight:400}
+.hc-tag{margin-top:18px;font-size:clamp(18px,1.6vw,22px);line-height:1.4;color:var(--gold);font-weight:400}
 .hc-lead{margin-top:26px;font-size:17px;line-height:1.6;color:#B4BBD4;max-width:460px}
 .hc-cta{margin-top:34px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
 .hc-link{font-size:15px;color:var(--ink);border-bottom:1px solid var(--line-2);padding-bottom:2px}

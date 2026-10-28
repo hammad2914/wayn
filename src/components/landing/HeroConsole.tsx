@@ -284,13 +284,11 @@ export const HeroConsole: React.FC = () => {
       </nav>
 
       <div className="hc-copy">
-        <p className="hc-kicker">{t('hc.kicker')}</p>
         <h1>{t('hc.h1')}</h1>
-        {/* the line in the other script keeps its own direction but the page's alignment */}
-        <p className="hc-echo" dir={ar ? 'ltr' : 'rtl'} style={{ textAlign: ar ? 'right' : 'left' }}>{t('hc.echo')}</p>
+        <p className="hc-tag">{t('hc.tag')}</p>
         <p className="hc-lead">{t('hc.lead')}</p>
         <div className="hc-cta">
-          <Link className="hc-btn" to={isAuthenticated ? '/dashboard/address-normalizer' : '/signup'}>{t('hc.start')}</Link>
+          <Link className="hc-btn" to={isAuthenticated ? '/dashboard' : '/signup'}>{t('hc.start')}</Link>
           <button className="hc-link" onClick={() => engine.current?.go(1)}>{t('hc.see')}</button>
         </div>
         <p className="hc-fine">{t('hc.fine')}</p>
