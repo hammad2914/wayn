@@ -2,8 +2,8 @@ import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import './features.css';
 
-// Results below are real engine output from 27 Oct 2026 (the same runs as the hero).
-// The van split is optimize() on the hero's eight Riyadh stops, two vans with 35 kg limits.
+// Results below are real engine output (the same runs as the hero). The van split is
+// optimize-route on 28 Oct 2026 for eight Riyadh districts, two vans with 35 kg limits.
 const RESULTS = [
   { en: 'Al Nakheel Mall', ar: 'النخيل مول', prec: 'place', conf: 90 },
   { en: 'Al Olaya Street, building 7720', ar: 'شارع العليا، مبنى 7720', prec: 'street', conf: 88 },
@@ -11,15 +11,18 @@ const RESULTS = [
 ] as const;
 
 const VANS = [
-  { id: 1, km: 95.7, min: 108, load: 30, stops: [['Al Naseem', 'النسيم', 15], ['Al Rawdah', 'الروضة', 4], ['Al Mughrizat', 'المغرزات', 5], ['Al Yasmin', 'الياسمين', 6]] },
-  { id: 2, km: 79.4, min: 91, load: 32, stops: [['Al Malqa', 'الملقا', 12], ['Al Nakheel', 'النخيل', 8], ['Al Olaya', 'العليا', 9], ['Al Sulimaniyah', 'السليمانية', 3]] },
+  { id: 1, km: 155.2, min: 123, load: 35, stops: [['Al Malqa', 'الملقا', 12], ['Al Yasmin', 'الياسمين', 6], ['Al Nakheel', 'النخيل', 8], ['Al Olaya', 'العليا', 9]] },
+  { id: 2, km: 40.9, min: 44, load: 27, stops: [['Al Rawdah', 'الروضة', 4], ['Al Naseem West', 'النسيم الغربي', 15], ['Al Sulimaniyah', 'السليمانية', 3], ['Al Mughrizat', 'المغرزات', 5]] },
 ] as const;
 const CAPACITY = 35;
 
 export const Features: React.FC = () => {
   const { t, lang } = useLanguage();
   const ar = lang === 'ar';
-  const hm = (min: number) => (ar ? `${Math.floor(min / 60)} س ${min % 60} د` : `${Math.floor(min / 60)} h ${min % 60} min`);
+  const hm = (min: number) => {
+    const h = Math.floor(min / 60), m = min % 60;
+    return ar ? (h ? `${h} س ${m} د` : `${m} د`) : (h ? `${h} h ${m} min` : `${m} min`);
+  };
 
   return (
     <section id="features" className="wf">
