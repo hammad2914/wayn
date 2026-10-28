@@ -28,6 +28,57 @@ const PREC_KEY: Record<Precision, TranslationKey> = {
   door: 'wt.prec.door', place: 'hc.prec.place', street: 'hc.prec.street', district: 'hc.prec.district', city: 'wt.prec.city',
 };
 
+// the country menu: a listbox in the site's style rather than the browser's own select
+const CountryPicker: React.FC<{ value: string; onChange: (v: string) => void }> = ({ value, onChange }) => {
+  const { t } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const wrap = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => { if (!wrap.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('pointerdown', away);
+    list.current?.focus();
+    return () => document.removeEventListener('pointerdown', away);
+  }, [open]);
+
+  const show = () => { setActive(Math.max(0, COUNTRIES.indexOf(value as typeof COUNTRIES[number]))); setOpen(true); };
+  const pick = (i: number) => { onChange(COUNTRIES[i]); setOpen(false); button.current?.focus(); };
+  const keys = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(a => (a + 1) % COUNTRIES.length); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(a => (a - 1 + COUNTRIES.length) % COUNTRIES.length); }
+    else if (e.key === 'Home') { e.preventDefault(); setActive(0); }
+    else if (e.key === 'End') { e.preventDefault(); setActive(COUNTRIES.length - 1); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(active); }
+    else if (e.key === 'Escape' || e.key === 'Tab') { setOpen(false); if (e.key === 'Escape') button.current?.focus(); }
+  };
+
+  return (
+    <div className={`wt-pick${open ? ' open' : ''}`} ref={wrap}>
+      <button type="button" ref={button} className="wt-pick-btn" aria-haspopup="listbox" aria-expanded={open} aria-label={t('wt.country')}
+        onClick={() => (open ? setOpen(false) : show())}
+        onKeyDown={e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); show(); } }}>
+        <span>{t(`wt.${value}` as TranslationKey)}</span><small>{value}</small>
+        <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      {open && (
+        <ul className="wt-pick-list" role="listbox" ref={list} tabIndex={-1} aria-label={t('wt.country')}
+          aria-activedescendant={`wt-c-${COUNTRIES[active]}`} onKeyDown={keys}>
+          {COUNTRIES.map((k, i) => (
+            <li key={k} id={`wt-c-${k}`} role="option" aria-selected={k === value} className={i === active ? 'active' : ''}
+              onPointerEnter={() => setActive(i)} onClick={() => pick(i)}>
+              <span>{t(`wt.${k}`)}</span><small>{k}</small>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 type State =
   | { kind: 'idle' }
   | { kind: 'working' }
@@ -106,9 +157,7 @@ export const TryIt: React.FC = () => {
               placeholder={t('wt.placeholder')} aria-label={t('wt.h2')} onChange={e => setText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); run(text, country); } }} />
             <div className="wt-row">
-              <select className="wt-country" aria-label={t('wt.country')} value={country} onChange={e => setCountry(e.target.value)}>
-                {COUNTRIES.map(k => <option key={k} value={k}>{t(`wt.${k}`)}</option>)}
-              </select>
+              <CountryPicker value={country} onChange={setCountry} />
               <button className="wt-go" type="submit" disabled={state.kind === 'working'}>{t('wt.go')}</button>
               <span className="wt-left">{t('wt.limit')}</span>
             </div>
