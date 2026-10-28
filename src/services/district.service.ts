@@ -50,6 +50,12 @@ const cities = (data as { cities: City[] }).cities.map(c => {
 const RANK = { a: 0, n: 1, s: 2, q: 3 };
 const inBox = (b: number[], p: { lat: number; lng: number }) => p.lat >= b[0] && p.lng >= b[1] && p.lat <= b[2] && p.lng <= b[3];
 
+/** The city a name belongs to ("الرياض" and "Riyadh" both give Riyadh), if it is one of ours */
+export function cityOf(name: string): string | null {
+  const n = name.trim().toLowerCase();
+  return cities.find(c => c.names.includes(n))?.city ?? null;
+}
+
 export interface DistrictMatch { district: District; city: string; cityAr: string }
 
 /**

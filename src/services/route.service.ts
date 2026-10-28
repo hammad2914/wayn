@@ -27,7 +27,8 @@ export class RouteInputError extends Error {}
 
 async function locate(address: string, country: string, city?: string, near?: { lat: number; lng: number }): Promise<Point> {
   // "Al Rawdah" exists in many towns: name the city, and stay within reach of it.
-  const q = city && !address.toLowerCase().includes(city.toLowerCase()) ? `${address}, ${city}` : address;
+  const text = address.replace(/[،؛]/g, ',');
+  const q = city && !text.toLowerCase().includes(city.toLowerCase()) ? `${text}, ${city}` : text;
   let place = null;
   for (const strict of [true, false])
     for (const c of candidates(q)) {

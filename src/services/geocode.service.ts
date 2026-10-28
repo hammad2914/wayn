@@ -2,7 +2,7 @@
 // Its usage policy allows at most one request per second with a real
 // User-Agent, so every call goes through one queue and results are cached.
 
-import { findDistrict, type DistrictMatch } from './district.service';
+import { cityOf, findDistrict, type DistrictMatch } from './district.service';
 
 const NOMINATIM = process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org';
 const USER_AGENT = process.env.GEOCODER_USER_AGENT || 'Wayn/1.0 (address normalizer; contact via github.com/hammad2914)';
@@ -142,7 +142,7 @@ const asksFor = (place: Place, query: string) => nameScore(place, query) > 0.6;
 
 /** Split an address into the queries worth trying, most specific first */
 export function candidates(address: string, max = 4): string[] {
-  const parts = address.split(',').map(p => p.trim()).filter(p => p && !COUNTRY_NAMES.test(p));
+  const parts = address.split(/[,،]/).map(p => p.trim()).filter(p => p && !COUNTRY_NAMES.test(p));
   if (parts.length <= 1) return parts;
   const last = parts[parts.length - 1];
   const out = [parts.join(', ')];
@@ -194,6 +194,8 @@ export async function bestMatch(query: string, country?: string, near?: { lat: n
   // found in the saved list, which copes with spellings that OpenStreetMap search misses
   const all = query.split(/[,،]/).map(p => p.trim()).filter(Boolean);
   const parts = all.filter(p => !COUNTRY_NAMES.test(p));
+  // "حي الملقا، الرياض, Riyadh": the route planner adds the city, which may already be there in Arabic
+  while (parts.length > 2 && cityOf(parts[parts.length - 1]) && cityOf(parts[parts.length - 1]) === cityOf(parts[parts.length - 2])) parts.pop();
   if (parts.length && parts.length <= 2) {
     // "Salmiya, Kuwait": the city shares the country's name, so it is the last part even when dropped above
     const m = findDistrict(parts[0], { near, city: parts[1] ?? (all.length > 1 ? all[all.length - 1] : undefined) });
