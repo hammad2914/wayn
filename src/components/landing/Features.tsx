@@ -11,8 +11,8 @@ const RESULTS = [
 ] as const;
 
 const VANS = [
-  { id: 1, km: 155.2, min: 123, load: 35, stops: [['Al Malqa', 'الملقا', 12], ['Al Yasmin', 'الياسمين', 6], ['Al Nakheel', 'النخيل', 8], ['Al Olaya', 'العليا', 9]] },
-  { id: 2, km: 40.9, min: 44, load: 27, stops: [['Al Rawdah', 'الروضة', 4], ['Al Naseem West', 'النسيم الغربي', 15], ['Al Sulimaniyah', 'السليمانية', 3], ['Al Mughrizat', 'المغرزات', 5]] },
+  { id: 1, km: 93.0, min: 94, load: 30, stops: [['Al Yasmin', 'الياسمين', 6], ['Al Mughrizat', 'المغرزات', 5], ['Al Rawdah', 'الروضة', 4], ['Al Naseem West', 'النسيم الغربي', 15]] },
+  { id: 2, km: 106.0, min: 95, load: 32, stops: [['Al Sulimaniyah', 'السليمانية', 3], ['Al Olaya', 'العليا', 9], ['Al Nakheel', 'النخيل', 8], ['Al Malqa', 'الملقا', 12]] },
 ] as const;
 const CAPACITY = 35;
 
@@ -91,7 +91,7 @@ export const Features: React.FC = () => {
             <div className="wf-vis wf-vans">
               {VANS.map(v => (
                 <div className="wf-van" key={v.id}>
-                  <div className="vh"><b>{t('wf.van')} {v.id}</b><span><span dir="ltr">{v.km} km</span> · <span dir={ar ? 'rtl' : 'ltr'}>{hm(v.min)}</span></span></div>
+                  <div className="vh"><b>{t('wf.van')} {v.id}</b><span><span dir="ltr">{v.km.toFixed(1)} km</span> · <span dir={ar ? 'rtl' : 'ltr'}>{hm(v.min)}</span></span></div>
                   <div className="wf-load"><span>{t('wf.load')}</span><b dir="ltr">{v.load} / {CAPACITY} kg</b></div>
                   <div className="bar"><i style={{ width: `${(v.load / CAPACITY) * 100}%` }} /></div>
                   <ol>
@@ -106,11 +106,6 @@ export const Features: React.FC = () => {
           </div>
         </div>
 
-        <div className="wf-facts">
-          <p><b>{t('wf.x1T')}</b>{t('wf.x1')}</p>
-          <p><b>{t('wf.x2T')}</b>{t('wf.x2')}</p>
-          <p><b>{t('wf.x3T')}</b>{t('wf.x3')}</p>
-        </div>
       </div>
     </section>
   );

@@ -71,17 +71,12 @@
 .wf-van li .n{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:600;background:#1A2148;color:var(--muted);flex-shrink:0}
 .wf-van li .kg{margin-inline-start:auto;color:var(--faint);font-variant-numeric:tabular-nums}
 
-/* plain facts, no cards */
-.wf-facts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);margin-top:24px}
-.wf-facts p{padding:28px 0 0;font-size:15px;line-height:1.55;color:#B4BBD4;padding-inline-end:32px}
-.wf-facts b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px}
 
 @media (max-width:960px){
   .wf{padding:80px 16px}
   .wf-head{margin-bottom:48px}
   .wf-row{grid-template-columns:1fr;gap:28px;padding:40px 0}
   .wf-row.flip .wf-text{order:0}
-  .wf-facts{grid-template-columns:1fr}
 }
 @media (max-width:560px){
   .wf-vis{padding:18px}
