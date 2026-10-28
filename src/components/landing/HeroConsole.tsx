@@ -60,7 +60,8 @@ export const HeroConsole: React.FC = () => {
       doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false, zoomSnap: 0.25 });
     // tiles load once a flight lands, not at every zoom it passes through, and are fetched ahead (warm)
     const tileOpts = { maxNativeZoom: 16, maxZoom: 19, updateWhenZooming: false, keepBuffer: 4 };
-    L.tileLayer(`${TILES}Base/MapServer/tile/{z}/{y}/{x}`, tileOpts).addTo(map);
+    // the page loader (index.html) lifts once the first view of the map is in
+    L.tileLayer(`${TILES}Base/MapServer/tile/{z}/{y}/{x}`, tileOpts).once('load', () => window.bootDone?.()).addTo(map);
     L.tileLayer(`${TILES}Reference/MapServer/tile/{z}/{y}/{x}`, { ...tileOpts, opacity: 0.7 }).addTo(map);
     const layer = L.layerGroup().addTo(map);
 

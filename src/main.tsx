@@ -13,6 +13,10 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+// the loader in index.html waits for the hero map on the landing page; other pages don't have one
+declare global { interface Window { bootDone?: () => void } }
+if (location.pathname !== '/') window.bootDone?.();
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

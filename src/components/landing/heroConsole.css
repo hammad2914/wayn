@@ -14,7 +14,7 @@
 
 .hc-map{position:absolute;inset:0;z-index:0;background:var(--navy)}
 .hc-map .leaflet-tile-pane{filter:sepia(.4) hue-rotate(188deg) saturate(1.7) brightness(1.2) contrast(1.1)}
-.hc-map.leaflet-container{background:var(--navy);font-family:inherit}
+.hc-map.leaflet-container{background:var(--navy) !important;font-family:inherit} /* the site paints every map beige with !important */
 .hc-shade{position:absolute;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(90deg,var(--navy) 0%,rgba(10,14,39,.92) 28%,rgba(10,14,39,.35) 42%,rgba(10,14,39,0) 52%),
              linear-gradient(0deg,rgba(10,14,39,.85) 0%,rgba(10,14,39,0) 22%),
