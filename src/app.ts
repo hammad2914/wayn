@@ -7,6 +7,8 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
 import usageRoutes from './routes/usage.routes';
 import engineRoutes from './routes/engine.routes';
+import dispatchRoutes from './routes/dispatch.routes';
+import driverRoutes from './routes/driver.routes';
 
 const app = express();
 
@@ -30,8 +32,8 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Global rate limiter
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true, legacyHeaders: false }));
+// Global rate limiter (the dashboard refreshes itself every 30 seconds, so leave room for that)
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false }));
 
 // Auth-specific stricter limiter
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { success: false, message: 'Too many requests' } });
@@ -39,6 +41,8 @@ const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { su
 app.use('/api/auth',  authLimiter, authRoutes);
 app.use('/api/usage', usageRoutes);
 app.use('/api/engine', engineRoutes);
+app.use('/api/dispatch', dispatchRoutes);
+app.use('/api/driver', driverRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 

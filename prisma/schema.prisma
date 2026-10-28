@@ -25,6 +25,9 @@ model User {
   otps           OTP[]
   usage          Usage?
   refreshTokens  RefreshToken[]
+  orders         Order[]
+  runs           Run[]
+  dispatchEvents DispatchEvent[]
 }
 
 model RefreshToken {
@@ -77,4 +80,81 @@ model DailyUsage {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, date])
+}
+
+// ── Dispatch: the day's orders, the run that delivers them, and what happened ──
+
+model Order {
+  id          String    @id @default(cuid())
+  userId      String
+  day         String    // the dispatch day, YYYY-MM-DD in the company's local time
+  ref         Int       // running number per company, shown as W-1041
+  customer    String
+  phone       String?
+  text        String    // the address exactly as the customer sent it
+  country     String
+  city        String?
+  kg          Float     @default(0)
+  state       String    @default("cleaning") // cleaning | ready | check | pin
+  match       String?   // how close the map match got: street | landmark | place | district | city | pinned
+  en          String?
+  ar          String?
+  lat         Float?
+  lng         Float?
+  notes       String[]  // landmarks and details for the driver
+  confidence  Float?
+  runId       String?
+  vanId       String?
+  seq         Int?
+  eta         DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  run         Run?      @relation(fields: [runId], references: [id], onDelete: SetNull)
+  van         RunVan?   @relation(fields: [vanId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, ref])
+  @@index([userId, day])
+}
+
+model Run {
+  id        String   @id @default(cuid())
+  userId    String
+  day       String
+  depot     Json     // { address, lat, lng }
+  startAt   DateTime // when the vans leave
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vans      RunVan[]
+  orders    Order[]
+
+  @@index([userId, day])
+}
+
+model RunVan {
+  id       String  @id @default(cuid())
+  runId    String
+  index    Int     // van number for the day, counting from 0
+  driver   String
+  token    String  @unique // the driver's link
+  capacity Float
+  km       Float
+  minutes  Int
+  load     Float
+  line     Json    // the road line, [lat, lng] pairs
+  run      Run     @relation(fields: [runId], references: [id], onDelete: Cascade)
+  orders   Order[]
+}
+
+model DispatchEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  day       String
+  kind      String   // orders_added | needs_pin | checked | pinned | run_planned | delivered | van_done
+  data      Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, day])
 }
