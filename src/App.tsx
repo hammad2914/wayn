@@ -17,6 +17,7 @@ import { AddressNormalizerPage } from './pages/dashboard/AddressNormalizerPage';
 import { RouteOptimizerPage } from './pages/dashboard/RouteOptimizerPage';
 import { ProfilePage } from './pages/dashboard/ProfilePage';
 import { SettingsPage } from './pages/dashboard/SettingsPage';
+import { DriverPage } from './pages/DriverPage';
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -34,6 +35,8 @@ const App: React.FC = () => {
             <Routes>
               {/* Public — accessible to everyone */}
               <Route path="/" element={<LandingPage />} />
+              {/* A driver's stops for the day; the link itself is the key */}
+              <Route path="/d/:token" element={<DriverPage />} />
 
               {/* Guest-only — redirect to dashboard if already logged in */}
               <Route path="/login"           element={<GuestRoute><LoginPage /></GuestRoute>} />
