@@ -47,6 +47,25 @@ export const normalizeAddress = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// one address from a visitor who isn't signed in: shorter input, and only what the box shows
+const trySchema = z.object({ address: z.string().trim().min(3).max(160), country: country.optional() });
+
+export const tryAddress = async (req: AuthRequest, res: Response) => {
+  const parsed = trySchema.safeParse(req.body);
+  if (!parsed.success) { invalid(res, parsed.error); return; }
+  try {
+    const r = await normalize(parsed.data);
+    res.json({
+      success: r.success, original_address: r.original_address, normalized_english: r.normalized_english,
+      normalized_address: r.normalized_address, components: r.components, confidence_score: r.confidence_score,
+      geocoding: r.geocoding, processing_time_ms: r.processing_time_ms, error: r.error,
+    });
+  } catch (err) {
+    console.error('[try]', err);
+    res.status(502).json({ success: false, error: 'The map service is not responding. Please try again in a minute.' });
+  }
+};
+
 export const optimizeRoute = async (req: AuthRequest, res: Response) => {
   const parsed = routeSchema.safeParse(req.body);
   if (!parsed.success) { invalid(res, parsed.error); return; }
