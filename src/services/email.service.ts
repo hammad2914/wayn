@@ -89,54 +89,6 @@ const footerRow = `
             </td>
           </tr>`;
 
-export const sendOTPEmail = async (to: string, otp: string, fullName: string) => {
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <title>Verify your Wayn account</title>
-</head>
-<body style="margin:0;padding:0;background-color:#0A0E27;font-family:${FONT_STACK};">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0A0E27;padding:40px 20px;">
-    <tr>
-      <td align="center">
-        <table width="520" cellpadding="0" cellspacing="0" style="background:#12183A;border-radius:20px;border:1px solid rgba(245,200,66,0.18);overflow:hidden;">
-          <!-- Header -->
-          <tr>
-            <td style="padding:36px 40px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07);">
-              <img src="${LOGO_URL}" alt="Wayn" height="44" style="height:44px;width:auto;display:block;margin:0 auto 20px;">
-              <h1 style="margin:0;font-size:22px;font-weight:700;font-family:${FONT_STACK};color:#F5C842;letter-spacing:-0.3px;">Verify your account</h1>
-              <p style="margin:10px 0 0;font-size:14px;font-family:${FONT_STACK};color:rgba(255,255,255,0.55);font-weight:400;">Hi ${fullName}, here is your one-time verification code</p>
-            </td>
-          </tr>
-          <!-- OTP Code -->
-          <tr>
-            <td style="padding:40px;text-align:center;">
-              <div style="display:inline-block;background:rgba(245,200,66,0.07);border:1.5px solid rgba(245,200,66,0.35);border-radius:14px;padding:22px 52px;margin-bottom:22px;">
-                <span style="font-size:46px;font-weight:700;color:#F5C842;letter-spacing:14px;font-family:'Courier New',monospace;">${otp}</span>
-              </div>
-              <p style="margin:0;font-size:13px;font-family:${FONT_STACK};color:rgba(255,255,255,0.45);">
-                This code expires in <strong style="color:rgba(255,255,255,0.75);font-weight:600;">10 minutes</strong>
-              </p>
-              <p style="margin:8px 0 0;font-size:12px;font-family:${FONT_STACK};color:rgba(255,255,255,0.28);">
-                If you didn't request this, you can safely ignore this email.
-              </p>
-            </td>
-          </tr>
-          ${footerRow}
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-
-  return sendWithRetry({ to, subject: 'Your Wayn verification code', html });
-};
-
 export const sendPasswordResetEmail = async (
   to: string,
   fullName: string,

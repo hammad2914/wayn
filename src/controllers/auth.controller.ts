@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.utils';
 import { sendSuccess, sendError } from '../utils/response.utils';
-import { generateOTP, saveOTP, saveOTPWithExpiry, validateOTP, markOTPUsed } from '../services/otp.service';
-import { sendOTPEmail, sendPasswordResetEmail } from '../services/email.service';
+import { generateOTP, saveOTPWithExpiry, validateOTP, markOTPUsed } from '../services/otp.service';
+import { sendPasswordResetEmail } from '../services/email.service';
 import type { AuthRequest } from '../middleware/auth.middleware';
 
 // ── Refresh-token cookie config ───────────────────────────────────────────────
@@ -80,55 +80,18 @@ export const signup = async (req: Request, res: Response) => {
 
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
-    data: { email, username, companyName, fullName, passwordHash, phone, country },
+    data: { email, username, companyName, fullName, passwordHash, phone, country, isVerified: true },
   });
-
-  await prisma.usage.create({ data: { userId: user.id } });
-
-  const otp = generateOTP();
-  await saveOTP(user.id, otp);
-  let emailSent = false;
-  let emailError = '';
-  try {
-    await sendOTPEmail(email, otp, fullName);
-    emailSent = true;
-  } catch (err) {
-    emailError = err instanceof Error ? err.message : 'SMTP error';
-    console.error('[signup] OTP email failed:', emailError);
-  }
-
-  sendSuccess(res, {
-    userId: user.id,
-    emailSent,
-    emailError: emailSent ? undefined : emailError,
-    message: emailSent
-      ? 'Account created. Check your email for the OTP.'
-      : 'Account created but email delivery failed. Use resend OTP below.',
-  }, 201);
-};
-
-// ── Verify OTP ────────────────────────────────────────────────────────────────
-export const verifyOTP = async (req: Request, res: Response) => {
-  const { userId, otp } = req.body as { userId: string; otp: string };
-  if (!userId || !otp) { sendError(res, 'userId and otp are required'); return; }
-
-  const otpRecord = await validateOTP(userId, otp);
-  if (!otpRecord) { sendError(res, 'Invalid or expired OTP', 400); return; }
-
-  await markOTPUsed(otpRecord.id);
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data:  { isVerified: true },
-    include: { usage: true },
-  });
+  // no email code: the account is ready, so sign in straight away
+  const usage = await prisma.usage.create({ data: { userId: user.id } });
 
   const token = await issueTokens(res, user);
   sendSuccess(res, {
     token,
     user: { id: user.id, email: user.email, fullName: user.fullName, username: user.username,
-            companyName: user.companyName, country: user.country, role: user.role, usage: user.usage,
+            companyName: user.companyName, country: user.country, role: user.role, usage,
             createdAt: user.createdAt },
-  });
+  }, 201);
 };
 
 // ── Login ─────────────────────────────────────────────────────────────────────
@@ -141,11 +104,6 @@ export const login = async (req: Request, res: Response) => {
     include: { usage: true },
   });
   if (!user) { sendError(res, 'Invalid credentials', 401); return; }
-  if (!user.isVerified) {
-    sendError(res, 'Please verify your email first', 403, { needsVerification: true, userId: user.id });
-    return;
-  }
-
   const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
   if (!valid) { sendError(res, 'Invalid credentials', 401); return; }
 
@@ -201,26 +159,6 @@ export const logout = async (req: Request, res: Response) => {
   }
   res.clearCookie(REFRESH_COOKIE, { ...COOKIE_OPTS, maxAge: 0 });
   sendSuccess(res, { message: 'Logged out' });
-};
-
-// ── Resend OTP ────────────────────────────────────────────────────────────────
-export const resendOTP = async (req: Request, res: Response) => {
-  const { userId } = req.body as { userId: string };
-  if (!userId) { sendError(res, 'userId is required'); return; }
-
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) { sendError(res, 'User not found', 404); return; }
-  if (user.isVerified) { sendError(res, 'Account already verified'); return; }
-
-  const otp = generateOTP();
-  await saveOTP(user.id, otp);
-
-  // Respond immediately — don't block on SMTP
-  sendSuccess(res, { emailSent: true, message: 'New OTP sent to your email' });
-
-  sendOTPEmail(user.email, otp, user.fullName).catch((err) => {
-    console.error('[resend-otp] Email failed:', err instanceof Error ? err.message : err);
-  });
 };
 
 // ── Me ────────────────────────────────────────────────────────────────────────
