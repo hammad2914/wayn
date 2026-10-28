@@ -18,14 +18,15 @@ const COUNTRIES = ['SA', 'AE', 'QA', 'KW', 'BH', 'OM'] as const;
 const GULF = L.latLngBounds([[21, 39], [29.5, 58.5]]);
 const TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_';
 
-type Precision = 'door' | 'place' | 'street' | 'district' | 'city';
+type Precision = 'door' | 'place' | 'landmark' | 'street' | 'district' | 'city';
 const precisionOf = (type: string): Precision =>
-  ['building', 'house'].includes(type) ? 'door'
+  type === 'landmark' ? 'landmark' // the district, pinned at a landmark the customer named in it
+  : ['building', 'house'].includes(type) ? 'door'
   : ['road', 'primary', 'secondary', 'tertiary', 'trunk', 'motorway', 'residential'].includes(type) ? 'street'
   : ['suburb', 'neighbourhood', 'quarter', 'city_district'].includes(type) ? 'district'
   : ['city', 'town', 'village', 'county', 'state', 'country'].includes(type) ? 'city' : 'place';
 const PREC_KEY: Record<Precision, TranslationKey> = {
-  door: 'wt.prec.door', place: 'hc.prec.place', street: 'hc.prec.street', district: 'hc.prec.district', city: 'wt.prec.city',
+  door: 'wt.prec.door', place: 'hc.prec.place', landmark: 'wt.prec.landmark', street: 'hc.prec.street', district: 'hc.prec.district', city: 'wt.prec.city',
 };
 
 // the country menu: a listbox in the site's style rather than the browser's own select
