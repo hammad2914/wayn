@@ -1,4 +1,5 @@
-import { search, bestMatch, candidates } from './geocode.service';
+import { search, bestMatch, candidates, landmarkIn, AREA_TYPES, type Place } from './geocode.service';
+import { readAddress, toLatinDigits } from './normalize.service';
 
 // Route planning: geocode every address, ask OSRM for real driving distances
 // between all of them, share the stops out between vehicles within their
@@ -27,16 +28,22 @@ export class RouteInputError extends Error {}
 
 async function locate(address: string, country: string, city?: string, near?: { lat: number; lng: number }): Promise<Point> {
   // "Al Rawdah" exists in many towns: name the city, and stay within reach of it.
-  const text = address.replace(/[،؛]/g, ',');
-  const q = city && !text.toLowerCase().includes(city.toLowerCase()) ? `${text}, ${city}` : text;
-  let place = null;
+  const text = toLatinDigits(address).replace(/[،؛]/g, ',').replace(/\s+/g, ' ');
+  // landmarks ("behind Mall of the Emirates") are not searched as the address; they can pin it below
+  const { searchable, named } = readAddress(text);
+  const base = searchable.join(', ') || text;
+  const q = city && !base.toLowerCase().includes(city.toLowerCase()) ? `${base}, ${city}` : base;
+  let place: Place | null = null;
   for (const strict of [true, false])
     for (const c of candidates(q)) {
       if (place) break;
       place = await bestMatch(c, country, near, strict);
     }
   if (!place) throw new RouteInputError(`Could not find "${address}" on the map.`);
-  return { address, lat: place.lat, lng: place.lng, rough: ROUGH.has(place.type) };
+  // only the district was found: a landmark the customer named inside it puts the stop at the right spot
+  const pin = AREA_TYPES.has(place.type) && named.length ? await landmarkIn(place, named, country) : null;
+  const at = pin ?? place;
+  return { address, lat: at.lat, lng: at.lng, rough: !pin && ROUGH.has(place.type) };
 }
 
 /** Driving distance (m) and duration (s) between every pair of points */

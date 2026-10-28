@@ -7,7 +7,7 @@ import { search, bestMatch, candidates, lookup, landmarkIn, AREA_TYPES, type Pla
 const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';
 const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 
-const toLatinDigits = (s: string) =>
+export const toLatinDigits = (s: string) =>
   s.replace(/[٠-٩۰-۹]/g, d => String(Math.max(ARABIC_DIGITS.indexOf(d), PERSIAN_DIGITS.indexOf(d))));
 
 // "near the mosque", "behind the pharmacy", "opposite gate 3"…
@@ -37,6 +37,29 @@ const PRECISION: Record<string, number> = {
   city_district: 0.65, village: 0.6, town: 0.55, city: 0.5, county: 0.4, state: 0.3, country: 0.2,
 };
 
+/**
+ * A message split into what the map can search for and what only the driver needs:
+ * "olaya st near kingdom tower" → search "Olaya Street", note "near kingdom tower".
+ * named holds the landmarks reduced to the place they name ("kingdom tower"), for pinning.
+ */
+export function readAddress(text: string) {
+  const landmarks: string[] = [];
+  const searchable: string[] = [];
+  for (const raw of text.split(/[,\n]+/).map(s => s.trim()).filter(Boolean)) {
+    const m = raw.match(LANDMARK_RE);
+    // "the pharmacy opposite": the keyword comes last, so the whole part is a landmark
+    const keywordLast = m && raw.slice((m.index ?? 0) + m[0].length).trim() === '';
+    const before = m && !keywordLast ? raw.slice(0, m.index).trim() : m ? '' : raw;
+    if (m) landmarks.push(keywordLast ? raw : raw.slice(m.index).trim());
+    // floor / gate details can't be matched on a map, but the driver needs them
+    if (DETAIL_RE.test(before) && !/\d{3,}/.test(before.replace(BUILDING_RE, ''))) { landmarks.push(before); continue; }
+    const clean = cleanSegment(before.replace(BUILDING_RE, '').replace(POSTAL_RE, ''));
+    if (clean) searchable.push(clean);
+  }
+  const named = landmarks.filter(l => LANDMARK_RE.test(l)).map(l => cleanSegment(l.replace(LANDMARK_RE, ' '))).filter(l => l.length > 2);
+  return { searchable, landmarks, named };
+}
+
 export interface NormalizeInput {
   address: string;
   country?: string;
@@ -62,19 +85,7 @@ export async function normalize(input: NormalizeInput) {
 
   // "olaya st near kingdom tower": the part before "near" is the address,
   // the rest is a landmark the driver should see
-  const landmarks: string[] = [];
-  const searchable: string[] = [];
-  for (const raw of text.split(/[,\n]+/).map(s => s.trim()).filter(Boolean)) {
-    const m = raw.match(LANDMARK_RE);
-    // "the pharmacy opposite": the keyword comes last, so the whole part is a landmark
-    const keywordLast = m && raw.slice((m.index ?? 0) + m[0].length).trim() === '';
-    const before = m && !keywordLast ? raw.slice(0, m.index).trim() : m ? '' : raw;
-    if (m) landmarks.push(keywordLast ? raw : raw.slice(m.index).trim());
-    // floor / gate details can't be matched on a map, but the driver needs them
-    if (DETAIL_RE.test(before) && !/\d{3,}/.test(before.replace(BUILDING_RE, ''))) { landmarks.push(before); continue; }
-    const clean = cleanSegment(before.replace(BUILDING_RE, '').replace(POSTAL_RE, ''));
-    if (clean) searchable.push(clean);
-  }
+  const { searchable, landmarks, named } = readAddress(text);
 
   // try the full address, then keep dropping the most specific part.
   // Streets and districts first; only then shops and landmarks.
@@ -122,10 +133,7 @@ export async function normalize(input: NormalizeInput) {
   // "behind Mall of the Emirates, Al Barsha 1": when the match only reached the district, a landmark
   // the customer named pins it closer, as long as that landmark is inside the same district
   let pin: Place | null = null;
-  if (AREA_TYPES.has(place.type)) {
-    const named = landmarks.filter(l => LANDMARK_RE.test(l)).map(l => cleanSegment(l.replace(LANDMARK_RE, ' '))).filter(l => l.length > 2);
-    if (named.length) pin = await landmarkIn(place, named, input.country);
-  }
+  if (AREA_TYPES.has(place.type) && named.length) pin = await landmarkIn(place, named, input.country);
 
   const ar = (await lookup(place, 'ar')) ?? place;
   const en = place.address, arA = ar.address;
