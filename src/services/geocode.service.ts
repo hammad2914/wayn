@@ -2,6 +2,8 @@
 // Its usage policy allows at most one request per second with a real
 // User-Agent, so every call goes through one queue and results are cached.
 
+import { findDistrict, type DistrictMatch } from './district.service';
+
 const NOMINATIM = process.env.NOMINATIM_URL || 'https://nominatim.openstreetmap.org';
 const USER_AGENT = process.env.GEOCODER_USER_AGENT || 'Wayn/1.0 (address normalizer; contact via github.com/hammad2914)';
 const MIN_GAP_MS = 1100;
@@ -153,6 +155,34 @@ export function candidates(address: string, max = 4): string[] {
 
 const COUNTRY_NAMES = /^(saudi arabia|ksa|uae|united arab emirates|qatar|kuwait|bahrain|oman|egypt|jordan|lebanon|المملكة العربية السعودية|السعودية|الإمارات|الإمارات العربية المتحدة|قطر|الكويت|البحرين|عمان|عُمان|مصر|الأردن|لبنان)$/i;
 
+
+/** A district from the saved list, with its full address fetched by its OpenStreetMap id */
+const REGION_KEYS = new Set(['postcode', 'county', 'state', 'country', 'country_code']);
+
+async function districtPlace({ district: d, city, cityAr }: DistrictMatch): Promise<Place> {
+  const names = [d.n, d.en, d.ar].filter((n): n is string => !!n);
+  const base: Place = {
+    osmType: d.osm.charAt(0), osmId: Number(d.osm.slice(1)), lat: d.lat, lng: d.lng, type: 'suburb',
+    names, importance: 0.2, displayName: `${d.en ?? d.n}, ${city}`, address: { suburb: d.en ?? d.n, city },
+  };
+  // OpenStreetMap search does not index these district boundaries, so /lookup finds nothing.
+  // The address at the district's centre gives the region and postcode in each language (its
+  // street and city are not used: the street is just whichever is nearest, and the "city" is
+  // sometimes a municipality). Saved under the lookup keys, so the Arabic version is found later.
+  const local = { en: d.en ?? d.n, ar: d.ar ?? d.n }, cities = { en: city, ar: cityAr };
+  let english = base;
+  for (const lang of ['en', 'ar'] as const) {
+    const params = new URLSearchParams({ lat: String(d.lat), lon: String(d.lng), zoom: '16', format: 'jsonv2', addressdetails: '1', 'accept-language': lang });
+    const row = await throttled(() => getJson(`${NOMINATIM}/reverse?${params}`)).catch(() => null) as NominatimRow | null;
+    const around = row && 'address' in row ? toPlace(row).address : {};
+    const keep = Object.fromEntries(Object.entries(around).filter(([k]) => REGION_KEYS.has(k)));
+    const place: Place = { ...base, displayName: [local[lang], cities[lang]].join(', '), address: { ...keep, suburb: local[lang], city: cities[lang] } };
+    cache.set(`l|${lang}|${d.osm}`, [place]);
+    if (lang === 'en') english = place;
+  }
+  return english;
+}
+
 /**
  * The best place for one query. A named landmark wins when the query names it
  * ("Kingdom Centre Tower"); otherwise a hotel or shop that merely sits on the
@@ -160,6 +190,16 @@ const COUNTRY_NAMES = /^(saudi arabia|ksa|uae|united arab emirates|qatar|kuwait|
  * mode nothing else is accepted, so the caller can try a looser query first.
  */
 export async function bestMatch(query: string, country?: string, near?: { lat: number; lng: number }, strict = true): Promise<Place | null> {
+  // "Al Malqa, Riyadh" / "حي الملقا، الرياض": a district and nothing more specific is the district itself,
+  // found in the saved list, which copes with spellings that OpenStreetMap search misses
+  const all = query.split(/[,،]/).map(p => p.trim()).filter(Boolean);
+  const parts = all.filter(p => !COUNTRY_NAMES.test(p));
+  if (parts.length && parts.length <= 2) {
+    // "Salmiya, Kuwait": the city shares the country's name, so it is the last part even when dropped above
+    const m = findDistrict(parts[0], { near, city: parts[1] ?? (all.length > 1 ? all[all.length - 1] : undefined) });
+    if (m) return districtPlace(m);
+  }
+
   const fits = (p: Place) => ADDRESS_TYPES.has(p.type) || asksFor(p, query);
   const top = await searchMany(query, country, false, near, 10);
   // of the results that fit, the one whose name the query mentions most

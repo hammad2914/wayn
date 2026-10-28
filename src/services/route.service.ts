@@ -21,7 +21,7 @@ export interface RouteInput {
 interface Point { address: string; lat: number; lng: number; rough: boolean }
 
 // matches this vague put the pin somewhere in the district or city, not at the door
-const ROUGH = new Set(['city', 'town', 'village', 'municipality', 'county', 'state', 'city_district', 'suburb']);
+const ROUGH = new Set(['city', 'town', 'village', 'municipality', 'county', 'state', 'city_district', 'suburb', 'neighbourhood', 'quarter']);
 
 export class RouteInputError extends Error {}
 
