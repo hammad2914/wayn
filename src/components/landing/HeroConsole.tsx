@@ -267,6 +267,7 @@ export const HeroConsole: React.FC = () => {
         <div className="hc-links">
           <a href="#how-it-works">{t('hc.nav1')}</a>
           <a href="#features">{t('hc.nav2')}</a>
+          <a href="#try">{t('wt.label')}</a>
         </div>
         <div className="hc-nav-end">
           <button className="hc-lang" onClick={() => setLang(ar ? 'en' : 'ar')}>{ar ? 'English' : 'العربية'}</button>

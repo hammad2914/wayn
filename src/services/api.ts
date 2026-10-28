@@ -115,4 +115,17 @@ export const optimizeRoute = async (payload: RouteOptimizerRequest): Promise<Rou
   return data;
 };
 
+// The landing page's try-it box: no sign-in, so it skips the client's token handling.
+// A refusal comes back as { error: 'try_limit' | 'try_busy' } rather than as a thrown error.
+export type TryResponse = Pick<NormalizeResponse, 'success' | 'original_address' | 'normalized_address' | 'normalized_english'
+  | 'components' | 'confidence_score' | 'processing_time_ms' | 'geocoding' | 'error'>;
+export const tryAddress = async (address: string, country: string): Promise<TryResponse> => {
+  const res = await fetch(`${BACKEND_API}/engine/try`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ address, country }),
+    signal: AbortSignal.timeout(60000),
+  });
+  const data = await res.json().catch(() => ({ success: false, error: 'down' }));
+  return res.ok || data.error === 'try_limit' || data.error === 'try_busy' ? data : { ...data, success: false, error: 'down' };
+};
+
 export default backendClient;
