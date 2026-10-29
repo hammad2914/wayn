@@ -1,7 +1,7 @@
 {
-  "name": "wayn-backend",
+  "name": "wayn-api",
   "version": "1.0.0",
-  "description": "Wayn backend API",
+  "description": "Wayn API: auth, address engine, route planning",
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",

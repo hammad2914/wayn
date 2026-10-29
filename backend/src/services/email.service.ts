@@ -47,7 +47,9 @@ const sendWithRetry = async ({ to, subject, html }: MailPayload): Promise<void> 
   throw lastError;
 };
 
-const LOGO_URL = `${process.env.API_URL || 'https://wayn-backend.onrender.com'}/public/images/logo.png`;
+// Text wordmark rather than an image: renders even when the mail client blocks images
+const WORDMARK = (gap: number) =>
+  `<p style="margin:0 auto ${gap}px;font-size:26px;font-weight:700;font-family:${FONT_STACK};color:#F5C842;letter-spacing:-0.3px;">Wayn <span style="color:rgba(255,255,255,0.45);font-weight:500;">· وين</span></p>`;
 
 // Shared font stack — Google Fonts with robust fallbacks
 const FONT_STACK = "'DM Sans', 'Segoe UI', Arial, sans-serif";
@@ -68,7 +70,7 @@ const emailWrapper = (content: string) => `
           <!-- Header -->
           <tr>
             <td style="padding:36px 40px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07);">
-              <img src="${LOGO_URL}" alt="Wayn" height="44" style="height:44px;width:auto;display:block;margin:0 auto 24px;" >
+              ${WORDMARK(24)}
               ${content}
             </td>
           </tr>
@@ -84,7 +86,7 @@ const footerRow = `
           <tr>
             <td style="padding:18px 40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);">
               <p style="margin:0;font-size:12px;font-family:${FONT_STACK};color:rgba(255,255,255,0.22);letter-spacing:0.2px;">
-                © 2026 Wayn · AI-powered Logistics Intelligence
+                © 2026 Wayn · Addresses and routes for Gulf delivery
               </p>
             </td>
           </tr>`;
@@ -115,7 +117,7 @@ export const sendPasswordResetEmail = async (
           <!-- Header -->
           <tr>
             <td style="padding:36px 40px 28px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.07);">
-              <img src="${LOGO_URL}" alt="Wayn" height="44" style="height:44px;width:auto;display:block;margin:0 auto 20px;">
+              ${WORDMARK(20)}
               <h1 style="margin:0;font-size:22px;font-weight:700;font-family:${FONT_STACK};color:#F5C842;letter-spacing:-0.3px;">Reset your password</h1>
               <p style="margin:10px 0 0;font-size:14px;font-family:${FONT_STACK};color:rgba(255,255,255,0.55);font-weight:400;">Hi ${fullName}, we received a request to reset your password.</p>
             </td>
