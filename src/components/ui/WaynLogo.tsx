@@ -12,11 +12,12 @@ interface Props {
 const GREEN_ON_LIGHT = '#0B7A5C';
 const GOLD_ON_DARK   = '#F5C842';
 
-/** A map pin turned on its side: a drop whose point sits at the bottom left */
+/** The ن of وين: its bowl, with the letter's dot drawn as a map pin dropping in */
 export const WaynMark: React.FC<{ size: number; color: string; hole?: string }> = ({ size, color, hole = '#fff' }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={{ display: 'block', flexShrink: 0 }}>
-    <path d="M12 2a8 8 0 0 1 8 8c0 4.4-3.6 8-8 8H4v-8a8 8 0 0 1 8-8Z" fill={color} />
-    <circle cx="12" cy="10" r="3.2" fill={hole} />
+  <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" style={{ display: 'block', flexShrink: 0 }}>
+    <path d="M8 20c0 11 7.2 19 16 19s16-8 16-19" fill="none" stroke={color} strokeWidth={6} strokeLinecap="round" />
+    <path d="M24 27c-3.6-4.4-7-7.4-7-11.4a7 7 0 0 1 14 0c0 4-3.4 7-7 11.4Z" fill={color} />
+    <circle cx="24" cy="15.6" r="2.6" fill={hole} />
   </svg>
 );
 
