@@ -81,7 +81,7 @@ const ToastContainer: React.FC = () => {
           >
             <Icon icon={icons[t.type]} width={22} color={tColors[t.type]} style={{ flexShrink: 0, marginTop: '1px' }} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#FFFFFF' }}>{t.title}</p>
+              <p style={{ margin: 0, fontSize: '14px', fontWeight: 500, color: '#FFFFFF' }}>{t.title}</p>
               {t.message && <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>{t.message}</p>}
             </div>
             <button onClick={() => dismiss(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'rgba(255,255,255,0.4)', flexShrink: 0 }}>

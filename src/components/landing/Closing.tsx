@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { WaynLogo } from '../ui/WaynLogo';
+import { LangSwitch } from '../app/ui';
 import { VANS } from './howRun';
 import './closing.css';
 
@@ -10,7 +11,7 @@ const NS = 'http://www.w3.org/2000/svg';
 const COLORS = ['#F5C842', '#8FB4FF'];
 
 export const Closing: React.FC = () => {
-  const { t, lang, setLang } = useLanguage();
+  const { t, lang } = useLanguage();
   const end = useRef<HTMLElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -99,7 +100,7 @@ export const Closing: React.FC = () => {
         </div>
         <div className="wz-base">
           <span>{t('wz.copy')}</span>
-          <button type="button" onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}>{lang === 'ar' ? 'English' : 'العربية'}</button>
+          <LangSwitch />
         </div>
       </footer>
     </div>

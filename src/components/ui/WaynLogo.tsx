@@ -35,7 +35,7 @@ export const WaynLogo: React.FC<Props> = ({ size = 22, tone = 'dark', markOnly =
       style={{ display: 'inline-flex', alignItems: 'center', gap: size * 0.32, lineHeight: 1 }}
     >
       <WaynMark size={size * 1.1} color={accent} hole={hole} />
-      <span style={{ fontFamily: "'Readex Pro', 'Sora', sans-serif", fontWeight: 700, fontSize: size, letterSpacing: '-0.03em', color: ink }}>
+      <span style={{ fontFamily: "'Readex Pro', 'Sora', sans-serif", fontWeight: 600, fontSize: size, letterSpacing: '-0.03em', color: ink }}>
         wayn
       </span>
       <span style={{ fontFamily: "'Readex Pro', 'Cairo', sans-serif", fontWeight: 500, fontSize: size * 0.82, color: accent }}>

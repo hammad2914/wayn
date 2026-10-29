@@ -8,7 +8,7 @@
 .wt h2{font-family:inherit} /* the site sets Sora on every heading */
 .wt-wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:start}
 .wt-label{font-size:13px;color:var(--muted);margin-bottom:16px}
-.wt h2{font-size:clamp(30px,3.4vw,44px);line-height:1.12;font-weight:600;letter-spacing:-.03em}
+.wt h2{font-size:clamp(30px,3.4vw,44px);line-height:1.12;font-weight:500;letter-spacing:-.03em}
 [dir=rtl] .wt h2{letter-spacing:0;line-height:1.35}
 .wt-intro{margin-top:16px;font-size:16px;line-height:1.65;color:#454B68;max-width:440px}
 
@@ -36,7 +36,7 @@
 .wt-pick-list li.active{background:rgba(10,14,39,.05);color:var(--ink)}
 .wt-pick-list li[aria-selected=true]{color:var(--gold-ink)}
 .wt-pick-list li[aria-selected=true] small{color:var(--gold-ink);opacity:.7}
-.wt-go{height:44px;background:var(--gold);color:#0A0E27;font:inherit;font-size:15px;font-weight:600;border:0;border-radius:10px;padding:0 22px;cursor:pointer;transition:opacity .2s}
+.wt-go{height:44px;background:var(--gold);color:#0A0E27;font:inherit;font-size:15px;font-weight:500;border:0;border-radius:10px;padding:0 22px;cursor:pointer;transition:opacity .2s}
 .wt-go:disabled{opacity:.5;cursor:default}
 .wt-left{font-size:12px;color:var(--faint);margin-inline-start:auto}
 .wt-ex{margin-top:28px}
@@ -74,9 +74,9 @@ html[dir=ltr] .wt-lines .ar{text-align:left} html[dir=rtl] .wt-lines .en{text-al
 .wt-conf .bar{flex:1;height:4px;border-radius:2px;background:var(--line)}
 .wt-conf .bar i{display:block;height:100%;border-radius:2px;background:var(--gold-bar);animation:wt-grow .8s cubic-bezier(.2,.8,.2,1)}
 @keyframes wt-grow{from{width:0}}
-.wt-conf em{font-style:normal;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.wt-conf em{font-style:normal;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
 .wt.check .wt-conf .bar i{background:var(--amber)} .wt.check .wt-conf em{color:var(--amber)}
-.wt-flag{font-size:11px;font-weight:600;color:var(--amber);border:1px solid rgba(185,90,12,.35);border-radius:6px;padding:1px 7px}
+.wt-flag{font-size:11px;font-weight:500;color:var(--amber);border:1px solid rgba(185,90,12,.35);border-radius:6px;padding:1px 7px}
 .wt-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 20px;margin-top:18px;border-top:1px solid var(--line)}
 .wt-f{padding:12px 0 0;animation:wt-in .35s both}
 @keyframes wt-in{from{opacity:0;transform:translateY(4px)}}

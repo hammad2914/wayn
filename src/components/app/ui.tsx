@@ -1,6 +1,7 @@
 import React from 'react';
 import { COUNTRIES } from './shared';
 import { useLanguage } from '../../contexts/LanguageContext';
+import './lang.css';
 
 /** The app's line icons: one stroke style, drawn in the text colour */
 const PATHS = {

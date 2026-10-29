@@ -28,13 +28,10 @@
 .ap-side .grow{flex:1}
 .ap-me{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;text-decoration:none;color:inherit}
 .ap-me:hover,.ap-me.active{background:var(--panel)}
-.ap-av{width:32px;height:32px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line-2);display:grid;place-items:center;font-weight:600;font-size:13px;color:var(--gold);flex:none}
+.ap-av{width:32px;height:32px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line-2);display:grid;place-items:center;font-weight:500;font-size:13px;color:var(--gold);flex:none}
 .ap-me div{min-width:0;line-height:1.3}
 .ap-me b{display:block;font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ap-me span{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.ap-lang{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;align-self:flex-start;flex:none}
-.ap-lang button{border:0;background:none;padding:3px 10px;font-size:12px;color:var(--muted)}
-.ap-lang button.on{background:var(--panel-2);color:var(--ink)}
 .ap-side .ap-lang{margin:-14px 10px 0}
 .ap-main{overflow:auto;min-width:0}
 .ap-main > .wrap{max-width:1280px;margin:0 auto;padding:28px 28px 60px}
@@ -43,9 +40,9 @@
 /* ── page parts ── */
 .ap-page{display:grid;gap:16px}
 .ap-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.ap-title h1{margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em;color:#fff}
+.ap-title h1{margin:0;font-size:24px;font-weight:500;letter-spacing:-.02em;color:#fff}
 .ap-title p{margin:2px 0 0;color:var(--muted);font-size:13px;max-width:640px}
-.ap-btn{height:38px;border-radius:9px;padding:0 16px;border:0;background:var(--gold);color:var(--navy) !important;font-weight:600;font-size:13px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.ap-btn{height:38px;border-radius:9px;padding:0 16px;border:0;background:var(--gold);color:var(--navy) !important;font-weight:500;font-size:13px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
 .ap-btn.ghost{background:none;border:1px solid var(--line-2);color:var(--ink) !important;font-weight:400}
 .ap-btn.ghost:hover:not(:disabled){border-color:rgba(255,255,255,.3)}
 .ap-btn.wide{width:100%;height:44px;font-size:14px}
@@ -83,7 +80,7 @@ select.ap-in{appearance:none;background-image:linear-gradient(45deg,transparent 
 .ap .leaflet-container,.ap-auth .leaflet-container{background:var(--navy) !important;font-family:inherit}
 .ap .leaflet-tile-pane,.ap-auth .leaflet-tile-pane{filter:sepia(.4) hue-rotate(188deg) saturate(1.7) brightness(1.2) contrast(1.1)}
 .ap .leaflet-control-zoom a{background:var(--panel) !important;color:var(--ink) !important;border-color:var(--line-2) !important}
-.ap-st{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font:600 11px 'Readex Pro',system-ui,sans-serif;border:2px solid;background:var(--navy)}
+.ap-st{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font:500 11px 'Readex Pro',system-ui,sans-serif;border:2px solid;background:var(--navy)}
 .ap-dep{width:16px;height:16px;border-radius:4px;background:var(--navy);border:2px solid var(--ink)}
 .ap-pin{width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--gold);border:3px solid var(--navy);box-shadow:0 0 0 5px rgba(245,200,66,.18)}
 
@@ -131,7 +128,7 @@ select.ap-in{appearance:none;background-image:linear-gradient(45deg,transparent 
 .ap-out .h{padding:16px 20px;display:flex;align-items:center;gap:20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .ap-out .h h2{margin-inline-end:auto}
 .ap-tot{display:flex;gap:22px;font-size:13px;color:var(--muted);flex-wrap:wrap}
-.ap-tot b{display:block;font-size:20px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.ap-tot b{display:block;font-size:20px;font-weight:500;color:var(--ink);letter-spacing:-.01em}
 .ap-rmap{height:420px}
 .ap-vans{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));border-top:1px solid var(--line)}
 .ap-van{padding:16px 20px;display:grid;gap:12px;align-content:start;border-inline-end:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 -1px -1px 0}
@@ -169,7 +166,7 @@ select.ap-in{appearance:none;background-image:linear-gradient(45deg,transparent 
 .ap-auth .l{display:flex;flex-direction:column;padding:28px 40px;gap:24px}
 .ap-auth .l header{display:flex;justify-content:space-between;align-items:center}
 .ap-auth form,.ap-auth .box{width:100%;max-width:400px;margin:auto;display:grid;gap:16px}
-.ap-auth h1{margin:0;font-size:28px;font-weight:600;letter-spacing:-.02em;color:#fff}
+.ap-auth h1{margin:0;font-size:28px;font-weight:500;letter-spacing:-.02em;color:#fff}
 .ap-auth .sub{color:var(--muted);margin:-8px 0 0}
 .ap-auth .row{display:flex;justify-content:space-between;align-items:center}
 .ap-auth a{color:var(--gold);text-decoration:none}
@@ -190,7 +187,7 @@ select.ap-in{appearance:none;background-image:linear-gradient(45deg,transparent 
 .ap-strength{display:flex;gap:4px;margin-top:2px}
 .ap-strength i{flex:1;height:3px;border-radius:2px;background:var(--line)}
 .ap-done{display:grid;gap:10px;text-align:center}
-.ap-done b{font-size:18px;font-weight:600;color:#fff}
+.ap-done b{font-size:18px;font-weight:500;color:#fff}
 .ap-done p{color:var(--muted);margin:0}
 
 @media (max-width:1100px){

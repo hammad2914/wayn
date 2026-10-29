@@ -5,6 +5,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import type { TranslationKey } from '../../translations';
 import { useAuth } from '../../hooks/useAuth';
 import { WaynLogo } from '../ui/WaynLogo';
+import { LangSwitch } from '../app/ui';
 import { RUN } from './heroRun';
 import './heroConsole.css';
 
@@ -41,7 +42,7 @@ const PIN = () => icon('<div class="hc-pin"></div>', 22, [11, 26]);
 const DEPOT = () => icon('<div class="hc-depot"></div>', 16);
 
 export const HeroConsole: React.FC = () => {
-  const { t, lang, setLang } = useLanguage();
+  const { t, lang } = useLanguage();
   const { isAuthenticated } = useAuth();
   const root = useRef<HTMLElement>(null);
   const mapEl = useRef<HTMLDivElement>(null);
@@ -255,6 +256,14 @@ export const HeroConsole: React.FC = () => {
   // a language switch restarts the current step so its text is redrawn in the new language
   useEffect(() => { const e = engine.current; if (e) e.go(e.step()); }, [lang]);
 
+  // jump the panel to its Plan step; when the panel sits below the text (phones, narrow windows) bring it into view first
+  const seePlan = () => {
+    const panel = root.current?.querySelector<HTMLElement>('.hc-console');
+    const r = panel?.getBoundingClientRect();
+    if (panel && r && (r.top < 0 || r.bottom > innerHeight)) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    engine.current?.go(1);
+  };
+
   const ar = lang === 'ar';
   const num = (n: string) => (ar ? n.replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[+d]) : n);
 
@@ -271,7 +280,7 @@ export const HeroConsole: React.FC = () => {
           <a href="#try">{t('wt.label')}</a>
         </div>
         <div className="hc-nav-end">
-          <button className="hc-lang" onClick={() => setLang(ar ? 'en' : 'ar')}>{ar ? 'English' : 'العربية'}</button>
+          <LangSwitch />
           {isAuthenticated ? (
             <Link className="hc-btn hc-btn-sm" to="/dashboard">{t('hc.openDash')}</Link>
           ) : (
@@ -289,7 +298,7 @@ export const HeroConsole: React.FC = () => {
         <p className="hc-lead">{t('hc.lead')}</p>
         <div className="hc-cta">
           <Link className="hc-btn" to={isAuthenticated ? '/dashboard' : '/signup'}>{t('hc.start')}</Link>
-          <button className="hc-link" onClick={() => engine.current?.go(1)}>{t('hc.see')}</button>
+          <button className="hc-link" onClick={seePlan}>{t('hc.see')}</button>
         </div>
         <p className="hc-fine">{t('hc.fine')}</p>
       </div>

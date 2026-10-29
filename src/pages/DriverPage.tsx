@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { driverAPI, type DriverRun, type DriverStop } from '../services/dispatch';
 import { useLanguage } from '../contexts/LanguageContext';
-import { LangToggle } from '../components/ui/LangToggle';
+import { LangSwitch } from '../components/app/ui';
 import { WaynLogo } from '../components/ui/WaynLogo';
 import { clock, fill } from '../components/dispatch/shared';
 import '../components/dispatch/dispatch.css';
@@ -42,7 +42,7 @@ export const DriverPage: React.FC = () => {
           <b>{run?.company ?? 'Wayn'}</b>
           {run && <span>{fill(t('dr.van'), { n: run.van, d: run.driver })}</span>}
         </div>
-        <LangToggle variant="minimal" />
+        <LangSwitch />
       </header>
 
       {state === 'loading' && <p className="dr-msg">…</p>}
