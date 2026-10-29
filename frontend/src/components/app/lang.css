@@ -1,0 +1,5 @@
+/* The one language switch, used on every page */
+.ap-lang{display:inline-flex;border:1px solid rgba(255,255,255,.14);border-radius:8px;overflow:hidden;align-self:flex-start;flex:none;font-family:'Readex Pro',system-ui,sans-serif}
+.ap-lang button{border:0;background:none;padding:4px 10px;font:inherit;font-size:12px;line-height:1.4;color:#8C94B4;cursor:pointer}
+.ap-lang button:hover{color:#ECEFF7}
+.ap-lang button.on{background:#141B3F;color:#ECEFF7}

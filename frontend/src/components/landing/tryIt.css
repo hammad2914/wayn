@@ -1,0 +1,97 @@
+/* Try it: one real address through the engine. Scoped under .wt. */
+.wt{
+  --navy:#0A0E27; --sand:#EFE8DA; --panel:#FFFDF8; --line:rgba(10,14,39,.09); --line-2:rgba(10,14,39,.18);
+  --ink:#0A0E27; --muted:#5B6180; --faint:#8A8EA4; --gold:#F5C842; --gold-bar:#E0B63A; --gold-ink:#8A6408; --note:#2E5AC8; --amber:#B95A0C; --red:#B4352A;
+  background:var(--sand);color:var(--ink);font-family:'Readex Pro',system-ui,sans-serif;padding:120px 48px;
+}
+.wt *{box-sizing:border-box;margin:0;padding:0}
+.wt h2{font-family:inherit} /* the site sets Sora on every heading */
+.wt-wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:start}
+.wt-label{font-size:13px;color:var(--muted);margin-bottom:16px}
+.wt h2{font-size:clamp(30px,3.4vw,44px);line-height:1.12;font-weight:500;letter-spacing:-.03em}
+[dir=rtl] .wt h2{letter-spacing:0;line-height:1.35}
+.wt-intro{margin-top:16px;font-size:16px;line-height:1.65;color:#454B68;max-width:440px}
+
+.wt-form{margin-top:32px}
+.wt-input{display:block;width:100%;min-height:104px;resize:vertical;background:var(--panel);color:var(--ink);font:inherit;font-size:16px;line-height:1.6;
+  border:1px solid var(--line-2);border-radius:14px;padding:14px 16px;outline:none;transition:border-color .2s}
+.wt-input:focus{border-color:var(--gold-bar)}
+.wt-input::placeholder{color:var(--faint)}
+.wt-row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+/* country menu */
+.wt-pick{position:relative}
+.wt-pick-btn{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;min-width:168px;background:var(--panel);color:var(--ink);
+  font:inherit;font-size:14px;border:1px solid var(--line-2);border-radius:10px;cursor:pointer;transition:border-color .2s,background .2s}
+.wt-pick-btn:hover{border-color:rgba(10,14,39,.3)}
+.wt-pick-btn:focus-visible,.wt-pick.open .wt-pick-btn{outline:none;border-color:var(--gold-bar)}
+.wt-pick-btn small,.wt-pick-list small{font-size:11px;font-weight:500;color:var(--faint);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.wt-pick-btn small{margin-inline-start:auto}
+.wt-pick-btn svg{color:var(--muted);transition:transform .2s}
+.wt-pick.open .wt-pick-btn svg{transform:rotate(180deg)}
+.wt-pick-list{position:absolute;z-index:20;top:calc(100% + 6px);inset-inline-start:0;min-width:100%;list-style:none;padding:6px;
+  background:var(--panel);border:1px solid var(--line-2);border-radius:12px;box-shadow:0 18px 40px -14px rgba(10,14,39,.3);outline:none;
+  animation:wt-drop .16s ease-out}
+@keyframes wt-drop{from{opacity:0;transform:translateY(-4px)}}
+.wt-pick-list li{display:flex;align-items:center;gap:16px;justify-content:space-between;padding:9px 10px;border-radius:8px;font-size:14px;color:#2A2F4A;cursor:pointer}
+.wt-pick-list li.active{background:rgba(10,14,39,.05);color:var(--ink)}
+.wt-pick-list li[aria-selected=true]{color:var(--gold-ink)}
+.wt-pick-list li[aria-selected=true] small{color:var(--gold-ink);opacity:.7}
+.wt-go{height:44px;background:var(--gold);color:#0A0E27;font:inherit;font-size:15px;font-weight:500;border:0;border-radius:10px;padding:0 22px;cursor:pointer;transition:opacity .2s}
+.wt-go:disabled{opacity:.5;cursor:default}
+.wt-left{font-size:12px;color:var(--faint);margin-inline-start:auto}
+.wt-ex{margin-top:28px}
+.wt-ex p{font-size:12px;color:var(--muted);margin-bottom:10px}
+.wt-ex button{display:block;width:100%;background:none;border:0;border-top:1px solid var(--line);color:#2A2F4A;font:inherit;font-size:14px;
+  padding:11px 0;cursor:pointer;transition:color .15s}
+.wt-ex button:last-child{border-bottom:1px solid var(--line)}
+.wt-ex button:hover:not(:disabled){color:var(--gold-ink)}
+.wt-ex button:disabled{cursor:default}
+/* each example keeps its own direction but lines up with the page */
+html[dir=ltr] .wt-ex button{text-align:left} html[dir=rtl] .wt-ex button{text-align:right}
+
+/* result */
+.wt-out{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 1px 0 rgba(10,14,39,.04),0 16px 40px -20px rgba(10,14,39,.3)}
+.wt-map{height:300px}
+/* the site gives every Leaflet map a beige background with !important */
+.wt-map.leaflet-container{background:var(--navy) !important;border-radius:0;font-family:inherit}
+.wt-map .leaflet-tile-pane{filter:sepia(.4) hue-rotate(188deg) saturate(1.7) brightness(1.2) contrast(1.1)}
+.wt-pin{position:relative;width:22px;height:22px;border-radius:50% 50% 50% 0;background:var(--gold);transform:rotate(-45deg);box-shadow:0 0 0 4px rgba(245,200,66,.25)}
+.wt-pin::after{content:'';position:absolute;inset:7px;border-radius:50%;background:#0A0E27}
+.wt-area{width:100%;height:100%;border-radius:50%;background:rgba(240,165,74,.12);border:1.5px dashed rgba(240,165,74,.7)}
+.wt-body{padding:22px 24px 24px}
+.wt-status{font-size:14px;color:var(--muted);min-height:22px}
+.wt-status.err{color:var(--red)}
+.wt-status a{color:var(--gold-ink);text-decoration:underline;text-underline-offset:3px}
+.wt-dots i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold-ink);margin-inline-start:4px;animation:wt-blink 1s infinite}
+.wt-dots i:nth-child(2){animation-delay:.15s} .wt-dots i:nth-child(3){animation-delay:.3s}
+@keyframes wt-blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+.wt-lines{display:grid;gap:4px}
+.wt-lines .en{font-size:18px;font-weight:500;line-height:1.45}
+.wt-lines .ar{font-size:18px;line-height:1.6;color:#2A2F4A}
+html[dir=ltr] .wt-lines .ar{text-align:left} html[dir=rtl] .wt-lines .en{text-align:right}
+.wt-conf{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:13px;color:var(--muted)}
+.wt-conf .bar{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.wt-conf .bar i{display:block;height:100%;border-radius:2px;background:var(--gold-bar);animation:wt-grow .8s cubic-bezier(.2,.8,.2,1)}
+@keyframes wt-grow{from{width:0}}
+.wt-conf em{font-style:normal;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.wt.check .wt-conf .bar i{background:var(--amber)} .wt.check .wt-conf em{color:var(--amber)}
+.wt-flag{font-size:11px;font-weight:500;color:var(--amber);border:1px solid rgba(185,90,12,.35);border-radius:6px;padding:1px 7px}
+.wt-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 20px;margin-top:18px;border-top:1px solid var(--line)}
+.wt-f{padding:12px 0 0;animation:wt-in .35s both}
+@keyframes wt-in{from{opacity:0;transform:translateY(4px)}}
+.wt-f small{display:block;font-size:11px;color:var(--faint);margin-bottom:3px}
+.wt-f div{font-size:14px;line-height:1.45}
+.wt-f div span{display:block;color:var(--muted);font-size:13px}
+.wt-f.none div{color:var(--faint)}
+.wt-f.wide{grid-column:1/-1}
+.wt-f.note div{color:var(--note)}
+.wt-meta{margin-top:18px;font-size:12px;color:var(--faint)}
+
+@media (prefers-reduced-motion:reduce){ .wt-f,.wt-conf .bar i,.wt-dots i,.wt-pick-list{animation:none} }
+@media (max-width:960px){
+  .wt{padding:80px 16px}
+  .wt-wrap{grid-template-columns:1fr;gap:36px}
+  .wt-map{height:240px}
+  .wt-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

@@ -1,0 +1,66 @@
+/* Cities covered: every dot is a district the engine knows. Scoped under .wc. */
+.wc{
+  --panel:#0E1330; --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14);
+  --ink:#ECEFF7; --muted:#8C94B4; --faint:#5C648A; --gold:#F5C842;
+  background:#0B1030;color:var(--ink);font-family:'Readex Pro',system-ui,sans-serif;padding:120px 48px;
+}
+.wc *{box-sizing:border-box;margin:0;padding:0}
+.wc h2{font-family:inherit} /* the site sets Sora on every heading */
+.wc-wrap{max-width:1180px;margin:0 auto}
+.wc-head{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:64px;align-items:end;margin-bottom:48px}
+.wc-label{font-size:13px;color:var(--muted);margin-bottom:16px}
+.wc h2{font-size:clamp(30px,3.4vw,44px);line-height:1.12;font-weight:500;letter-spacing:-.03em}
+[dir=rtl] .wc h2{letter-spacing:0;line-height:1.35}
+.wc-intro{font-size:16px;line-height:1.65;color:#B4BBD4;max-width:560px}
+
+.wc-body{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:24px;align-items:stretch}
+.wc-list{list-style:none;align-self:start;min-height:200px}
+.wc-country{font-size:11px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;padding:18px 12px 6px}
+[dir=rtl] .wc-country{letter-spacing:0}
+.wc-country:first-child{padding-top:0}
+.wc-city{display:flex;align-items:baseline;gap:10px;width:100%;padding:9px 12px;border:0;border-radius:10px;background:none;color:#C9CEE2;
+  font:inherit;font-size:15px;text-align:start;cursor:pointer;transition:background .15s,color .15s}
+.wc-city:hover{background:rgba(255,255,255,.04);color:var(--ink)}
+.wc-city:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.wc-city[aria-pressed=true]{background:rgba(245,200,66,.1);color:var(--gold)}
+.wc-city small{font-size:13px;color:var(--faint)}
+.wc-city[aria-pressed=true] small{color:rgba(245,200,66,.6)}
+.wc-city b{margin-inline-start:auto;font-weight:500;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.wc-city[aria-pressed=true] b{color:var(--gold)}
+.wc-all{margin-top:14px;padding:0 12px}
+.wc-all button{font:inherit;font-size:13px;color:var(--muted);background:none;border:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.wc-all button:hover{color:var(--ink)}
+
+.wc-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;min-height:540px}
+.wc-map{position:absolute;inset:0}
+/* the site gives every Leaflet map a beige background with !important */
+.wc-map.leaflet-container{background:#0A0E27 !important;border-radius:0;font-family:inherit}
+.wc-map .leaflet-tile-pane{filter:sepia(.4) hue-rotate(188deg) saturate(1.7) brightness(1.2) contrast(1.1)}
+.wc-map .leaflet-bar{border:1px solid var(--line-2);border-radius:10px;overflow:hidden;box-shadow:none}
+.wc-map .leaflet-bar a{background:#131A3D;color:var(--ink);border-bottom-color:var(--line)}
+.wc-map .leaflet-bar a:hover{background:#1A2148}
+.wc-card::after{content:'';position:absolute;z-index:400;inset:auto 0 0 0;height:120px;pointer-events:none;
+  background:linear-gradient(to top,rgba(10,14,39,.85),rgba(10,14,39,0))}
+.wc-total{position:absolute;z-index:500;inset-inline-start:20px;bottom:18px;pointer-events:none}
+.wc-total b{display:block;font-size:34px;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.wc-total span{font-size:13px;color:var(--muted)}
+.wc-src{position:absolute;z-index:500;inset-inline-end:16px;bottom:14px;font-size:11px;color:var(--faint);pointer-events:none}
+.leaflet-tooltip.wc-tip{background:#131A3D;color:#ECEFF7;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:6px 10px;
+  font:13px/1.4 'Readex Pro',sans-serif;box-shadow:0 10px 24px -8px rgba(0,0,0,.6)}
+.leaflet-tooltip.wc-tip::before{display:none}
+.wc-tip span{display:block;color:#8C94B4}
+
+.wc-note{margin-top:20px;font-size:14px;line-height:1.6;color:var(--muted);max-width:760px}
+.wc-note b{color:var(--ink);font-weight:500}
+
+@media (max-width:960px){
+  .wc{padding:80px 16px}
+  .wc-head,.wc-body{grid-template-columns:1fr;gap:24px}
+  .wc-head{margin-bottom:32px}
+  .wc-card{min-height:380px;order:-1}
+  .wc-list{display:grid;grid-template-columns:1fr 1fr;column-gap:8px}
+  .wc-country{grid-column:1/-1}
+}
+@media (max-width:560px){
+  .wc-city small{display:none} /* two columns leave no room for the second name */
+}

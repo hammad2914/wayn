@@ -1,0 +1,40 @@
+/* Questions, on sand. Scoped under .wq. */
+.wq{
+  --ink:#0A0E27; --muted:#5B6180; --line:rgba(10,14,39,.1); --gold:#F5C842; --gold-ink:#8A6408;
+  background:#F4EEE3;color:var(--ink);font-family:'Readex Pro',system-ui,sans-serif;padding:120px 48px;
+}
+.wq *{box-sizing:border-box;margin:0;padding:0}
+.wq h2{font-family:inherit} /* the site sets Sora on every heading */
+.wq-wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:64px;align-items:start}
+.wq-side{position:sticky;top:40px}
+.wq-label{font-size:13px;color:var(--muted);margin-bottom:16px}
+.wq h2{font-size:clamp(30px,3.4vw,44px);line-height:1.12;font-weight:500;letter-spacing:-.03em}
+[dir=rtl] .wq h2{letter-spacing:0;line-height:1.4}
+.wq-side p:last-child{margin-top:16px;font-size:16px;line-height:1.65;color:#454B68;max-width:340px}
+
+.wq-list{list-style:none;border-top:1px solid var(--line)}
+.wq-list li{border-bottom:1px solid var(--line)}
+.wq-q{display:flex;width:100%;align-items:center;gap:20px;background:none;border:0;font:inherit;color:inherit;cursor:pointer;
+  padding:22px 0;font-size:18px;font-weight:500;text-align:start}
+.wq-q:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:4px}
+.wq-q span{flex:1}
+.wq-q i{position:relative;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;transition:background .25s,border-color .25s}
+.wq-q i::before,.wq-q i::after{content:'';position:absolute;left:50%;top:50%;width:10px;height:1.5px;background:var(--ink);transform:translate(-50%,-50%);transition:transform .25s}
+.wq-q i::after{transform:translate(-50%,-50%) rotate(90deg)}
+.wq-q:hover i{border-color:rgba(10,14,39,.3)}
+.wq li.open .wq-q i{background:var(--gold);border-color:var(--gold)}
+.wq li.open .wq-q i::after{transform:translate(-50%,-50%) rotate(0)}
+/* answers slide open by animating the row height from 0fr to 1fr */
+.wq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}
+.wq li.open .wq-a{grid-template-rows:1fr}
+.wq-a > div{overflow:hidden}
+.wq-a p{padding-bottom:24px;padding-inline-end:48px;font-size:15px;line-height:1.7;color:#454B68;max-width:640px}
+
+@media (prefers-reduced-motion: reduce){ .wq-a,.wq-q i,.wq-q i::after{transition:none} }
+@media (max-width:960px){
+  .wq{padding:80px 16px}
+  .wq-wrap{grid-template-columns:1fr;gap:32px}
+  .wq-side{position:static}
+  .wq-q{font-size:16px;padding:18px 0}
+  .wq-a p{padding-inline-end:0}
+}
