@@ -12,10 +12,9 @@ import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { DashboardLayout } from './pages/dashboard/DashboardLayout';
 import { DashboardHomePage } from './pages/dashboard/DashboardHomePage';
-import { AddressNormalizerPage } from './pages/dashboard/AddressNormalizerPage';
-import { RouteOptimizerPage } from './pages/dashboard/RouteOptimizerPage';
-import { ProfilePage } from './pages/dashboard/ProfilePage';
-import { SettingsPage } from './pages/dashboard/SettingsPage';
+import { AddressesPage } from './pages/dashboard/AddressesPage';
+import { RoutesPage } from './pages/dashboard/RoutesPage';
+import { AccountPage } from './pages/dashboard/AccountPage';
 import { DriverPage } from './pages/DriverPage';
 
 const ScrollToTop: React.FC = () => {
@@ -53,10 +52,14 @@ const App: React.FC = () => {
                 }
               >
                 <Route index                     element={<DashboardHomePage />} />
-                <Route path="address-normalizer" element={<AddressNormalizerPage />} />
-                <Route path="route-optimizer"    element={<RouteOptimizerPage />} />
-                <Route path="profile"            element={<ProfilePage />} />
-                <Route path="settings"           element={<SettingsPage />} />
+                <Route path="addresses"          element={<AddressesPage />} />
+                <Route path="routes"             element={<RoutesPage />} />
+                <Route path="account"            element={<AccountPage />} />
+                {/* old addresses, kept so saved links still land */}
+                <Route path="address-normalizer" element={<Navigate to="/dashboard/addresses" replace />} />
+                <Route path="route-optimizer"    element={<Navigate to="/dashboard/routes" replace />} />
+                <Route path="profile"            element={<Navigate to="/dashboard/account" replace />} />
+                <Route path="settings"           element={<Navigate to="/dashboard/account" replace />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -43,7 +43,7 @@ export const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
             <>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/address-normalizer')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/addresses')}>
                 Dashboard
               </Button>
               <Button variant="secondary" size="sm" onClick={handleLogout}>
@@ -82,7 +82,7 @@ export const Navbar: React.FC = () => {
               <Button
                 variant="secondary"
                 fullWidth
-                onClick={() => { navigate('/dashboard/address-normalizer'); setMobileOpen(false); }}
+                onClick={() => { navigate('/dashboard/addresses'); setMobileOpen(false); }}
               >
                 Dashboard
               </Button>
